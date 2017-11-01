@@ -1,0 +1,103 @@
+#map{
+    background-image: url(../images/background.png);
+
+    /*background-color: transparent;*/
+    /*background-size:100% 100%;*/
+    width:100%;
+    position:absolute;
+    top:0;
+    bottom:0;
+}
+#legend{
+    position:absolute;
+    bottom: 3%;
+    left:70%;
+}
+.ui.left.sidebar{
+    top:auto !important;
+    bottom:0;
+    height:auto !important;
+    max-height:85%;
+    text-align:center;
+}
+.map-tools{
+    z-index:100;
+    position:absolute;
+    bottom:2.5%;
+    right:5%;
+}
+.map-tools .vertical.buttons .button{
+    border: 1px grey solid;
+    background-color: #ffffff;
+}
+.map-tools .vertical.buttons .button:first-child{
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;;
+}
+.map-tools .vertical.buttons .button:last-child{
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;;
+}
+.ui.segments.timelinewidget{
+    position: absolute;
+    bottom: 1%;
+    width: 600px;
+    left:50%;
+    margin-left:-300px;
+    background-color: rgba(255,255,255,1);
+    padding: 0;
+    text-align: center;
+    height: 50px;
+    color:red;
+}
+.ui.segments.timelinewidget .ui.segment:first-child{
+    width:9%;
+    padding:0.3em;
+    overflow-x: visible;
+}
+.ui.segments.timelinewidget .ui.segment:last-child{
+    width:91%;
+    padding:0.3em 1em;
+}
+#timelinectrl{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+}
+#timelinectrl i.play.icon{
+    margin:0;
+}
+.ui.segments.timelinewidget .ui.segment:last-child .irs-grid-pol.small{
+    display:none;
+}
+.ui.segments.timelinewidget .ui.segment:last-child span.irs.js-irs-0.irs-with-grid{
+    bottom:50%;
+}
+
+#baseLayers{
+    position:absolute;
+    bottom:1%;
+    right:5%;
+    margin-right:100px;
+    text-align: left;
+    width:150px;
+    visibility: hidden;
+    max-height: 260px;
+    max-width:260px;
+    overflow-y: scroll;
+}
+#baseLayers a{
+    border-radius:0;
+    border:1px solid;
+    margin:0;
+}
+.ui.dimmer{
+    background-color:rgba(0,0,0,0.5);
+}
+#searchModal{
+    width:730px;
+    margin-left:-365px;
+}

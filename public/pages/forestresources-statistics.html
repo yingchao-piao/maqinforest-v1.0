@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>玛沁县</title>
+    <link rel="stylesheet" href="../assets/ol/css/ol.css">
+    <link rel="stylesheet" href="../assets/Semantic-UI-CSS-master/semantic.css">
+    <!--<link rel="stylesheet" href="assets/DataTables-1.10.13/media/css/jquery.dataTables.css">-->
+    <link rel="stylesheet" href="../assets/DataTables-1.10.13/media/css/dataTables.semanticui.css">
+    <link rel="stylesheet" href="../stylesheets/common.css">
+    <link rel="stylesheet" href="../stylesheets/forestresources-statistics.css">
+    <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.css">
+    <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.skinModern.css">
+    <!--<link rel="stylesheet" href="../stylesheets/Maqin-geo.css">-->
+    <script src="../assets/jquery.js"></script>
+    <script src="../assets/Semantic-UI-CSS-master/semantic.js"></script>
+    <script src="../assets/ol/build/ol-debug.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/jquery.dataTables.min.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/dataTables.semanticui.js"></script>
+    <script src="../assets/ion.rangeSlider-2.1.7/js/ion-rangeSlider/ion.rangeSlider.js"></script>
+    <script src="../assets/echarts.js"></script>
+    <script src="../assets/echarts-all-3.js"></script>
+</head>
+<body>
+<div class="pusher">
+    <div id="logo">
+        <img class="ui circular image" src="../images/logo_base.png">
+    </div>
+    <div class="ui basic fluid container navbar">
+        <div class="ui segments">
+            <div class="ui segment">
+                <div class="ui fluid secondary pointing menu six item">
+                    <div class="blue item active">
+                        森林资源
+                    </div>
+                    <div class="red item active">
+                        林地变更
+                    </div>
+                    <div class="green item active">
+                        林地管护
+                    </div>
+                </div>
+            </div>
+            <div class="ui segment mainnavbar">
+                <div class="ui secondary pointing menu twelve item ">
+                    <a class="blue item" href="http://localhost:3000/forestresources/map">
+                        地图
+                    </a>
+                    <a class="blue item active" href="http://localhost:3000/forestresources/statistics">
+                        资源统计
+                    </a>
+                    <a class="red item" href="http://localhost:3000/forestchange/map">
+                        地图
+                    </a>
+                    <a class="red item" href="http://localhost:3000/forestchange/statistics">
+                        变更统计
+                    </a>
+                    <a class="green item" href="http://localhost:3000/forestprotect/hulinyuan">
+                        护林员
+                    </a>
+                    <a class="green item" href="http://localhost:3000/forestprotect/video">
+                        视频监控
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui link six cards">
+        <div class="blue card">
+            <div class="content">
+                <div class="header">玛沁县</div>
+            </div>
+            <div class="image">
+                <img src="../images/maqin.png" >
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/xiadawu.png">
+            </div>
+            <div class="content">
+                <div class="header">下达武乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/changmahe.png">
+            </div>
+            <div class="content">
+                <div class="header">昌马河乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/youyun.png">
+            </div>
+            <div class="content">
+                <div class="header">优云乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/dangluo.png">
+            </div>
+            <div class="content">
+                <div class="header">当洛乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/xueshan.png">
+            </div>
+            <div class="content">
+                <div class="header">雪山乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/dongqinggou.png">
+            </div>
+            <div class="content">
+                <div class="header">东倾沟乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/dawuxiang.png">
+            </div>
+            <div class="content">
+                <div class="header">大武乡</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/lajia.png">
+            </div>
+            <div class="content">
+                <div class="header">拉加镇</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/dawuzhen.png">
+            </div>
+            <div class="content">
+                <div class="header">大武镇</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/qiemuqu.png">
+            </div>
+            <div class="content">
+                <div class="header">切木曲林场</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/yangyu.png">
+            </div>
+            <div class="content">
+                <div class="header">洋玉林场</div>
+            </div>
+        </div>
+        <div class="blue card">
+            <div class="image">
+                <img src="../images/dekehe.png">
+            </div>
+            <div class="content">
+                <div class="header">德科河林场</div>
+            </div>
+        </div>
+    </div>
+    <div id="statisticresult">
+        <div class="ui fluid container">
+            <div class="ui stackable centered grid" id="tongji">
+                <div class="three wide center aligned column">
+                    <h2 class="header" style="position:absolute">玛沁县</h2>
+                    <img src="../images/maqin.png" class="ui centered medium image">
+                </div>
+                <div class="two wide column">
+                    <div class="ui inverted relaxed divided list">
+                        <div class="item">
+                            <div class="content">
+                                <h2 class="header">森林覆盖面积</h2>
+                                <div class="description">
+                                    <h1>2204</h1>MHa</div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="content">
+                                <h2 class="header">森林覆盖率</h2>
+                                <div class="description">
+                                    <h1>55.5</h1>%</div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="content">
+                                <h2 class="header">活立木蓄积量</h2>
+                                <div class="description">
+                                    <h1>1000</h1>平方米</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="three wide column" id="barEchart">
+                    <div class="ui inverted relaxed divided list">
+                        <div class="item">
+                            <div id="fugaimianji"></div>
+                        </div>
+                        <div class="item">
+                            <h2 class="header">森林覆盖面积增加</h2>
+                            <div class="description">
+                                <h1>12222222</h1>Ha
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui attached stackable pointing secondary teal menu" id="statisticnavbar">
+                <div class="ui fluid container">
+                    <a class="item active" href="#tudimianji">
+                        各类土地面积
+                    </a>
+                    <a class="item" href="#senlinlinmu">
+                        各类森林、林木面积蓄积
+                    </a>
+                    <a class="item" href="#linzhong">
+                        林种
+                    </a>
+                    <a class="ui item" href="#qiaomulinmianji">
+                        乔木林面积蓄积按龄组
+                    </a>
+                    <a class="ui item" href="#shengtaigongyilin">
+                        生态公益林
+                    </a>
+                    <a class="ui item" href="#guanmulin">
+                        灌木林
+                    </a>
+                    <a class="ui item" href="#lindijiegouxianzhuang">
+                        林地结构现状
+                    </a>
+                    <a class="ui item" href="#guojiajigongyilin">
+                        国家级公益林地分保护等级
+                    </a>
+                    <a class="ui item" href="#lindizhiliang">
+                        林地质量等级
+                    </a>
+                    <a class="ui item" href="#lindibaohudengji">
+                        林地保护等级面积
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui two column doubling stackable centered grid container" id="tudimianji">
+            <div class="column">
+               <div id="tudimianjiecharts" style="width:550px;height:400px;"></div>
+            </div>
+            <!--<div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>-->
+        </div>
+        <div class="ui two column doubling stackable centered grid container" id="senlinlinmu">
+            <div class="column">
+                <div id="senlinlinmumianji" style="width:550px;height: 400px;"></div>
+            </div>
+            <div class="column">
+                <div id="senlinlinmuxuji" style="width:550px;height: 400px;"></div>
+            </div>
+        </div>
+        <div class="ui two column doubling stackable centered grid container" id="linzhong">
+            <div class="column">
+                <div id="linzhongmianji" style="width:550px;height: 400px;"></div>
+            </div>
+            <div class="column">
+                <div id="linzhongxuji" style="width:550px;height: 400px;"></div>
+            </div>
+        </div>
+        <div class="ui stackable centered grid" id="qiaomulinmianji">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="shengtaigongyilin">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="guanmulin">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="lindijiegouxianzhuang">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="guojiajigongyilin">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="lindizhiliang">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+        <div class="ui stackable centered grid" id="lindibaohudengji">
+            <div class="three wide center aligned column">
+                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
+                <img src="../images/maqin.png" class="ui centered medium image">
+            </div>
+            <div class="three wide column">fd</div>
+            <div class="three wide column">fdfa</div>
+        </div>
+
+    </div>
+
+</div>
+<script src="../javascripts/common/common.js"></script>
+<script src="../javascripts/forestresources/statistics/init.js"></script>
+</body>
+</html>

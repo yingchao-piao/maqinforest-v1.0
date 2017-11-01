@@ -1,0 +1,45 @@
+
+.ui.link.six.cards{
+    margin:0 auto;
+    width:100%;
+    position:absolute;
+}
+
+#statisticresult{
+    display:none;
+}
+#tongji{
+    margin:0 auto;
+    width:100%;
+    /*max-width:1600px;*/
+    background: #333333;
+    color:white;
+}
+
+#statisticresult .ui.attached.stackable.menu .ui.container{
+    width:auto;
+}
+#statisticnavbar{
+    bottom:auto;
+    position:relative;
+    background:white;
+    z-index:102;
+}
+/*.column{
+    border:1px solid;
+}*/
+#statisticresult .header{
+    font-family: 'STFangsong';
+}
+#tongji h2{
+    margin:0;
+}
+#tongji h1{
+    display:inline;
+}
+#tongji .content{
+    color:white;
+}
+#tongji .description{
+    color:#97bd3d;
+}

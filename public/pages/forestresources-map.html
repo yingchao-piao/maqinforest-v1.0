@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>玛沁县</title>
+    <link rel="stylesheet" href="../assets/ol/css/ol.css">
+    <link rel="stylesheet" href="../assets/Semantic-UI-CSS-master/semantic.css">
+    <!--<link rel="stylesheet" href="assets/DataTables-1.10.13/media/css/jquery.dataTables.css">-->
+    <link rel="stylesheet" href="../assets/DataTables-1.10.13/media/css/dataTables.semanticui.css">
+    <link rel="stylesheet" href="../stylesheets/common.css">
+    <link rel="stylesheet" href="../stylesheets/forestresources-map.css">
+    <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.css">
+    <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.skinModern.css">
+    <!--<link rel="stylesheet" href="../stylesheets/Maqin-geo.css">-->
+    <script src="../assets/jquery.js"></script>
+    <script src="../assets/Semantic-UI-CSS-master/semantic.js"></script>
+    <script src="../assets/ol/build/ol-debug.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/jquery.dataTables.min.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/dataTables.semanticui.js"></script>
+    <script src="../assets/ion.rangeSlider-2.1.7/js/ion-rangeSlider/ion.rangeSlider.js"></script>
+</head>
+<body>
+<div class="ui left very wide sidebar xbmInfo">
+    <div class="item">
+        <div class="two ui buttons">
+            <button class="ui button" id="xbmHeader" style="width:90%">xbminfo</button>
+            <button class="ui icon button xbminfoclose" style="width: 10%;">
+                <i class="remove large icon"></i>
+            </button>
+        </div>
+    </div>
+    <div class="item">
+        <table id="xbminfo" class="ui teal selected celled table" cellspacing="0" width="100%"></table>
+    </div>
+</div>
+<div class="ui modal" id="searchModal">
+    <i class="close icon"></i>
+    <div class="image content">
+        <div class="ui form">
+            <div class="fluid fields">
+                <div class="field">
+                    <label>乡镇场</label>
+                    <div class="ui search selection dropdown xzc" tabindex="0">
+                        <input type="hidden" name="xzc">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+                            <div class="item" data-value="xiadawu">下达武乡</div>
+                            <div class="item" data-value="changmahe">昌马河乡</div>
+                            <div class="item" data-value="youyun">优云乡</div>
+                            <div class="item" data-value="dangluo">当洛乡</div>
+                            <div class="item" data-value="xueshan">雪山乡</div>
+                            <div class="item" data-value="dawu">大武乡</div>
+                            <div class="item" data-value="dongqinggou">东倾沟乡</div>
+                            <div class="item" data-value="dawuzhen">大武镇</div>
+                            <div class="item" data-value="qiemuqu">切木曲林场</div>
+                            <div class="item" data-value="yangyu">洋玉林场</div>
+                            <div class="item" data-value="dekehe">德科河林场</div>
+                            <div class="item" data-value="lajia">拉加镇</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>林班号</label>
+                    <div class="ui search selection dropdown linbanid">
+                        <input type="hidden" name="linbanid">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>小班号</label>
+                    <div class="ui search selection dropdown xiaobanid">
+                        <input type="hidden" name="xiaobanid">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label style="visibility: hidden">点击搜索</label>
+                    <div class="ui animated button" tabindex="0" id="searchBtn">
+                        <div class="hidden content">点击搜索</div>
+                        <div class="visible content">
+                            <i class="search icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="ui modal" id="alertMessage">
+    <div class="image content">
+        <div class="ui floating negative fluid message">
+            <div class="header">
+                搜索条件有误，请确认！
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui green ok inverted button">
+            <i class="checkmark icon"></i>
+            恩
+        </div>
+    </div>
+</div>
+<div class="pusher">
+    <div id="logo">
+        <img class="ui circular image" src="../images/logo_base.png">
+    </div>
+    <div class="ui basic fluid container navbar">
+        <div class="ui segments">
+            <div class="ui segment">
+                <div class="ui fluid secondary pointing menu six item">
+                    <div class="blue item active">
+                        森林资源
+                    </div>
+                    <div class="red item active">
+                        林地变更
+                    </div>
+                    <div class="green item active">
+                        林地管护
+                    </div>
+                </div>
+            </div>
+            <div class="ui segment mainnavbar">
+                <div class="ui secondary pointing menu twelve item ">
+                    <a class="blue item active" href="http://localhost:3000/forestresources/map">
+                        地图
+                    </a>
+                    <a class="blue item" href="http://localhost:3000/forestresources/statistics">
+                        资源统计
+                    </a>
+                    <a class="red item" href="http://localhost:3000/forestchange/map">
+                        地图
+                    </a>
+                    <a class="red item" href="http://localhost:3000/forestchange/statistics">
+                        变更统计
+                    </a>
+                    <a class="green item" href="http://localhost:3000/forestprotect/hulinyuan">
+                        护林员
+                    </a>
+                    <a class="green item" href="http://localhost:3000/forestprotect/video">
+                        视频监控
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="map" id="map">
+        <img class="ui small bordered image" id="legend" src="../images/dilei_legend.png">
+    </div>
+    <div class="map-tools">
+        <div class="ui buttons">
+            <div class="ui vertical icon buttons">
+                <button class="ui fluid button" id="layerUp"><i class="arrow up large icon"></i></button>
+                <button class="ui button" id="zoomIn"><i class="plus large icon"></i> </button>
+                <button class="ui button" id="choosebaseLayer"><i class="map outline large icon"></i></button>
+            </div>
+            <div class="ui vertical icon buttons">
+                <button class="ui button" id="homePage"><i class="home large icon"></i></button>
+                <button class="ui button" id="zoomOut"><i class="minus large icon"></i> </button>
+                <button class="ui button" id="search"><i class="search large icon"></i> </button>
+            </div>
+        </div>
+    </div>
+    <div class="ui relaxed divided list" id="baseLayers">
+        <a class="ui fluid large white label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+        <a class="ui fluid large label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+        <a class="ui fluid large label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+        <a class="ui fluid large label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+        <a class="ui fluid large label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+        <a class="ui fluid large label">
+            <img class="ui right spaced avatar image" src="../images/basemap-example.png">
+            地类林相
+        </a>
+    </div>
+    <div class="ui horizontal segments timelinewidget">
+        <div class="ui segment">
+            <button class="ui basic green button" id="timelinectrl">
+                <i class="play large icon"></i>
+            </button>
+        </div>
+        <div class="ui segment">
+            <input type="text" id="timeline" name="timeline" value="">
+        </div>
+    </div>
+</div>
+<script src="../javascripts/common/common.js"></script>
+<script src="../javascripts/forestresources/map/ui-init.js"></script>
+<script src="../javascripts/forestresources/map/layerCtrl.js"></script>
+<script src="../javascripts/forestresources/map/timeline.js"></script>
+<script src="../javascripts/forestresources/map/maptools.js"></script>
+</body>
+</html>
