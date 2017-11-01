@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>玛沁县</title>
+    <link rel="stylesheet" href="../assets/ol/css/ol.css">
+    <link rel="stylesheet" href="../assets/Semantic-UI-CSS-master/semantic.css">
+    <link rel="stylesheet" href="../assets/DataTables-1.10.13/media/css/dataTables.semanticui.css">
+    <link rel="stylesheet" href="../stylesheets/forestprotect-hulinyuan.css">
+    <script src="../assets/proj4js-2.4.3/dist/proj4-src.js"></script>
+    <script src="../assets/jquery.js"></script>
+    <script src="../assets/Semantic-UI-CSS-master/semantic.js"></script>
+    <script src="../assets/ol/build/ol-debug.js"></script>
+    <script src="../assets/turf.min.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/jquery.dataTables.min.js"></script>
+    <script src="../assets/DataTables-1.10.13/media/js/dataTables.semanticui.js"></script>
+    <!--<script src="../assets/xlsx.full.min.js"></script>-->
+</head>
+<body>
+<div class="ui left very wide sidebar hly">
+    <div class="ui segment" style="padding:0">
+        <div class="ui accordion">
+            <div class="title">
+                <h3 class="ui header">玛沁县护林员信息</h3>
+            </div>
+            <div class="content">
+                <table id="hly" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui right very wide sidebar hlyInfo">
+    <div class="ui segment" id="xiangxi" style="padding:0;background-color: transparent">
+        <div class="ui styled fluid accordion">
+            <div class="title">
+                <i class="dropdown icon"></i>
+                护林员个人信息
+            </div>
+            <div class="content" style="padding:0;">
+                <div>
+                    <table id="hly_personal" class="ui selectable grey celled table" cellspacing="0" width="100%">
+                    </table>
+                </div>
+
+            </div>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                护林员管护信息
+            </div>
+            <div class="content" style="padding:0;">
+                <div>
+                    <table id="hly_protect" class="ui selectable grey celled table" cellspacing="0" width="100%">
+
+                    </table>
+                </div>
+
+            </div>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                小班详细信息
+            </div>
+            <div class="content" style="padding:0;">
+                <div>
+                    <table id="hly_xiaoban" class="ui selectable grey celled table" cellspacing="0" width="100%">
+
+                    </table>
+                </div>
+
+            </div>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                巡护轨迹
+            </div>
+            <div class="content" style="padding:0;">
+                <table id="hly_xunhupath" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui modal" id="searchModal">
+    <i class="close icon"></i>
+    <div class="image content">
+        <div class="ui form">
+            <div class="fluid fields">
+                <div class="field">
+                    <label>乡镇场</label>
+                    <div class="ui search selection dropdown xzc" tabindex="0">
+                        <input type="hidden" name="xzc">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+                            <div class="item" data-value="xiadawu">下达武乡</div>
+                            <div class="item" data-value="changmahe">昌马河乡</div>
+                            <div class="item" data-value="youyun">优云乡</div>
+                            <div class="item" data-value="dangluo">当洛乡</div>
+                            <div class="item" data-value="xueshan">雪山乡</div>
+                            <div class="item" data-value="dawu">大武乡</div>
+                            <div class="item" data-value="dongqinggou">东倾沟乡</div>
+                            <div class="item" data-value="dawuzhen">大武镇</div>
+                            <div class="item" data-value="qiemuqu">切木曲林场</div>
+                            <div class="item" data-value="yangyu">洋玉林场</div>
+                            <div class="item" data-value="dekehe">德科河林场</div>
+                            <div class="item" data-value="lajia">拉加镇</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>林班号</label>
+                    <div class="ui search selection dropdown linbanid">
+                        <input type="hidden" name="linbanid">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>小班号</label>
+                    <div class="ui search selection dropdown xiaobanid">
+                        <input type="hidden" name="xiaobanid">
+                        <i class="dropdown icon"></i>
+                        <div class="default text"></div>
+                        <div class="menu">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label style="visibility: hidden">点击搜索</label>
+                    <div class="ui animated button" tabindex="0" id="searchBtn">
+                        <div class="hidden content">点击搜索</div>
+                        <div class="visible content">
+                            <i class="search icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui modal" id="alertMessage">
+    <div class="image content">
+        <div class="ui floating negative fluid message">
+            <div class="header">
+                搜索条件有误，请确认！
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui green ok inverted button">
+            <i class="checkmark icon"></i>
+            恩
+        </div>
+    </div>
+</div>
+<div class="ui basic modal" id="tongbuloading">
+    <div class="ui active dimmer">
+        <div class="ui massive text loader">请耐心等待</div>
+    </div>
+</div>
+<div class="ui mini modal" id = "errorMessage">
+    <i class="close icon"></i>
+    <div class="header">
+        存在错误，请核实
+    </div>
+    <div class="content">
+        <div class="description">
+
+        </div>
+    </div>
+</div>
+<div class="ui very wide left sidebar" id="modifyLeftSidebar">
+    <div class="ui segment" style="padding:0;text-align:left">
+        <h3 class="ui divided header">修改护林员信息</h3>
+        <div>
+            <table id="modify_hly" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+        </div>
+        <!--<div class="ui accordion">
+            <div class="title">
+                <h3 class="ui header">玛沁县护林员信息</h3>
+            </div>
+            <div class="content">
+                <table id="modify_hly" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+            </div>
+        </div>-->
+    </div>
+</div>
+<div class="ui very wide right sidebar" id="modifyRightSidebar">
+    <div class="ui segment" style="padding:1em;text-align:left">
+        <div class="ui form">
+            <h3 class="ui divided header">修改护林员信息编辑</h3>
+            <h4 class="ui divided teal header" style="margin:0 0 0.5em 0;">请修改护林员个人信息</h4>
+            <form class="ui form error" id="modifyhlyinfoform">
+                <div class="field">
+                    <label>管护编号</label>
+                    <input type="text" id="modify_gh_id" disabled="">
+                </div>
+                <div class="field">
+                    <label>姓名  </label>
+                    <input type="text" id="modify_xingming" disabled="">
+                </div>
+                <div class="field">
+                    <label>身份证 </label>
+                    <input type="text" id="modify_shenfen_id" disabled="">
+                </div>
+                <div class="field">
+                    <label>合同号 </label>
+                    <input type="text" id="modify_hetong_id" >
+                </div>
+                <div class="field">
+                    <label>村    </label>
+                    <input type="text" id="modify_cun_hly" disabled="">
+                </div>
+                <div class="field">
+                    <label>到岗时间</label>
+                    <input type="text" id="modify_daogang_sj" >
+                </div>
+                <div class="field">
+                    <label>离岗时间</label>
+                    <input type="text"id="modify_ligang_sj" >
+                </div>
+                <div class="field">
+                    <label>备注  </label>
+                    <input type="text" id="modify_beizhu" >
+                </div>
+            </form>
+            <h4 class="ui divided teal header" style="margin:0.5em 0 0 0;">请修改管辖小班或细小班</h4>
+            <div class="ui segment" id="modify_hlyxiaoban">
+                <!--<div class="ui label transition visible" style="display: inline-block !important;margin:0.1em;">
+                    L0001X0001xxb2
+                    <i class="delete icon"></i>
+                </div>-->
+            </div>
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui primary button" id="modifytongbu">
+                    同步
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui very wide left sidebar" id="deleteLeftSidebar">
+    <div class="ui segment" style="padding:0;text-align:left">
+        <h3 class="ui divided header">删除护林员信息</h3>
+        <div>
+            <table id="delete_hly" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+        </div>
+        <!--<div class="ui accordion">
+            <div class="title">
+                <h3 class="ui header">玛沁县护林员信息</h3>
+            </div>
+            <div class="content">
+                <table id="delete_hly" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+            </div>
+        </div>-->
+    </div>
+</div>
+<div class="ui very wide right sidebar" id="deleteRightSidebar">
+    <div class="ui segment" style="padding:1em;text-align:left">
+        <h3 class="ui divided header">待删除护林员详细信息</h3>
+        <h4 class="ui divided teal header" style="margin:0 0 0.5em 0;">待删除护林员个人详细信息</h4>
+        <div>
+            <table id="delete_hlydetail" class="ui selectable grey celled table" cellspacing="0" width="100%"></table>
+        </div>
+        <h4 class="ui divided teal header" style="margin:0.5em 0 0 0;">待删除护林员管辖小班或细小班</h4>
+        <div class="ui segment" id="delete_hlyxiaoban">
+            <!--<div class="ui label transition visible" style="display: inline-block !important;margin:0.1em;">
+                L0001X0001xxb2
+                <i class="delete icon"></i>
+            </div>-->
+        </div>
+        <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+            <button class="ui primary button" id="deletetongbu">
+                删除
+            </button>
+        </div>
+    </div>
+</div>
+<div class="ui very wide left sidebar" id="newSidebar">
+    <div class="ui segment" style="padding:1em;text-align:left">
+        <div class="ui form">
+            <h3 class="ui divided header">新增护林员信息编辑</h3>
+            <h4 class="ui divided teal header" style="margin:0 0 0.5em 0;">请填写护林员个人信息</h4>
+            <form class="ui form error" id="addhlyinfoform">
+                <div class="field">
+                    <label>管护编号</label>
+                    <input type="text" id="gh_id">
+                </div>
+                <div class="field">
+                    <label>姓名  </label>
+                    <input type="text" id="xingming">
+                </div>
+                <div class="field">
+                    <label>身份证 </label>
+                    <input type="text" id="shenfen_id">
+                </div>
+                <div class="field">
+                    <label>合同号 </label>
+                    <input type="text" id="hetong_id">
+                </div>
+                <div class="field">
+                    <label>村    </label>
+                    <input type="text" id="cun_hly">
+                </div>
+                <div class="field">
+                    <label>到岗时间</label>
+                    <input type="text" id="daogang_sj">
+                </div>
+                <div class="field">
+                    <label>离岗时间</label>
+                    <input type="text"id="ligang_sj">
+                </div>
+                <div class="field">
+                    <label>备注  </label>
+                    <input type="text" id="beizhu">
+                </div>
+            </form>
+            <h4 class="ui divided teal header" style="margin:0.5em 0 0 0;">请选取管辖小班或细小班</h4>
+            <div class="ui segment" id="addxiaoban">
+                <!--<div class="ui label transition visible" style="display: inline-block !important;margin:0.1em;">
+                    L0001X0001xxb2
+                    <i class="delete icon"></i>
+                </div>-->
+            </div>
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui primary button" id="addtongbu">
+                    同步
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui very wide left sidebar" id="unionSidebar">
+    <div class="ui segment" style="padding:1em;text-align:left">
+        <div class="ui form">
+            <h3 class="ui divided header">细小班合并工具</h3>
+            <div class="field" id="unionxxb1">
+                <label>请选取需要合并的细小班:</label>
+                <textarea rows="1"></textarea>
+            </div>
+            <div class="field" id="unionxxb2">
+                <label>请选取需要合并的细小班:</label>
+                <textarea rows="1"></textarea>
+            </div>
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui grey button" tabindex="0" id="unionclearall">
+                    清空
+                </button>
+                <button class="ui green button" id="executeunion">
+                    执行
+                </button>
+            </div>
+            <div id="unioneditAttrForm">
+                <h4 class="ui divided header">请编辑合并结果属性</h4>
+                <form class="ui form error" id="union_form">
+
+                </form>
+            </div>
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui primary button" id="uniontongbu">
+                    同步
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ui very wide left sidebar" id="splitSidebar">
+    <div class="ui segment" style="padding:1em;text-align:left">
+        <div class="ui form">
+            <h3 class="ui divided header">小班切分工具</h3>
+            <div class="field" id="xiaoban">
+                <label>请选取需要切分的小班:</label>
+                <textarea rows="1"></textarea>
+            </div>
+            <div class="ui compact buttons" style="margin-bottom: 4px;">
+                <button class="ui green basic button" id="drawline">
+                    绘制切分线段
+                </button>
+                <button class="ui green basic button" id="drawpolygon">
+                    绘制切分多边形
+                </button>
+                <button class="ui blue basic button" id="modifyLine">修改线段</button>
+                <button class="ui red basic button" id="deletefeature">删除</button>
+                <button class="ui black basic button" id="releasemouse">释放</button>
+            </div>
+            <!--<div class="field" id="line">
+                <textarea rows="2"></textarea>
+            </div>-->
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui grey button" tabindex="0" id="clearall">
+                    清空
+                </button>
+                <button class="ui primary button" id="executesplit">
+                    执行
+                </button>
+            </div>
+            <div id="editAttrForm">
+                <h4 class="ui divided header">请编辑切分结果属性</h4>
+                <div class="ui top attached tabular menu">
+                    <a class="item active" data-tab="first">1号细小班</a>
+                    <a class="item" data-tab="second">2号细小班</a>
+                </div>
+                <div class="ui bottom attached active tab segment" data-tab="first" id="first">
+                    <form class="ui form error" id="first_form">
+
+                    </form>
+                </div>
+                <div class="ui bottom attached tab segment" data-tab="second" id="second">
+                    <form class="ui form error" id="second_form">
+
+                    </form>
+                </div>
+            </div>
+            <div class="ui segment" style="text-align:center;border:0;box-shadow:none;">
+                <button class="ui primary button" id="tongbu">
+                    同步
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pusher">
+    <!--<div id="logo">
+        <img class="ui circular image" src="../images/logo_base.png">
+    </div>-->
+    <div class="ui basic fluid container navbar">
+        <div class="ui three column grid">
+            <div class="four wide column">
+                <h1 class="ui red header" style="margin-top:8px;">玛沁县林业WebGIS系统</h1>
+            </div>
+            <div class="eight wide column" >
+                <div class="ui segments">
+                    <div class="ui segment">
+                        <div class="ui fluid secondary pointing menu three item">
+                            <div class="blue item active">
+                                森林资源
+                            </div>
+                            <div class="red item active">
+                                林地变更
+                            </div>
+                            <div class="green item active">
+                                林地管护
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui segment mainnavbar">
+                        <div class="ui secondary pointing menu six item ">
+                            <a class="blue item" href="http://localhost:3000/forestresources/map">
+                                地图
+                            </a>
+                            <a class="blue item" href="http://localhost:3000/forestresources/statistics">
+                                资源统计
+                            </a>
+                            <a class="red item" href="http://localhost:3000/forestchange/map">
+                                地图
+                            </a>
+                            <a class="red item" href="http://localhost:3000/forestchange/statistics">
+                                变更统计
+                            </a>
+                            <a class="green item active" href="http://localhost:3000/forestprotect/hulinyuan">
+                                护林员
+                            </a>
+                            <a class="green item" href="http://localhost:3000/forestprotect/video">
+                                视频监控
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="four wide column">
+                <div class="ui horizontal segments">
+                    <div class="ui segment"></div>
+                    <div class="ui segment"></div>
+                    <div class="ui segment"></div>
+                    <div class="ui compact segment">
+                        <div class="ui compact secondary menu">
+                            <a class="item" style="margin:0;" data-tooltip="火警预警" data-position="bottom center" data-variation="mini">
+                                <i class="big icon alarm outline"></i>
+                                <div class="floating ui red circular label">8</div>
+                            </a>
+                            <a class="item" style="margin:0" data-tooltip="登录" data-position="bottom center" data-variation="mini">
+                                <i class="big icon user"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="map" id="map"></div>
+    <div class="ui icon buttons" id="toolbar_btn">
+        <button class="ui black basic button" id="layerCtrl">
+            <h4 class="ui header">图层</h4>
+        </button>
+        <button class="ui black basic button" id="add">
+            <h4 class="ui header">新增</h4>
+        </button>
+        <button class="ui black basic button" id="modify">
+            <h4 class="ui header">修改</h4>
+        </button>
+        <button class="ui black basic button" id="delete">
+            <h4 class="ui header">删除</h4>
+        </button>
+        <button class="ui black basic button" id="gethlyexcel">
+            <h4 class="ui header">Excel</h4>
+        </button>
+        <button class="ui black basic button" id="split">
+            <h4 class="ui header">切分</h4>
+        </button>
+        <button class="ui black basic button" id="union">
+            <h4 class="ui header">合并</h4>
+        </button>
+        <!--<button class="ui black basic button" id="union">-->
+            <!--<h4 class="ui header">合并</h4>-->
+        <!--</button>-->
+        <button class="ui black basic button" id="searchxiaoban">
+            <i class="large search icon"></i>
+        </button>
+        <button class="ui black basic button" id="homePage">
+            <i class="large home icon"></i>
+        </button>
+        <button class="ui black basic button" id="layerUp">
+            <i class="large arrow up icon"></i>
+        </button>
+    </div>
+</div>
+
+</body>
+<script src="../javascripts/common/common.js"></script>
+<!--<script src="../javascripts/forestprotect/hulinyuan/layerCtrl.js"></script>-->
+<script src="../javascripts/forestprotect/hulinyuan/maplayers.js"></script>
+<script src="../javascripts/forestprotect/hulinyuan/splitpolygon.js"></script>
+<script src="../javascripts/forestprotect/hulinyuan/union.js"></script>
+<script src="../javascripts/forestprotect/hulinyuan/zengshangai.js"></script>
+<script src="../javascripts/forestprotect/hulinyuan/hulinyuaninfo.js"></script>
+<script src="../javascripts/forestprotect/hulinyuan/toolbar.js"></script>
+</html>

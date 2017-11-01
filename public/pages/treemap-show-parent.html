@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="../assets/echarts.js"></script>
+	   <!--<script type='text/javascript' src='./jquery.js'></script>-->
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+       <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>-->
+       <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>-->
+       <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>-->
+       <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>-->
+       <!--<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>-->
+       <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>-->
+       <!--<script type="text/javascript" src="../assets/echarts.js"></script>-->
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+myChart.showLoading();
+
+
+    myChart.hideLoading();
+
+    function colorMappingChange(value) {
+        var levelOption = getLevelOption(value);
+        chart.setOption({
+            series: [{
+                levels: levelOption
+            }]
+        });
+    }
+
+    var formatUtil = echarts.format;
+
+    function getLevelOption() {
+        return [
+            {
+                itemStyle: {
+                    normal: {
+                        borderColor: '#777',
+                        borderWidth: 0,
+                        gapWidth: 1
+                    }
+                },
+                upperLabel: {
+                    normal: {
+                        show: false
+                    }
+                }
+            },
+            {
+                itemStyle: {
+                    normal: {
+                        borderColor: '#555',
+                        borderWidth: 5,
+                        gapWidth: 1
+                    },
+                    emphasis: {
+                        borderColor: '#ddd'
+                    }
+                }
+            },
+            {
+                colorSaturation: [0.35, 0.5],
+                itemStyle: {
+                    normal: {
+                        borderWidth: 5,
+                        gapWidth: 1,
+                        borderColorSaturation: 0.6
+                    }
+                }
+            }
+        ];
+    }
+	var diskData = JSON.parse('[{"value":892000.3999999999,"name":"�ǹ����ֵ�","path":"�ǹ����ֵ�","children":[{"value":778237.8999999999,"name":"���ֵ�","path":"�ǹ����ֵ�/���ֵ�","children":[{"value":0,"name":"���Ե�","path":"�ǹ����ֵ�/���ֵ�/���Ե�"},{"value":0,"name":"��ľ��","path":"�ǹ����ֵ�/���ֵ�/��ľ��"},{"value":0,"name":"�����ر�涨��ľ�ֵ�","path":"�ǹ����ֵ�/���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":0,"name":"���ֻ�ɽ�ĵ�","path":"�ǹ����ֵ�/���ֵ�/���ֻ�ɽ�ĵ�"},{"value":0,"name":"���ֵ�","path":"�ǹ����ֵ�/���ֵ�/���ֵ�"},{"value":2983.5,"name":"ˮ��","path":"�ǹ����ֵ�/���ֵ�/ˮ��"},{"value":259813.3,"name":"δ���õ�","path":"�ǹ����ֵ�/���ֵ�/δ���õ�"},{"value":513434,"name":"���ݵ�","path":"�ǹ����ֵ�/���ֵ�/���ݵ�"},{"value":1319.6,"name":"����","path":"�ǹ����ֵ�/���ֵ�/����"},{"value":687.5,"name":"�����õ�","path":"�ǹ����ֵ�/���ֵ�/�����õ�"}]},{"value":113762.4999999999,"name":"�ص㹫���ֵ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�","children":[{"value":0,"name":"���Ե�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/���Ե�"},{"value":0,"name":"��ľ��","path":"�ǹ����ֵ�/�ص㹫���ֵ�/��ľ��"},{"value":71647.1999999999,"name":"�����ر�涨��ľ�ֵ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":42115.3,"name":"���ֻ�ɽ�ĵ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/���ֻ�ɽ�ĵ�"},{"value":0,"name":"���ֵ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/���ֵ�"},{"value":0,"name":"ˮ��","path":"�ǹ����ֵ�/�ص㹫���ֵ�/ˮ��"},{"value":0,"name":"δ���õ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/δ���õ�"},{"value":0,"name":"���ݵ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/���ݵ�"},{"value":0,"name":"����","path":"�ǹ����ֵ�/�ص㹫���ֵ�/����"},{"value":0,"name":"�����õ�","path":"�ǹ����ֵ�/�ص㹫���ֵ�/�����õ�"}]},{"value":0,"name":"һ�㹫���ֵ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�","children":[{"value":0,"name":"���Ե�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/���Ե�"},{"value":0,"name":"��ľ��","path":"�ǹ����ֵ�/һ�㹫���ֵ�/��ľ��"},{"value":0,"name":"�����ر�涨��ľ�ֵ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":0,"name":"���ֻ�ɽ�ĵ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/���ֻ�ɽ�ĵ�"},{"value":0,"name":"���ֵ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/���ֵ�"},{"value":0,"name":"ˮ��","path":"�ǹ����ֵ�/һ�㹫���ֵ�/ˮ��"},{"value":0,"name":"δ���õ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/δ���õ�"},{"value":0,"name":"���ݵ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/���ݵ�"},{"value":0,"name":"����","path":"�ǹ����ֵ�/һ�㹫���ֵ�/����"},{"value":0,"name":"�����õ�","path":"�ǹ����ֵ�/һ�㹫���ֵ�/�����õ�"}]}]},{"value":451931.60000000003,"name":"�����ֵ�","path":"�����ֵ�","children":[{"value":0,"name":"���ֵ�","path":"�����ֵ�/���ֵ�","children":[{"value":0,"name":"���Ե�","path":"�����ֵ�/���ֵ�/���Ե�"},{"value":0,"name":"��ľ��","path":"�����ֵ�/���ֵ�/��ľ��"},{"value":0,"name":"�����ر�涨��ľ�ֵ�","path":"�����ֵ�/���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":0,"name":"���ֻ�ɽ�ĵ�","path":"�����ֵ�/���ֵ�/���ֻ�ɽ�ĵ�"},{"value":0,"name":"���ֵ�","path":"�����ֵ�/���ֵ�/���ֵ�"},{"value":0,"name":"ˮ��","path":"�����ֵ�/���ֵ�/ˮ��"},{"value":0,"name":"δ���õ�","path":"�����ֵ�/���ֵ�/δ���õ�"},{"value":0,"name":"���ݵ�","path":"�����ֵ�/���ֵ�/���ݵ�"},{"value":0,"name":"����","path":"�����ֵ�/���ֵ�/����"},{"value":0,"name":"�����õ�","path":"�����ֵ�/���ֵ�/�����õ�"}]},{"value":451927.4,"name":"�ص㹫���ֵ�","path":"�����ֵ�/�ص㹫���ֵ�","children":[{"value":0,"name":"���Ե�","path":"�����ֵ�/�ص㹫���ֵ�/���Ե�"},{"value":32438.8,"name":"��ľ��","path":"�����ֵ�/�ص㹫���ֵ�/��ľ��"},{"value":254005.4,"name":"�����ر�涨��ľ�ֵ�","path":"�����ֵ�/�ص㹫���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":159831,"name":"���ֻ�ɽ�ĵ�","path":"�����ֵ�/�ص㹫���ֵ�/���ֻ�ɽ�ĵ�"},{"value":5652.2,"name":"���ֵ�","path":"�����ֵ�/�ص㹫���ֵ�/���ֵ�"},{"value":0,"name":"ˮ��","path":"�����ֵ�/�ص㹫���ֵ�/ˮ��"},{"value":0,"name":"δ���õ�","path":"�����ֵ�/�ص㹫���ֵ�/δ���õ�"},{"value":0,"name":"���ݵ�","path":"�����ֵ�/�ص㹫���ֵ�/���ݵ�"},{"value":0,"name":"����","path":"�����ֵ�/�ص㹫���ֵ�/����"},{"value":0,"name":"�����õ�","path":"�����ֵ�/�ص㹫���ֵ�/�����õ�"}]},{"value":4.2,"name":"һ�㹫���ֵ�","path":"�����ֵ�/һ�㹫���ֵ�","children":[{"value":4.2,"name":"���Ե�","path":"�����ֵ�/һ�㹫���ֵ�/���Ե�"},{"value":0,"name":"��ľ��","path":"�����ֵ�/һ�㹫���ֵ�/��ľ��"},{"value":0,"name":"�����ر�涨��ľ�ֵ�","path":"�����ֵ�/һ�㹫���ֵ�/�����ر�涨��ľ�ֵ�"},{"value":0,"name":"���ֻ�ɽ�ĵ�","path":"�����ֵ�/һ�㹫���ֵ�/���ֻ�ɽ�ĵ�"},{"value":0,"name":"���ֵ�","path":"�����ֵ�/һ�㹫���ֵ�/���ֵ�"},{"value":0,"name":"ˮ��","path":"�����ֵ�/һ�㹫���ֵ�/ˮ��"},{"value":0,"name":"δ���õ�","path":"�����ֵ�/һ�㹫���ֵ�/δ���õ�"},{"value":0,"name":"���ݵ�","path":"�����ֵ�/һ�㹫���ֵ�/���ݵ�"},{"value":0,"name":"����","path":"�����ֵ�/һ�㹫���ֵ�/����"},{"value":0,"name":"�����õ�","path":"�����ֵ�/һ�㹫���ֵ�/�����õ�"}]}]}]');
+
+    myChart.setOption(option = {
+
+        title: {
+            text: 'Disk Usage',
+            left: 'center'
+        },
+
+        tooltip: {
+            formatter: function (info) {
+                var value = info.value;
+                var treePathInfo = info.treePathInfo;
+                var treePath = [];
+
+                for (var i = 1; i < treePathInfo.length; i++) {
+                    treePath.push(treePathInfo[i].name);
+                }
+
+                return [
+                    '<div class="tooltip-title">' + formatUtil.encodeHTML(treePath.join('/')) + '</div>',
+                    'Disk Usage: ' + formatUtil.addCommas(value) + ' KB',
+                ].join('');
+            }
+        },
+
+        series: [
+            {
+                name:'Disk Usage',
+                type:'treemap',
+                visibleMin: 300,
+                label: {
+                    show: true,
+                    formatter: '{b}'
+                },
+                upperLabel: {
+                    normal: {
+                        show: true,
+                        height: 30
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        borderColor: '#fff'
+                    }
+                },
+                levels: getLevelOption(),
+                data: diskData
+            }
+        ]
+    });
+
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+       </script>
+   </body>
+</html>
