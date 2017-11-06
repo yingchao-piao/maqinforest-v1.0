@@ -86,136 +86,45 @@ $('.ui.link.six.cards .blue.card').click(function(){
         error:function(XMLHttpRequest,textStatus,errorThrown){
             alert('error message: '+errorThrown.toString());
         },
-        success:function(res){
-            function toFixed_1(aera_tudi){
-                aera_tudi.forEach(function(value){
-                    value.value=value.value.toFixed(1);
-                    if(value.hasOwnProperty('children')){
-                        toFixed_1(value['children']);
-                    }
-                });
-            }
-            var aera_tudi =JSON.parse(res);
-            toFixed_1(aera_tudi);
-            console.log(aera_tudi);
-            var tudimianjiEchart=echarts.init(document.getElementById('tudimianjiecharts'));
+        success:function(res) {
+            // function toFixed_1(area_tudi) {
+            //     area_tudi.forEach(function (value) {
+            //         value.value = value.value.toFixed(1);
+            //         if (value.hasOwnProperty('children')) {
+            //             toFixed_1(value['children']);
+            //         }
+            //     });
+            // }
 
-            function colorMappingChange(value) {
-                var levelOption = getLevelOption(value);
-                chart.setOption({
-                    series: [{
-                        levels: levelOption
-                    }]
-                });
-            }
+            var area_tudi = JSON.parse(res);
+            // toFixed_1(area_tudi);
+            console.log(area_tudi);
+            var tudimianjiEchart = echarts.init(document.getElementById('tudimianjiecharts'));
 
-            var formatUtil = echarts.format;
-
-            function getLevelOption() {
-                return [
-                    {
-                        itemStyle: {
-                            normal: {
-                                borderColor: '#777',
-                                borderWidth: 0,
-                                gapWidth: 1
-                            }
-                        },
-                        upperLabel: {
-                            normal: {
-                                show: false
-                            }
-                        }
-                    },
-                    {
-                        itemStyle: {
-                            normal: {
-                                borderColor: '#555',
-                                borderWidth: 5,
-                                gapWidth: 1
-                            },
-                            emphasis: {
-                                borderColor: '#ddd'
-                            }
-                        }
-                    },
-                    {
-                        colorSaturation: [0.35, 0.5],
-                        itemStyle: {
-                            normal: {
-                                borderWidth: 5,
-                                gapWidth: 1,
-                                borderColorSaturation: 0.6
-                            }
-                        }
-                    }
-                ];
-            }
-            tudimianjiEchart.setOption({
-
-                tooltip: {
-                    formatter: function (info) {
-                        var value = info.value;
-                        var treePathInfo = info.treePathInfo;
-                        var treePath = [];
-
-                        for (var i = 1; i < treePathInfo.length; i++) {
-                            treePath.push(treePathInfo[i].name);
-                        }
-
-                        return [
-                            '<div class="tooltip-title">' + formatUtil.encodeHTML(treePath.join('/')) + '</div>',
-                            '土地面积: ' + formatUtil.addCommas(value) + ' 公顷',
-                        ].join('');
-                    }
-                },
-
-                series: [
-                    {
-                        name:'各类土地面积',
-                        type:'treemap',
-                        visibleMin: 300,
-                        label: {
-                            show: true,
-                            formatter: '{b}'
-                        },
-                        upperLabel: {
-                            normal: {
-                                show: true,
-                                height: 30
-                            }
-                        },
-                        itemStyle: {
-                            normal: {
-                                borderColor: '#fff'
-                            }
-                        },
-                        levels: getLevelOption(),
-                        data: aera_tudi
-                    }
-                ]
-            });
-
-            /*var dataObj=function(arr){
-                var dataObj =[];
-                arr.forEach(function(value){
+            var dataObj = function (area_tudi) {
+                var dataObj = [];
+                area_tudi.forEach(function (value) {
                     dataObj.push(
                         {
-                            value:value.value.toFixed(1),
-                            name:value.name,
-                            path:value.path,
-                            itemStyle:{
-                                normal:{
-                                    label:{show:function(){
-                                        if(value.value==0){
-                                            return false;
-                                        }
-                                    }()},
-                                    labelLine:{show:function(){
-                                        if(value.value==0){
-                                            return false;
-                                        }
-                                    }()}
+                            value: value.value.toFixed(1),
+                            name: value.name,
+                            path: value.path,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: function () {
+                                            if (value.value == 0) {
+                                                return false;
+                                            }
+                                        }()
+                                    },
+                                    labelLine: {
+                                        show: function () {
+                                            if (value.value == 0) {
+                                                return false;
+                                            }
+                                        }()
+                                    }
                                 }
                             }
                         }
@@ -224,56 +133,132 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 return dataObj;
             };
             tudimianjiEchart.setOption({
-                tooltip: {
+                title : {
+                    text: '各类土地面积',
+                    x:'center'
+                },
+                tooltip : {
                     trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)"
-                }/!*,
-                legend: {
-                    orient: 'vertical',
-                    x: 'left',
-                    data:['苗圃地','乔木林','国家特别规定灌木林地','宜林荒山荒地','疏林地','水域','未利用地','牧草地','耕地','建设用地']
-                }*!/,
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: [
+                    {
+                        z: 1,
+                        x : 'center',
+                        top : '90%',
+                        data:['国有林地','非国有林地','非林地','重点公益林地','一般公益林地','其他']
+                    },
+                    {
+                        z: 2,
+                        x : 'center',
+                        top : '92%',
+                        data:['乔木林','疏林地','国家特别规定灌木林地','宜林荒山荒地','苗圃地','水域','牧草地','未利用地','耕地','建设用地']
+                    }
+                ],
+                toolbox: {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType : {
+                            show: true,
+                            type: ['pie', 'funnel']
+                        },
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                calculable : true,
                 series: [
                     {
-                        name:'土地面积:公顷',
+                        name:'林地权属',
                         type:'pie',
-                        selectedMode: 'single',
-                        radius: [0, '30%'],
-
+                        radius : [20, 50],
+                        center : ['50%', '50%'],
+                        roseType : 'radius',
                         label: {
                             normal: {
-                                position: 'inner'
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
                             }
                         },
-                        labelLine: {
+                        lableLine: {
                             normal: {
                                 show: false
+                            },
+                            emphasis: {
+                                show: true
                             }
                         },
-                        data:dataObj(aera_tudi)
+                        data:dataObj(area_tudi)
                     },
                     {
-                        name:'土地面积:公顷',
+                        name:'森林类别',
                         type:'pie',
-                        radius: ['40%', '55%'],
-                        data:dataObj(aera_tudi[0].children)
-                            .concat(dataObj(aera_tudi[1].children))
+                        radius : [55, 120],
+                        center : ['50%', '50%'],
+                        roseType : 'radius',
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        lableLine: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data:dataObj(area_tudi[0].children)
+                            .concat(dataObj(area_tudi[1].children))
+                            .concat(dataObj(area_tudi[2].children))
                     },
                     {
-                        name:'土地面积:公顷',
+                        name:'地类',
                         type:'pie',
-                        radius:['65%','80%'],
-                        data:dataObj(aera_tudi[0].children[0].children)
-                            .concat(dataObj(aera_tudi[0].children[1].children))
-                            .concat(dataObj(aera_tudi[0].children[2].children))
-                            .concat(dataObj(aera_tudi[1].children[0].children))
-                            .concat(dataObj(aera_tudi[1].children[1].children))
-                            .concat(dataObj(aera_tudi[1].children[2].children))
+                        radius : [135, 220],
+                        center : ['50%', '50%'],
+                        roseType : 'radius',
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        lableLine: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data:dataObj(area_tudi[0].children[0].children)
+                            .concat(dataObj(area_tudi[0].children[1].children))
+                            .concat(dataObj(area_tudi[0].children[2].children))
+                            .concat(dataObj(area_tudi[1].children[0].children))
+                            .concat(dataObj(area_tudi[1].children[1].children))
+                            .concat(dataObj(area_tudi[1].children[2].children))
+                            .concat(dataObj(area_tudi[2].children[0].children))
+                            .concat(dataObj(area_tudi[2].children[1].children))
+                            .concat(dataObj(area_tudi[2].children[2].children))
                     }
+
                 ]
-            });*/
+            });
         }
     });
+
+
 
     $.ajax({
         url:'/forestresources/statistics/t2/'+xzcname,
