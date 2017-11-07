@@ -87,135 +87,130 @@ $('.ui.link.six.cards .blue.card').click(function(){
             alert('error message: '+errorThrown.toString());
         },
         success:function(res) {
-            // function toFixed_1(area_tudi) {
-            //     area_tudi.forEach(function (value) {
-            //         value.value = value.value.toFixed(1);
-            //         if (value.hasOwnProperty('children')) {
-            //             toFixed_1(value['children']);
-            //         }
-            //     });
-            // }
+                // function toFixed_1(area_tudi){
+                //     area_tudi.forEach(function(value){
+                //         if(value.hasOwnProperty('children')){
+                //             toFixed_1(value['children']);
+                //         }
+                //     });
+                // }
+                // var area_tudi =JSON.parse(res);
+                // toFixed_1(area_tudi);
+                // console.log(area_tudi);
 
-            var area_tudi = JSON.parse(res);
-            // toFixed_1(area_tudi);
-            console.log(area_tudi);
-            var tudimianjiEchart = echarts.init(document.getElementById('tudimianjiecharts'));
+                var width = 720,
+                    height = 650,
+                    radius = 310;
 
+                var x = d3.scale.linear()
+                    .range([0, 2 * Math.PI]);
 
-            var dataObj = function (area_tudi) {
-                var dataObj = [];
-                area_tudi.forEach(function (value) {
-                    dataObj.push(
-                        {
-                            value: value.value.toFixed(1),
-                            name: value.path,
-                            path: value.path,
+                var y = d3.scale.linear()
+                    .range([0, radius]);
+
+                var color = d3.scale.category20c();
+
+                var svg = d3.select("#tudimianjiecharts").append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+
+                var partition = d3.layout.partition()
+                    .value(function (d) {
+                        return d.size;
+                    });
+
+                var arc = d3.svg.arc()
+                    .startAngle(function (d) {
+                        return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
+                    })
+                    .endAngle(function (d) {
+                        return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
+                    })
+                    .innerRadius(function (d) {
+                        return Math.max(0, y(d.y));
+                    })
+                    .outerRadius(function (d) {
+                        return Math.max(0, y(d.y + d.dy));
+                    });
+
+                d3.json('/forestresources/statistics/t1/'+xzcname, function (error, root) {
+                    //if (root.code === 200) {
+                    console.log(JSON.stringify(root));
+                        var g = svg.selectAll("g")
+                            .data(partition.nodes(root))
+                            .enter().append("g");
+
+                        var path = g.append("path")
+                            .attr("d", arc)
+                            .style("fill", function (d) {
+                                return color((d.children ? d : d.parent).name);
+                            })
+                            .on("click", click);
+
+                        var text = g.append("text")
+                            .attr("transform", function (d) {
+                                return "rotate(" + computeTextRotation(d) + ")";
+                            })
+                            .attr("x", function (d) {
+                                return y(d.y);
+                            })
+                            .attr("dx", "6") // margin
+                            .attr("dy", ".35em") // vertical-align
+                            .text(function (d) {
+                                return d.name;
+                            });
+
+                        function click(d) {
+                            // fade out all text elements
+                            text.transition().attr("opacity", 0);
+
+                            path.transition()
+                                .duration(750)
+                                .attrTween("d", arcTween(d))
+                                .each("end", function(e, i) {
+                                    // check if the animated element's data e lies within the visible angle span given in d
+                                    if (e.x >= d.x && e.x < (d.x + d.dx)) {
+                                        // get a selection of the associated text element
+                                        var arcText = d3.select(this.parentNode).select("text");
+                                        // fade in the text element and recalculate positions
+                                        arcText.transition().duration(750)
+                                            .attr("opacity", 1)
+                                            .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
+                                            .attr("x", function(d) { return y(d.y); });
+                                    }
+                                });
                         }
-                    )
                 });
-                return dataObj;
-            };
-            tudimianjiEchart.setOption({
-                title : {
-                    text: '各类土地面积',
-                    x:'center'
-                },
-                tooltip : {
-                    trigger: 'item',
-                    formatter: "{a} <br/>{b} : {c} ({d}%)"
-                },
-                legend: [
-                    {
-                        z: 1,
-                        x : 'left',
-                        orient: 'vertical',
-                        top: 50,
-                        data:['国有林地','非国有林地','非林地']
-                    },
-                    {
-                        z: 2,
-                        x : 'right',
-                        orient: 'vertical',
-                        top: 50,
-                        data:[dataObj(area_tudi[0].children)[0].name,
-                            dataObj(area_tudi[0].children)[1].name,
-                            dataObj(area_tudi[0].children)[2].name,
-                            dataObj(area_tudi[1].children)[0].name,
-                            dataObj(area_tudi[1].children)[1].name,
-                            dataObj(area_tudi[1].children)[2].name,
-                        ]
-                    }
-                ],
 
-                calculable : true,
-                series: [
-                    {
-                        name:'林地权属',
-                        type:'pie',
-                        radius : [20, 50],
-                        center : ['50%', '50%'],
-                        roseType : 'radius',
-                        label: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true
+                d3.select(self.frameElement).style("height", height + "px");
+
+
+                // Interpolate the scales!
+                function arcTween(d) {
+                    var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+                        yd = d3.interpolate(y.domain(), [d.y, 1]),
+                        yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+                    return function (d, i) {
+                        return i
+                            ? function (t) {
+                                return arc(d);
                             }
-                        },
+                            : function (t) {
+                                x.domain(xd(t));
+                                y.domain(yd(t)).range(yr(t));
+                                return arc(d);
+                            };
+                    };
+                }
 
-                        data:dataObj(area_tudi)
-                    },
-                    {
-                        name:'森林类别',
-                        type:'pie',
-                        radius : [60, 85],
-                        center : ['50%', '50%'],
-                        roseType : 'radius',
-                        label: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true,
-                            }
-                        },
+                function computeTextRotation(d) {
+                    return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+                }
+            }
 
-                        data:dataObj(area_tudi[0].children)
-                            .concat(dataObj(area_tudi[1].children))
-                            .concat(dataObj(area_tudi[2].children))
-                    },
-                    {
-                        name:'地类',
-                        type:'pie',
-                        radius : [95, 110],
-                        center : ['50%', '50%'],
-                        roseType : 'radius',
-                        label: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true,
-                            }
-                        },
-
-                        data:dataObj(area_tudi[0].children[0].children)
-                            .concat(dataObj(area_tudi[0].children[1].children))
-                            .concat(dataObj(area_tudi[0].children[2].children))
-                            .concat(dataObj(area_tudi[1].children[0].children))
-                            .concat(dataObj(area_tudi[1].children[1].children))
-                            .concat(dataObj(area_tudi[1].children[2].children))
-                            .concat(dataObj(area_tudi[2].children[0].children))
-                            .concat(dataObj(area_tudi[2].children[1].children))
-                            .concat(dataObj(area_tudi[2].children[2].children))
-                    }
-
-                ]
-            });
-        }
     });
-
 
 
     $.ajax({

@@ -77,7 +77,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.value=value.value+singleresultObj.value;
+                value.size=value.size+singleresultObj.size;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
                 }
@@ -94,23 +94,18 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
         var area_tudi=[];
         for(var i=0;i<fieldName.ld_qs.length;i++){
             area_tudi[i]={
-                value:0,
                 name:fieldName.ld_qs[i],
-                path:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.sen_lin_lb.length;j++){
                 area_tudi[i].children[j]={
-                    value:0,
                     name:fieldName.sen_lin_lb[j],
-                    path:fieldName.ld_qs[i]+'/'+fieldName.sen_lin_lb[j],
                     children:[]
                 };
                 for(var k=0;k<fieldName.dilei.length;k++){
                     area_tudi[i].children[j].children[k]={
-                        value:0,
-                        name:fieldName.dilei[k],
-                        path:fieldName.ld_qs[i]+'/'+fieldName.sen_lin_lb[j]+'/'+fieldName.dilei[k]
+                        size:0,
+                        name:fieldName.dilei[k]
                     }
                 }
             }
@@ -141,18 +136,13 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     }
                     resultObj.push({
                         name:value.ld_qs,
-                        path:value.ld_qs,
-                        value:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
-                                path:value.ld_qs+'/'+value.sen_lin_lb,
-                                value:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
-                                        path:value.ld_qs+'/'+value.sen_lin_lb+'/'+value.dilei,
-                                        value:value.area
+                                        size:value.area
                                     }
                                 ]
                             }
@@ -162,7 +152,80 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                 resultObj.forEach(function(singleresultObj){
                     merge(area_tudi,singleresultObj);
                 });
-                res.send(area_tudi);
+                var results=
+                    {
+                        "name": "林地权属",
+                        "children": [
+                            {
+                                "name": "国有林地",
+                                "children": [
+                                    {
+                                        "name": "重点公益林地",
+                                        "size": 5879
+                                    },
+                                    {
+                                        "name": "一般公益林地",
+                                        "size": 3844
+                                    },
+                                    {
+                                        "name": "其他",
+                                        "size": 1114
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "非国有林地",
+                                "children": [
+                                    {
+                                        "name": "重点公益林地",
+                                        "size": 2260
+                                    },
+                                    {
+                                        "name": "一般公益林地",
+                                        "size": 3046
+                                    },
+                                    {
+                                        "name": "其他",
+                                        "size": 3228
+                                    }
+
+                                ]
+                            },
+                            {
+                                "name": "非林地",
+                                "children": [
+                                    {
+                                        "name": "重点公益林地",
+                                        "children": [
+                                            {
+                                                "name": "乔木林",
+                                                "size": 2000
+                                            },
+                                            {
+                                                "name": "疏林地",
+                                                "size": 200
+                                            },
+                                            {
+                                                "name": "其他",
+                                                "size": 60
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "一般公益林地",
+                                        "size": 3046
+                                    },
+                                    {
+                                        "name": "其他",
+                                        "size": 3228
+                                    }
+
+                                ]
+                            }
+                        ]
+                    }
+
+                res.send(results);
             }
         );
     }else{
@@ -172,7 +235,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
             'group by dilei,ld_qs,sen_lin_lb',[req.params.xzc],
             function(err,result){
                 if(err){
-                    console.error('error running query',err)
+                    return console.error('error running query',err);
                 }
                 var resultObj =[];
 
@@ -189,18 +252,13 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     }
                     resultObj.push({
                         name:value.ld_qs,
-                        path:value.ld_qs,
-                        value:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
-                                path:value.ld_qs+'/'+value.sen_lin_lb,
-                                value:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
-                                        path:value.ld_qs+'/'+value.sen_lin_lb+'/'+value.dilei,
-                                        value:value.area
+                                        size:value.area
                                     }
                                 ]
                             }
@@ -214,6 +272,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
             }
         );
     }
+
 });
 router.get('/statistics/t2/:xzc',function(req,res,next){
     ////////////////////////////////
