@@ -101,32 +101,15 @@ $('.ui.link.six.cards .blue.card').click(function(){
             console.log(area_tudi);
             var tudimianjiEchart = echarts.init(document.getElementById('tudimianjiecharts'));
 
+
             var dataObj = function (area_tudi) {
                 var dataObj = [];
                 area_tudi.forEach(function (value) {
                     dataObj.push(
                         {
                             value: value.value.toFixed(1),
-                            name: value.name,
+                            name: value.path,
                             path: value.path,
-                            itemStyle: {
-                                normal: {
-                                    label: {
-                                        show: function () {
-                                            if (value.value == 0) {
-                                                return false;
-                                            }
-                                        }()
-                                    },
-                                    labelLine: {
-                                        show: function () {
-                                            if (value.value == 0) {
-                                                return false;
-                                            }
-                                        }()
-                                    }
-                                }
-                            }
                         }
                     )
                 });
@@ -144,30 +127,26 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 legend: [
                     {
                         z: 1,
-                        x : 'center',
-                        top : '90%',
-                        data:['国有林地','非国有林地','非林地','重点公益林地','一般公益林地','其他']
+                        x : 'left',
+                        orient: 'vertical',
+                        top: 50,
+                        data:['国有林地','非国有林地','非林地']
                     },
                     {
                         z: 2,
-                        x : 'center',
-                        top : '92%',
-                        data:['乔木林','疏林地','国家特别规定灌木林地','宜林荒山荒地','苗圃地','水域','牧草地','未利用地','耕地','建设用地']
+                        x : 'right',
+                        orient: 'vertical',
+                        top: 50,
+                        data:[dataObj(area_tudi[0].children)[0].name,
+                            dataObj(area_tudi[0].children)[1].name,
+                            dataObj(area_tudi[0].children)[2].name,
+                            dataObj(area_tudi[1].children)[0].name,
+                            dataObj(area_tudi[1].children)[1].name,
+                            dataObj(area_tudi[1].children)[2].name,
+                        ]
                     }
                 ],
-                toolbox: {
-                    show : true,
-                    feature : {
-                        mark : {show: true},
-                        dataView : {show: true, readOnly: false},
-                        magicType : {
-                            show: true,
-                            type: ['pie', 'funnel']
-                        },
-                        restore : {show: true},
-                        saveAsImage : {show: true}
-                    }
-                },
+
                 calculable : true,
                 series: [
                     {
@@ -184,20 +163,13 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 show: true
                             }
                         },
-                        lableLine: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true
-                            }
-                        },
+
                         data:dataObj(area_tudi)
                     },
                     {
                         name:'森林类别',
                         type:'pie',
-                        radius : [55, 120],
+                        radius : [60, 85],
                         center : ['50%', '50%'],
                         roseType : 'radius',
                         label: {
@@ -205,17 +177,10 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 show: false
                             },
                             emphasis: {
-                                show: true
+                                show: true,
                             }
                         },
-                        lableLine: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true
-                            }
-                        },
+
                         data:dataObj(area_tudi[0].children)
                             .concat(dataObj(area_tudi[1].children))
                             .concat(dataObj(area_tudi[2].children))
@@ -223,7 +188,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     {
                         name:'地类',
                         type:'pie',
-                        radius : [135, 220],
+                        radius : [95, 110],
                         center : ['50%', '50%'],
                         roseType : 'radius',
                         label: {
@@ -231,17 +196,10 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 show: false
                             },
                             emphasis: {
-                                show: true
+                                show: true,
                             }
                         },
-                        lableLine: {
-                            normal: {
-                                show: false
-                            },
-                            emphasis: {
-                                show: true
-                            }
-                        },
+
                         data:dataObj(area_tudi[0].children[0].children)
                             .concat(dataObj(area_tudi[0].children[1].children))
                             .concat(dataObj(area_tudi[0].children[2].children))
