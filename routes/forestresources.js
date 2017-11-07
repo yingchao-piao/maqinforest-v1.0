@@ -86,28 +86,28 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
         });
     };
     var fieldName={
-        "ld_qs":['非国有林地','国有林地'],
-        "sen_lin_lb":['非林地','重点公益林地','一般公益林地'],
+        "ld_qs":['非国有林地','国有林地','非林地'],
+        "sen_lin_lb":['重点公益林地','一般公益林地','其他'],
         "dilei":['苗圃地','乔木林','国家特别规定灌木林地','宜林荒山荒地','疏林地','水域','未利用地','牧草地','耕地','建设用地']
     };
-    var aera_tudi=function(fieldName){
-        var aera_tudi=[];
+    var area_tudi=function(fieldName){
+        var area_tudi=[];
         for(var i=0;i<fieldName.ld_qs.length;i++){
-            aera_tudi[i]={
+            area_tudi[i]={
                 value:0,
                 name:fieldName.ld_qs[i],
                 path:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.sen_lin_lb.length;j++){
-                aera_tudi[i].children[j]={
+                area_tudi[i].children[j]={
                     value:0,
                     name:fieldName.sen_lin_lb[j],
                     path:fieldName.ld_qs[i]+'/'+fieldName.sen_lin_lb[j],
                     children:[]
                 };
                 for(var k=0;k<fieldName.dilei.length;k++){
-                    aera_tudi[i].children[j].children[k]={
+                    area_tudi[i].children[j].children[k]={
                         value:0,
                         name:fieldName.dilei[k],
                         path:fieldName.ld_qs[i]+'/'+fieldName.sen_lin_lb[j]+'/'+fieldName.dilei[k]
@@ -115,11 +115,11 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                 }
             }
         }
-        return aera_tudi;
+        return area_tudi;
     }(fieldName);
     if(req.params.xzc==="玛沁县"){
         pool.query(
-            'select dilei,ld_qs,sen_lin_lb,sum(mianji) as aera ' +
+            'select dilei,ld_qs,sen_lin_lb,sum(mianji) as area ' +
             'from maqinxiandataedit ' +
             'group by dilei,ld_qs,sen_lin_lb',
             function(err,result){
@@ -130,26 +130,29 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
 
                 var queryResult=result.rows;
                 queryResult.forEach(function(value,index,arr){
-                    if(value.ld_qs==''||value.ld_qs=='没有进行集体林权制度改革的林地，或无法确定经营权的林地'){
+                    if(value.ld_qs=='没有进行集体林权制度改革的林地，或无法确定经营权的林地'){
                         value.ld_qs='非国有林地';
                     }
+                    if(value.ld_qs==''){
+                        value.ld_qs='非林地';
+                    }
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='非林地';
+                        value.sen_lin_lb='其他';
                     }
                     resultObj.push({
                         name:value.ld_qs,
                         path:value.ld_qs,
-                        value:value.aera,
+                        value:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
                                 path:value.ld_qs+'/'+value.sen_lin_lb,
-                                value:value.aera,
+                                value:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
                                         path:value.ld_qs+'/'+value.sen_lin_lb+'/'+value.dilei,
-                                        value:value.aera
+                                        value:value.area
                                     }
                                 ]
                             }
@@ -157,14 +160,14 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     })
                 });
                 resultObj.forEach(function(singleresultObj){
-                    merge(aera_tudi,singleresultObj);
+                    merge(area_tudi,singleresultObj);
                 });
-                res.send(aera_tudi);
+                res.send(area_tudi);
             }
         );
     }else{
         pool.query(
-            'select dilei,ld_qs,sen_lin_lb,sum(mianji) as aera '+
+            'select dilei,ld_qs,sen_lin_lb,sum(mianji) as area '+
             'from maqinxiandataedit where xiang=$1::text ' +
             'group by dilei,ld_qs,sen_lin_lb',[req.params.xzc],
             function(err,result){
@@ -175,26 +178,29 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
 
                 var queryResult=result.rows;
                 queryResult.forEach(function(value,index,arr){
-                    if(value.ld_qs==''||value.ld_qs=='没有进行集体林权制度改革的林地，或无法确定经营权的林地'){
+                    if(value.ld_qs=='没有进行集体林权制度改革的林地，或无法确定经营权的林地'){
                         value.ld_qs='非国有林地';
                     }
+                    if(value.ld_qs==''){
+                        value.ld_qs='非林地';
+                    }
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='非林地';
+                        value.sen_lin_lb='其他';
                     }
                     resultObj.push({
                         name:value.ld_qs,
                         path:value.ld_qs,
-                        value:value.aera,
+                        value:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
                                 path:value.ld_qs+'/'+value.sen_lin_lb,
-                                value:value.aera,
+                                value:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
                                         path:value.ld_qs+'/'+value.sen_lin_lb+'/'+value.dilei,
-                                        value:value.aera
+                                        value:value.area
                                     }
                                 ]
                             }
@@ -202,9 +208,9 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     })
                 });
                 resultObj.forEach(function(singleresultObj){
-                    merge(aera_tudi,singleresultObj);
+                    merge(area_tudi,singleresultObj);
                 });
-                res.send(aera_tudi);
+                res.send(area_tudi);
             }
         );
     }
