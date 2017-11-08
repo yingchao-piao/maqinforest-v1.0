@@ -79,6 +79,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
             y2:20
         }
     });
+    //各类土地面积t1
     $.ajax({
         url:'/forestresources/statistics/t1/'+xzcname,
         type:'GET',
@@ -87,127 +88,273 @@ $('.ui.link.six.cards .blue.card').click(function(){
             alert('error message: '+errorThrown.toString());
         },
         success:function(res) {
-                // function toFixed_1(area_tudi){
-                //     area_tudi.forEach(function(value){
-                //         if(value.hasOwnProperty('children')){
-                //             toFixed_1(value['children']);
-                //         }
-                //     });
-                // }
-                // var area_tudi =JSON.parse(res);
-                // toFixed_1(area_tudi);
-                // console.log(area_tudi);
 
-                var width = 720,
-                    height = 650,
-                    radius = 310;
+                // Dimensions of sunburst.
+                var width = 500;
+                var height = 500;
+                var radius = Math.min(width, height) / 2;
 
-                var x = d3.scale.linear()
-                    .range([0, 2 * Math.PI]);
+                // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                var b = {
+                    w: 75, h: 30, s: 3, t: 10
+                };
 
-                var y = d3.scale.linear()
-                    .range([0, radius]);
+                // Mapping of names to colors.
+                var colors = {
+                    "国有林地": "#5687d1",
+                    "非国有林地": "#7b615c",
+                    "非林地": "#ded3c2",
+                    "重点公益林地": "#b95b36",
+                    "一般公益林地": "#a173d1",
+                    "其他": "#bbb42f",
+                    "乔木林": "#18bb41",
+                    "疏林地": "#bb904c",
+                    "苗圃地": "#8dbb7f",
+                    "国家特别规定灌木林地": "#6cbba8",
+                    "宜林荒山荒地": "#bb992e",
+                    "水域": "#0b2bbb",
+                    "牧草地": "#42bb69",
+                    "未利用地": "#bb7037",
+                    "耕地": "#bb59ae",
+                    "建设用地": "#4b4b4b",
 
-                var color = d3.scale.category20c();
+                };
 
-                var svg = d3.select("#tudimianjiecharts").append("svg")
+                // Total size of all segments; we set this later, after loading the data.
+                var totalSize = 0;
+
+                var svg = d3.select("#tudimianji_chart").append("svg")
                     .attr("width", width)
                     .attr("height", height)
                     .append("g")
-                    .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+                    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
                 var partition = d3.layout.partition()
-                    .value(function (d) {
-                        return d.size;
-                    });
+                    .size([2 * Math.PI, radius * radius])
+                    .value(function(d) { return d.size; });
 
                 var arc = d3.svg.arc()
-                    .startAngle(function (d) {
-                        return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
-                    })
-                    .endAngle(function (d) {
-                        return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
-                    })
-                    .innerRadius(function (d) {
-                        return Math.max(0, y(d.y));
-                    })
-                    .outerRadius(function (d) {
-                        return Math.max(0, y(d.y + d.dy));
-                    });
+                    .startAngle(function(d) { return d.x; })
+                    .endAngle(function(d) { return d.x + d.dx; })
+                    .innerRadius(function(d) { return Math.sqrt(d.y); })
+                    .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
 
                 d3.json('/forestresources/statistics/t1/'+xzcname, function (error, root) {
-                    //if (root.code === 200) {
                     console.log(JSON.stringify(root));
-                        var g = svg.selectAll("g")
-                            .data(partition.nodes(root))
-                            .enter().append("g");
+                    // Basic setup of page elements.
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#tudimianji_togglelegend").on("click", toggleLegend);
 
-                        var path = g.append("path")
-                            .attr("d", arc)
-                            .style("fill", function (d) {
-                                return color((d.children ? d : d.parent).name);
-                            })
-                            .on("click", click);
+                    //Bounding circle underneath the sunburst, to make it easier to detect
+                    // when the mouse leaves the parent g.
+                    svg.append("svg:circle")
+                        .attr("r", radius)
+                        .style("opacity", 0);
 
-                        var text = g.append("text")
-                            .attr("transform", function (d) {
-                                return "rotate(" + computeTextRotation(d) + ")";
+
+                    var nodes = partition.nodes(root)
+                        .filter(function (d) {
+                            return (d.dx > 0);
+                        });
+
+                    var path = svg.data([root]).selectAll("path")
+                        .data(nodes)
+                        .enter().append("svg:path")
+                        .attr("display", function (d) {
+                            return d.depth ? null : "none";
+                        })
+                        .attr("d", arc)
+                        .attr("fill-rule", "evenodd")
+                        .style("fill", function (d) {
+                            return colors[d.name];
+                        })
+                        .style("opacity", 1)
+                        .on("mouseover", mouseover);
+
+                    // Add the mouseleave handler to the bounding circle.
+                    d3.select("#tudimianji_container").on("mouseleave", mouseleave);
+                    // Get total size of the tree = value of root node from partition.
+                    totalSize = path.node().__data__.value;
+                    // Fade all but the current sequence, and show it in the breadcrumb trail.
+                    function mouseover(d) {
+
+                        var percentage = (100 * d.value / totalSize).toPrecision(3);
+                        var percentageString = percentage + "%";
+                        if (percentage < 0.1) {
+                            percentageString = "< 0.1%";
+                        }
+
+                        d3.select("#tudimianji_percentage")
+                            .text(percentageString);
+
+                        d3.select("#tudimianji_explanation")
+                            .style("visibility", "");
+
+                        var sequenceArray = getAncestors(d);
+                        updateBreadcrumbs(sequenceArray, percentageString);
+
+                        // Fade all the segments.
+                        d3.selectAll("path")
+                            .style("opacity", 0.3);
+
+                        // Then highlight only those that are an ancestor of the current segment.
+                        svg.selectAll("path")
+                            .filter(function(node) {
+                                return (sequenceArray.indexOf(node) >= 0);
                             })
-                            .attr("x", function (d) {
-                                return y(d.y);
-                            })
-                            .attr("dx", "6") // margin
-                            .attr("dy", ".35em") // vertical-align
-                            .text(function (d) {
-                                return d.name;
+                            .style("opacity", 1);
+                    }
+
+                    // Restore everything to full opacity when moving off the visualization.
+                    function mouseleave(d) {
+
+                        // Hide the breadcrumb trail
+                        d3.select("#tudimianji_trail")
+                            .style("visibility", "hidden");
+
+                        // Deactivate all segments during transition.
+                        d3.selectAll("path").on("mouseover", null);
+
+                        // Transition each segment to full opacity and then reactivate it.
+                        d3.selectAll("path")
+                            .transition()
+                            .duration(1000)
+                            .style("opacity", 1)
+                            .each("end", function() {
+                                d3.select(this).on("mouseover", mouseover);
                             });
 
-                        function click(d) {
-                            // fade out all text elements
-                            text.transition().attr("opacity", 0);
+                        d3.select("#tudimianji_explanation")
+                            .style("visibility", "hidden");
+                    }
 
-                            path.transition()
-                                .duration(750)
-                                .attrTween("d", arcTween(d))
-                                .each("end", function(e, i) {
-                                    // check if the animated element's data e lies within the visible angle span given in d
-                                    if (e.x >= d.x && e.x < (d.x + d.dx)) {
-                                        // get a selection of the associated text element
-                                        var arcText = d3.select(this.parentNode).select("text");
-                                        // fade in the text element and recalculate positions
-                                        arcText.transition().duration(750)
-                                            .attr("opacity", 1)
-                                            .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
-                                            .attr("x", function(d) { return y(d.y); });
-                                    }
-                                });
+                    // Given a node in a partition layout, return an array of all of its ancestor
+                    // nodes, highest first, but excluding the root.
+                    function getAncestors(node) {
+                        var path = [];
+                        var current = node;
+                        while (current.parent) {
+                            path.unshift(current);
+                            current = current.parent;
                         }
+                        return path;
+                    }
+                    function initializeBreadcrumbTrail() {
+                        // Add the svg area.
+                        var trail = d3.select("#tudimianji_sequence").append("svg:svg")
+                            .attr("width", width)
+                            .attr("height", 50)
+                            .attr("id", "trail");
+                        // Add the label at the end, for the percentage.
+                        trail.append("svg:text")
+                            .attr("id", "endlabel")
+                            .style("fill", "#000");
+                    }
+
+                    // Generate a string that describes the points of a breadcrumb polygon.
+                    function breadcrumbPoints(d, i) {
+                        var points = [];
+                        points.push("0,0");
+                        points.push(b.w + ",0");
+                        points.push(b.w + b.t + "," + (b.h / 2));
+                        points.push(b.w + "," + b.h);
+                        points.push("0," + b.h);
+                        if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                            points.push(b.t + "," + (b.h / 2));
+                        }
+                        return points.join(" ");
+                    }
+
+                    // Update the breadcrumb trail to show the current sequence and percentage.
+                    function updateBreadcrumbs(nodeArray, percentageString) {
+
+                        // Data join; key function combines name and depth (= position in sequence).
+                        var g = d3.select("#trail")
+                            .selectAll("g")
+                            .data(nodeArray, function(d) { return d.name + d.depth; });
+
+                        // Add breadcrumb and label for entering nodes.
+                        var entering = g.enter().append("svg:g");
+
+                        entering.append("svg:polygon")
+                            .attr("points", breadcrumbPoints)
+                            .style("fill", function(d) { return colors[d.name]; });
+
+                        entering.append("svg:text")
+                            .attr("x", (b.w + b.t) / 2)
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function(d) { return d.name; });
+
+                        // Set position for entering and updating nodes.
+                        g.attr("transform", function(d, i) {
+                            return "translate(" + i * (b.w + b.s) + ", 0)";
+                        });
+
+                        // Remove exiting nodes.
+                        g.exit().remove();
+
+                        // Now move and update the percentage at the end.
+                        d3.select("#trail").select("#endlabel")
+                            .attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(percentageString);
+
+                        // Make the breadcrumb trail visible, if it's hidden.
+                        d3.select("#trail")
+                            .style("visibility", "");
+
+                    }
+
+                    function drawLegend() {
+
+                        // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                        var li = {
+                            w: 160, h: 30, s: 3, r: 3
+                        };
+
+                        var legend = d3.select("#tudimianji_legend").append("svg:svg")
+                            .attr("width", li.w)
+                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                        var g = legend.selectAll("g")
+                            .data(d3.entries(colors))
+                            .enter().append("svg:g")
+                            .attr("transform", function(d, i) {
+                                return "translate(0," + i * (li.h + li.s) + ")";
+                            });
+
+                        g.append("svg:rect")
+                            .attr("rx", li.r)
+                            .attr("ry", li.r)
+                            .attr("width", li.w)
+                            .attr("height", li.h)
+                            .style("fill", function(d) { return d.value; });
+
+                        g.append("svg:text")
+                            .attr("x", li.w / 2)
+                            .attr("y", li.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function(d) { return d.key; });
+                    }
+
+                    function toggleLegend() {
+                        var legend = d3.select("#tudimianji_legend");
+                        if (legend.style("visibility") == "hidden") {
+                            legend.style("visibility", "");
+                        } else {
+                            legend.style("visibility", "hidden");
+                        }
+                    }
+
+
+
                 });
-
-                d3.select(self.frameElement).style("height", height + "px");
-
-
-                // Interpolate the scales!
-                function arcTween(d) {
-                    var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-                        yd = d3.interpolate(y.domain(), [d.y, 1]),
-                        yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-                    return function (d, i) {
-                        return i
-                            ? function (t) {
-                                return arc(d);
-                            }
-                            : function (t) {
-                                x.domain(xd(t));
-                                y.domain(yd(t)).range(yr(t));
-                                return arc(d);
-                            };
-                    };
-                }
-
-                function computeTextRotation(d) {
-                    return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-                }
             }
 
     });

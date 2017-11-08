@@ -1,0 +1,45 @@
+#tudimianji_main {
+    float: left;
+    width: 500px;
+}
+
+#tudimianji_sidebar {
+    float: right;
+    width: 160px;
+}
+
+#tudimianji_sequence {
+    width: 600px;
+    height: 70px;
+}
+
+#tudimianji_legend {
+    padding: 10px 0 0 3px;
+}
+
+#tudimianji_sequence text, #tudimianji_legend text {
+    font-weight: 400;
+    fill: #fff;
+}
+
+#tudimianji_chart {
+    position: relative;
+}
+
+#tudimianji_chart path {
+    stroke: #fff;
+}
+
+#tudimianji_explanation {
+    position: relative;
+    top: 270px;
+    left: 180px;
+    width: 140px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+}
+
+#tudimianji_percentage {
+    font-size: 2.5em;
+}

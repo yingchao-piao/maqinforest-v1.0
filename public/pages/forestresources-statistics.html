@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../stylesheets/forestresources-statistics.css">
     <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.css">
     <link rel="stylesheet" href="../assets/ion.rangeSlider-2.1.7/css/ion.rangeSlider.skinModern.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/sequences.css"/>
     <!--<link rel="stylesheet" href="../stylesheets/Maqin-geo.css">-->
     <script src="../assets/jquery.js"></script>
     <script src="../assets/Semantic-UI-CSS-master/semantic.js"></script>
@@ -255,11 +256,29 @@
             </div>
         </div>
 
-        <div class="ui two column doubling stackable centered grid container" id="tudimianji">
+        <!--<div class="ui two column doubling stackable centered grid container" id="tudimianji">
             <div class="column">
                <div id="tudimianjiecharts" style="width:500px;height:500px;"></div>
             </div>
+        </div>-->
+
+        <!--tudimianji d3-->
+        <div class="ui stackable centered grid" id="tudimianji">
+            <div id="tudimianji_main">
+                <div id="tudimianji_sequence" style="padding-top:20px;padding-left:10px;"></div>
+                <div id="tudimianji_chart">
+                    <div id="tudimianji_explanation" style="visibility: hidden;">
+                        <span id="tudimianji_percentage"></span><br/>
+                    </div>
+                </div>
+            </div>
+            <div id="tudimianji_sidebar"  style="padding-top:20px;padding-left:25px;">
+                <input type="checkbox" id="tudimianji_togglelegend"> 图例<br/>
+                <div id="tudimianji_legend" style="visibility: hidden;"></div>
+            </div>
         </div>
+        <!--tudimianji d3 end-->
+
         <div class="ui two column doubling stackable centered grid container" id="senlinlinmu">
             <div class="column">
                 <div id="senlinlinmumianji" style="width:550px;height: 400px;"></div>

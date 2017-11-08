@@ -152,79 +152,19 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                 resultObj.forEach(function(singleresultObj){
                     merge(area_tudi,singleresultObj);
                 });
-                var results=
-                    {
-                        "name": "林地权属",
-                        "children": [
-                            {
-                                "name": "国有林地",
-                                "children": [
-                                    {
-                                        "name": "重点公益林地",
-                                        "size": 5879
-                                    },
-                                    {
-                                        "name": "一般公益林地",
-                                        "size": 3844
-                                    },
-                                    {
-                                        "name": "其他",
-                                        "size": 1114
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "非国有林地",
-                                "children": [
-                                    {
-                                        "name": "重点公益林地",
-                                        "size": 2260
-                                    },
-                                    {
-                                        "name": "一般公益林地",
-                                        "size": 3046
-                                    },
-                                    {
-                                        "name": "其他",
-                                        "size": 3228
-                                    }
 
-                                ]
-                            },
-                            {
-                                "name": "非林地",
-                                "children": [
-                                    {
-                                        "name": "重点公益林地",
-                                        "children": [
-                                            {
-                                                "name": "乔木林",
-                                                "size": 2000
-                                            },
-                                            {
-                                                "name": "疏林地",
-                                                "size": 200
-                                            },
-                                            {
-                                                "name": "其他",
-                                                "size": 60
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "name": "一般公益林地",
-                                        "size": 3046
-                                    },
-                                    {
-                                        "name": "其他",
-                                        "size": 3228
-                                    }
-
-                                ]
-                            }
-                        ]
-                    }
-
+                function toFixed_1(area_tudi){
+                    area_tudi.forEach(function(value){
+                        if(value.hasOwnProperty('children')){
+                            toFixed_1(value['children']);
+                        }
+                    });
+                }
+                toFixed_1(area_tudi);
+                var results={
+                    "name": "林地面积统计",
+                    "children": area_tudi
+                }
                 res.send(results);
             }
         );
@@ -268,7 +208,20 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                 resultObj.forEach(function(singleresultObj){
                     merge(area_tudi,singleresultObj);
                 });
-                res.send(area_tudi);
+
+                function toFixed_1(area_tudi){
+                    area_tudi.forEach(function(value){
+                        if(value.hasOwnProperty('children')){
+                            toFixed_1(value['children']);
+                        }
+                    });
+                }
+                toFixed_1(area_tudi);
+                var results={
+                    "name": "林地面积统计",
+                    "children": area_tudi
+                }
+                res.send(results);
             }
         );
     }
