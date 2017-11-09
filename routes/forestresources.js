@@ -72,6 +72,7 @@ router.get('/map/search/:id',function(req,res,next){
     }
 });
 
+//各类土地面积统计
 router.get('/statistics/t1/:xzc',function(req,res,next){
 
     var merge = function(obj,singleresultObj){
@@ -124,7 +125,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                 var resultObj =[];
 
                 var queryResult=result.rows;
-                queryResult.forEach(function(value,index,arr){
+                queryResult.forEach(function(value){
                     if(value.ld_qs=='没有进行集体林权制度改革的林地，或无法确定经营权的林地'){
                         value.ld_qs='非国有林地';
                     }
@@ -227,12 +228,15 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
     }
 
 });
+
+//森林林木面积蓄积
 router.get('/statistics/t2/:xzc',function(req,res,next){
 
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.size=value.size+singleresultObj.size;
+                value.area=value.area+singleresultObj.area;
+                value.stockvolume=value.stockvolume+singleresultObj.stockvolume;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
                 }
@@ -240,6 +244,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
             }
         });
     };
+
     var fieldName={
         "ld_qs":['国有林地'],
         "dilei":['乔木林','疏林地']
@@ -248,14 +253,14 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         var senlinlinmu=[];
         for(var i=0;i<fieldName.ld_qs.length;i++){
             senlinlinmu[i]={
-                aera:0,
-                stockvolume:0,
+                area:0,//mianji
+                stockvolume:0,//huo_lmgqxj*mianji
                 name:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.dilei.length;j++){
                 senlinlinmu[i].children[j]={
-                    aera:0,
+                    area:0,
                     stockvolume:0,
                     name:fieldName.dilei[j]
                 };
@@ -264,7 +269,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         return senlinlinmu;
     }(fieldName);
     if(req.params.xzc==="玛沁县"){
-        pool.query("select ld_qs,dilei,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume" +
+        pool.query("select ld_qs,dilei,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume" +
             " from maqinxiandataedit where dilei='乔木林' or dilei='疏林地'" +
             " group by ld_qs,dilei",function(err,result){
             if(err){
@@ -273,28 +278,41 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
             var resultObj =[];
 
             var queryResult=result.rows;
-            console.log(queryResult);
             queryResult.forEach(function(value){
                 resultObj.push({
                     name:value.ld_qs,
-                    aera:value.aera,
+                    area:value.area,
                     stockvolume:value.stockvolume,
                     children:[
                         {
                             name:value.dilei,
-                            aera:value.aera,
+                            area:value.area,
                             stockvolume:value.stockvolume
                         }
                     ]
                 })
             });
+
             resultObj.forEach(function(singleresultObj){
                 merge(senlinlinmu,singleresultObj);
             });
-            res.send(senlinlinmu);
+            function toFixed_1(senlinlinmu){
+                senlinlinmu.forEach(function(value){
+                    if(value.hasOwnProperty('children')){
+                        toFixed_1(value['children']);
+                    }
+                });
+            }
+            toFixed_1(senlinlinmu);
+            var results={
+                "name": "森林林木面积蓄积统计",
+                "children": senlinlinmu
+            }
+
+            res.send(results);
         });
     }else{
-        pool.query("select ld_qs,dilei,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume" +
+        pool.query("select ld_qs,dilei,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume" +
             " from maqinxiandataedit where (dilei='乔木林' or dilei='疏林地') and xiang=$1::text" +
             " group by ld_qs,dilei",[req.params.xzc],function(err,result){
             if(err){
@@ -309,21 +327,36 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
                 queryResult.forEach(function(value){
                     resultObj.push({
                         name:value.ld_qs,
-                        aera:value.aera,
+                        area:value.area,
                         stockvolume:value.stockvolume,
                         children:[
                             {
                                 name:value.dilei,
-                                aera:value.aera,
+                                area:value.area,
                                 stockvolume:value.stockvolume
                             }
                         ]
                     })
                 });
+
                 resultObj.forEach(function(singleresultObj){
                     merge(senlinlinmu,singleresultObj);
                 });
-                res.send(senlinlinmu);
+
+                function toFixed_1(senlinlinmu){
+                    senlinlinmu.forEach(function(value){
+                        if(value.hasOwnProperty('children')){
+                            toFixed_1(value['children']);
+                        }
+                    });
+                }
+                toFixed_1(senlinlinmu);
+                var results={
+                    "name": "森林林木面积蓄积统计",
+                    "children": senlinlinmu
+                }
+
+                res.send(results);
             }
 
         });
