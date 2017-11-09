@@ -179,14 +179,12 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     // Fade all but the current sequence, and show it in the breadcrumb trail.
                     function mouseover(d) {
 
-                        var percentage = (100 * d.value / totalSize).toPrecision(3);
+                        var percentage = (100 * d.value / totalSize).toPrecision(4);
                         var percentageString = percentage + "%";
-                        if (percentage < 0.1) {
-                            percentageString = "< 0.1%";
-                        }
+
 
                         d3.select("#tudimianji_percentage")
-                            .text(percentageString);
+                            .text(d.value.toFixed(2)+"\n"+percentageString);
 
                         d3.select("#tudimianji_explanation")
                             .style("visibility", "");
@@ -243,7 +241,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     function initializeBreadcrumbTrail() {
                         // Add the svg area.
                         var trail = d3.select("#tudimianji_sequence").append("svg:svg")
-                            .attr("width", width)
+                            .attr("width", width*1.5)
                             .attr("height", 50)
                             .attr("id", "trail");
                         // Add the label at the end, for the percentage.
@@ -256,9 +254,9 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     function breadcrumbPoints(d, i) {
                         var points = [];
                         points.push("0,0");
-                        points.push(b.w + ",0");
-                        points.push(b.w + b.t + "," + (b.h / 2));
-                        points.push(b.w + "," + b.h);
+                        points.push(b.w*2 + ",0");
+                        points.push(b.w*2 + b.t + "," + (b.h / 2));
+                        points.push(b.w*2 + "," + b.h);
                         points.push("0," + b.h);
                         if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
                             points.push(b.t + "," + (b.h / 2));
@@ -282,7 +280,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                             .style("fill", function(d) { return colors[d.name]; });
 
                         entering.append("svg:text")
-                            .attr("x", (b.w + b.t) / 2)
+                            .attr("x", (b.w*2+ b.t) / 2)
                             .attr("y", b.h / 2)
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")
@@ -290,7 +288,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
 
                         // Set position for entering and updating nodes.
                         g.attr("transform", function(d, i) {
-                            return "translate(" + i * (b.w + b.s) + ", 0)";
+                            return "translate(" + i * (b.w*2 + b.s) + ", 0)";
                         });
 
                         // Remove exiting nodes.
@@ -298,7 +296,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
 
                         // Now move and update the percentage at the end.
                         d3.select("#trail").select("#endlabel")
-                            .attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
+                            .attr("x", (nodeArray.length + 0.5) * (b.w + b.s)*2)
                             .attr("y", b.h / 2)
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")

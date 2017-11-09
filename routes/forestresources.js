@@ -228,12 +228,11 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
 
 });
 router.get('/statistics/t2/:xzc',function(req,res,next){
-    ////////////////////////////////
+
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.aera=value.aera+singleresultObj.aera;
-                value.stockvolume=value.stockvolume+singleresultObj.stockvolume;
+                value.size=value.size+singleresultObj.size;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
                 }

@@ -1,6 +1,6 @@
 #tudimianji_main {
     float: left;
-    width: 500px;
+    width: 600px;
 }
 
 #tudimianji_sidebar {
@@ -32,8 +32,8 @@
 
 #tudimianji_explanation {
     position: relative;
-    top: 270px;
-    left: 180px;
+    top: 280px;
+    left: 200px;
     width: 140px;
     text-align: center;
     color: #666;
