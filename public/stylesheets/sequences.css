@@ -10,7 +10,7 @@
 
 #tudimianji_sequence {
     width: 600px;
-    height: 70px;
+    height: 50px;
 }
 
 #tudimianji_legend {
@@ -38,54 +38,12 @@
     text-align: center;
     color: #666;
     z-index: -1;
+    font-size: 12px;
+    visibility: visible;
+    height:54px;
 }
 
 #tudimianji_percentage {
     font-size: 2.5em;
-}
 
-#linmuxuji_main {
-    float: left;
-    width: 600px;
-}
-
-#linmuxuji_sidebar {
-    float: right;
-    width: 160px;
-}
-
-#linmuxuji_sequence {
-    width: 600px;
-    height: 70px;
-}
-
-#linmuxuji_legend {
-    padding: 10px 0 0 3px;
-}
-
-#linmuxuji_sequence text, #tudimianji_legend text {
-    font-weight: 400;
-    fill: #fff;
-}
-
-#linmuxuji_chart {
-    position: relative;
-}
-
-#linmuxuji_chart path {
-    stroke: #fff;
-}
-
-#linmuxuji_explanation {
-    position: relative;
-    top: 280px;
-    left: 200px;
-    width: 140px;
-    text-align: center;
-    color: #666;
-    z-index: -1;
-}
-
-#linmuxuji_percentage {
-    font-size: 2.5em;
 }

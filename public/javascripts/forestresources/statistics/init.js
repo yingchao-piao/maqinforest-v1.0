@@ -127,6 +127,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     .attr("width", width)
                     .attr("height", height)
                     .append("g")
+                    .attr("id", "tudimianji_container")
                     .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
                 var partition = d3.layout.partition()
@@ -208,7 +209,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     function mouseleave(d) {
 
                         // Hide the breadcrumb trail
-                        d3.select("#tudimianji_trail")
+                        d3.select("#tudimianji_BreadcrumbTrail")
                             .style("visibility", "hidden");
 
                         // Deactivate all segments during transition.
@@ -335,6 +336,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                             .on("mouseover",function(){
                                 d3.select(this)
                                     .style("opacity", 0.5);
+
                             })
                             .on("mouseout",function(){
                                 d3.select(this)
@@ -378,271 +380,151 @@ $('.ui.link.six.cards .blue.card').click(function(){
             alert('error message: '+errorThrown.toString());
         },
         success:function(res){
-            // Dimensions of sunburst.
-            var width = 500;
-            var height = 500;
-            var radius = Math.min(width, height) / 2;
-
-            // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-            var b = {
-                w: 75, h: 30, s: 3, t: 10
-            };
-
-            // Mapping of names to colors.
-            var colors = {
-                "乔木林": "#18bb41",
-                "疏林地": "#bb904c",
-            };
-
-            // Total size of all segments; we set this later, after loading the data.
-            var totalSize = 0;
-
-            var svg = d3.select("#linmuxuji_chart").append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
-
-            var partition = d3.layout.partition()
-                .size([2 * Math.PI, radius * radius])
-                .value(function(d) { return d.size; });
-
-            var arc = d3.svg.arc()
-                .startAngle(function(d) { return d.x; })
-                .endAngle(function(d) { return d.x + d.dx; })
-                .innerRadius(function(d) { return Math.sqrt(d.y); })
-                .outerRadius(function(d) { return Math.sqrt(d.y + d.dy); });
-
-
-
-                d3.json('/forestresources/statistics/t2/'+xzcname, function (error, root) {
-                console.log(JSON.stringify(root));
-                // Basic setup of page elements.
-                initializeBreadcrumbTrail();
-                drawLegend();
-                d3.select("#linmuxuji_togglelegend").on("click", toggleLegend);
-
-                //Bounding circle underneath the sunburst, to make it easier to detect
-                // when the mouse leaves the parent g.
-                svg.append("svg:circle")
-                    .attr("r", radius)
-                    .style("opacity", 0);
-
-
-                var nodes = partition.nodes(root)
-                    .filter(function (d) {
-                        return (d.dx > 0);
+            var senlinlinmu = JSON.parse(res);
+            console.log(senlinlinmu);
+            if(senlinlinmu.length===0){
+                alert('senlinlinmu response is null');
+            }else{
+                function toFixed_1(arr){
+                    arr.forEach(function(value){
+                        value.aera=value.aera.toFixed(1);
+                        value.stockvolume=value.stockvolume.toFixed(1);
+                        if(value.hasOwnProperty('children')){
+                            toFixed_1(value['children']);
+                        }
                     });
-
-                var path = svg.data([root]).selectAll("path")
-                    .data(nodes)
-                    .enter().append("svg:path")
-                    .attr("display", function (d) {
-                        return d.depth ? null : "none";
-                    })
-                    .attr("d", arc)
-                    .attr("fill-rule", "evenodd")
-                    .style("fill", function (d) {
-                        return colors[d.name];
-                    })
-                    .style("opacity", 1)
-                    .on("mouseover", mouseover);
-
-                // Add the mouseleave handler to the bounding circle.
-                d3.select("#linmuxuji_container").on("mouseleave", mouseleave);
-                // Get total size of the tree = value of root node from partition.
-                totalSize = path.node().__data__.value;
-                // Fade all but the current sequence, and show it in the breadcrumb trail.
-                function mouseover(d) {
-
-                    var percentage = (100 * d.value / totalSize).toPrecision(4);
-                    var percentageString = percentage + "%";
-
-
-                    d3.select("#linmuxuji_percentage")
-                        .text(d.value.toFixed(2)+"\n"+percentageString);
-
-                    d3.select("#linmuxuji_explanation")
-                        .style("visibility", "");
-
-                    var sequenceArray = getAncestors(d);
-                    updateBreadcrumbs(sequenceArray, percentageString);
-
-                    // Fade all the segments.
-                    d3.selectAll("path")
-                        .style("opacity", 0.3);
-
-                    // Then highlight only those that are an ancestor of the current segment.
-                    svg.selectAll("path")
-                        .filter(function(node) {
-                            return (sequenceArray.indexOf(node) >= 0);
-                        })
-                        .style("opacity", 1);
                 }
+                toFixed_1(senlinlinmu);
+                var senlinlinmumianjiEchart = echarts.init(document.getElementById('senlinlinmumianji'));
+                var senlinlinmuxujiEchart = echarts.init(document.getElementById('senlinlinmuxuji'));
+                senlinlinmumianjiEchart.setOption({
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    series:[
+                        {
+                            name:'土地面积:公顷',
+                            type:'pie',
+                            radius:[0,'30%'],
+                            label: {
+                                normal: {
+                                    position: 'inner'
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:[
+                                {value:senlinlinmu[0].aera,name:'国有'}
+                            ]
+                        },
+                        {
+                            name:'土地面积:公顷',
+                            type:'pie',
+                            radius: ['40%', '55%'],
+                            data:[
+                                {value:senlinlinmu[0].children[1].aera,name:'疏林地',itemStyle:{
+                                    normal:{
+                                        label:{show:function(){
+                                            if(senlinlinmu[0].children[1].aera==0){
+                                                return false;
+                                            }
+                                        }()},
+                                        labelLine:{show:function(){
+                                            if(senlinlinmu[0].children[1].aera==0){
+                                                return false;
+                                            }
+                                        }()}
+                                    }
+                                }},
+                                {value:senlinlinmu[0].children[0].aera,name:'乔木林',itemStyle:{
+                                    normal:{
+                                        label:{show:function(){
+                                            if(senlinlinmu[0].children[0].aera==0){
+                                                return false;
+                                            }
+                                        }()},
+                                        labelLine:{show:function(){
+                                            if(senlinlinmu[0].children[0].aera==0){
+                                                return false;
+                                            }
+                                        }()}
+                                    }
+                                }}
+                            ]
+                        }
+                    ]
+                });
+                senlinlinmuxujiEchart.setOption({
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    series:[
+                        {
+                            name:'活立木蓄积量:立方米',
+                            type:'pie',
+                            radius:[0,'30%'],
+                            label: {
+                                normal: {
+                                    position: 'inner'
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:[
+                                {value:senlinlinmu[0].stockvolume,name:'国有'}
+                            ]
+                        },
+                        {
+                            name:'活立木蓄积量:立方米',
+                            type:'pie',
+                            radius: ['40%', '55%'],
+                            data:[
+                                {value:senlinlinmu[0].children[1].stockvolume,name:'疏林地',itemStyle:{
+                                    normal:{
+                                        label:{show:function(){
+                                            if(senlinlinmu[0].children[1].stockvolume==0){
+                                                return false;
+                                            }
+                                        }()},
+                                        labelLine:{show:function(){
+                                            if(senlinlinmu[0].children[1].stockvolume==0){
+                                                return false;
+                                            }
+                                        }()}
+                                    }
+                                }},
+                                {value:senlinlinmu[0].children[0].stockvolume,name:'乔木林',itemStyle:{
+                                    normal:{
+                                        label:{show:function(){
+                                            if(senlinlinmu[0].children[0].stockvolume==0){
+                                                return false;
+                                            }
+                                        }()},
+                                        labelLine:{show:function(){
+                                            if(senlinlinmu[0].children[0].stockvolume==0){
+                                                return false;
+                                            }
+                                        }()}
+                                    }
+                                }}
+                            ]
+                        }
+                    ]
+                });
+            }
 
-                // Restore everything to full opacity when moving off the visualization.
-                function mouseleave(d) {
-
-                    // Hide the breadcrumb trail
-                    d3.select("#linmuxuji_trail")
-                        .style("visibility", "hidden");
-
-                    // Deactivate all segments during transition.
-                    d3.selectAll("path").on("mouseover", null);
-
-                    // Transition each segment to full opacity and then reactivate it.
-                    d3.selectAll("path")
-                        .transition()
-                        .duration(1000)
-                        .style("opacity", 1)
-                        .each("end", function() {
-                            d3.select(this).on("mouseover", mouseover);
-                        });
-
-                    d3.select("#linmuxuji_explanation")
-                        .style("visibility", "hidden");
-                }
-
-                // Given a node in a partition layout, return an array of all of its ancestor
-                // nodes, highest first, but excluding the root.
-                function getAncestors(node) {
-                    var path = [];
-                    var current = node;
-                    while (current.parent) {
-                        path.unshift(current);
-                        current = current.parent;
-                    }
-                    return path;
-                }
-                function initializeBreadcrumbTrail() {
-                    // Add the svg area.
-                    var linmuxuji_BreadcrumbTrail = d3.select("#linmuxuji_sequence").append("svg:svg")
-                        .attr("width", width*1.5)
-                        .attr("height", 50)
-                        .attr("id", "linmuxuji_BreadcrumbTrail");
-                    // Add the label at the end, for the percentage.
-                    linmuxuji_BreadcrumbTrail.append("svg:text")
-                        .attr("id", "endlabel")
-                        .style("fill", "#000");
-                }
-
-                // Generate a string that describes the points of a breadcrumb polygon.
-                function breadcrumbPoints(d, i) {
-                    var points = [];
-                    points.push("0,0");
-                    points.push(b.w*2 + ",0");
-                    points.push(b.w*2 + b.t + "," + (b.h / 2));
-                    points.push(b.w*2 + "," + b.h);
-                    points.push("0," + b.h);
-                    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-                        points.push(b.t + "," + (b.h / 2));
-                    }
-                    return points.join(" ");
-                }
-
-                // Update the breadcrumb trail to show the current sequence and percentage.
-                function updateBreadcrumbs(nodeArray, percentageString) {
-
-                    // Data join; key function combines name and depth (= position in sequence).
-                    var g = d3.select("#linmuxuji_BreadcrumbTrail")
-                        .selectAll("g")
-                        .data(nodeArray, function(d) { return d.name + d.depth; });
-
-                    // Add breadcrumb and label for entering nodes.
-                    var entering = g.enter().append("svg:g");
-
-                    entering.append("svg:polygon")
-                        .attr("points", breadcrumbPoints)
-                        .style("fill", function(d) { return colors[d.name]; });
-
-                    entering.append("svg:text")
-                        .attr("x", (b.w*2+ b.t) / 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function(d) { return d.name; });
-
-                    // Set position for entering and updating nodes.
-                    g.attr("transform", function(d, i) {
-                        return "translate(" + i * (b.w*2 + b.s) + ", 0)";
-                    });
-
-                    // Remove exiting nodes.
-                    g.exit().remove();
-
-                    // Now move and update the percentage at the end.
-                    d3.select("#linmuxuji_BreadcrumbTrail").select("#endlabel")
-                        .attr("x", (nodeArray.length + 0.5) * (b.w + b.s)*2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(percentageString);
-
-                    // Make the breadcrumb trail visible, if it's hidden.
-                    d3.select("#linmuxuji_BreadcrumbTrail")
-                        .style("visibility", "");
-
-                }
-
-                function drawLegend() {
-
-                    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
-                    var li = {
-                        w: 160, h: 30, s: 3, r: 3
-                    };
-
-                    var legend = d3.select("#linmuxuji_legend").append("svg:svg")
-                        .attr("width", li.w)
-                        .attr("height", d3.keys(colors).length * (li.h + li.s));
-
-                    var g = legend.selectAll("g")
-                        .data(d3.entries(colors))
-                        .enter().append("svg:g")
-                        .attr("transform", function(d, i) {
-                            return "translate(0," + i * (li.h + li.s) + ")";
-                        });
-
-                    g.append("svg:rect")
-                        .attr("rx", li.r)
-                        .attr("ry", li.r)
-                        .attr("width", li.w)
-                        .attr("height", li.h)
-                        .style("fill", function(d) { return d.value; })
-                        .on("mouseover",function(){
-                            d3.select(this)
-                                .style("opacity", 0.5);
-                        })
-                        .on("mouseout",function(){
-                            d3.select(this)
-                                .transition()
-                                .duration(100)
-                                .style("opacity", 1);
-                        })
-                    ;
-
-                    g.append("svg:text")
-                        .attr("x", li.w / 2)
-                        .attr("y", li.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function(d) { return d.key; });
-                }
-
-                function toggleLegend() {
-                    var legend = d3.select("#linmuxuji_legend");
-                    if (legend.style("visibility") == "hidden") {
-                        legend.style("visibility", "");
-                    } else {
-                        legend.style("visibility", "hidden");
-                    }
-                }
-
-
-
-            });
         }
-
     });
+
+
     $.ajax({
         url:'/forestresources/statistics/t3/'+xzcname,
         type:'GET',

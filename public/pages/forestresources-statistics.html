@@ -263,38 +263,33 @@
         </div>-->
 
         <!--tudimianji d3-->
-        <div class="ui stackable centered grid" id="tudimianji">
+        <div class="text" id="tudimianji" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
+        <div class="ui stackable centered grid" id="tudimianji_data" style="padding-top: 20px">
             <div id="tudimianji_main">
-                <div id="tudimianji_sequence" style="padding-top:20px;padding-left:10px;"></div>
+                <div id="tudimianji_sequence" style="padding-top: 20px"></div>
                 <div id="tudimianji_chart">
                     <div id="tudimianji_explanation" style="visibility: hidden;">
                         <span id="tudimianji_percentage"></span><br/>
                     </div>
                 </div>
             </div>
-            <div id="tudimianji_sidebar"  style="padding-top:40px;padding-left:25px;">
+            <div id="tudimianji_sidebar" style="padding-top: 25px">
                 <input type="checkbox" id="tudimianji_togglelegend"> 图例<br/>
                 <div id="tudimianji_legend" style="visibility: hidden;"></div>
             </div>
         </div>
         <!--tudimianji d3 end-->
 
-        <!--linmuxuji d3-->
-        <div class="ui stackable centered grid" id="linmuxuji">
-            <div id="linmuxuji_main">
-                <div id="linmuxuji_sequence" style="padding-top:20px;padding-left:10px;"></div>
-                <div id="linmuxuji_chart">
-                    <div id="linmuxuji_explanation" style="visibility: hidden;">
-                        <span id="linmuxuji_percentage"></span><br/>
-                    </div>
-                </div>
+        <!--linmuxuji echarts-->
+        <div class="ui two column doubling stackable centered grid container" id="senlinlinmu">
+            <div class="column">
+                <div id="senlinlinmumianji" style="width:550px;height: 400px;"></div>
             </div>
-            <div id="linmuxuji_sidebar"  style="padding-top:40px;padding-left:25px;">
-                <input type="checkbox" id="linmuxuji_togglelegend"> 图例<br/>
-                <div id="linmuxuji_legend" style="visibility: hidden;"></div>
+            <div class="column">
+                <div id="senlinlinmuxuji" style="width:550px;height: 400px;"></div>
             </div>
         </div>
-        <!--linmuxuji d3 end-->
+        <!--linmuxuji echarts end-->
 
 
         <div class="ui two column doubling stackable centered grid container" id="linzhong">
