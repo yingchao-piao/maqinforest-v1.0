@@ -64,4 +64,60 @@
     border: 1px solid rgba(34, 36, 38, 0.15);
 }
 
+#linzhongmianji{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+#linzhongmianji_main {
+    float: left;
+    width: 300px;
+}
+
+#linzhongmianji_sidebar {
+    float: right;
+}
+
+#linzhongmianji_sequence {
+    width: 500px;
+    height: 50px;
+}
+
+#linzhongmianji_legend {
+    padding: 10px 0 0 3px;
+}
+
+#linzhongmianji_sequence text, #linzhongmianji_legend text {
+    font-weight: 200;
+    fill: #fff;
+}
+
+#linzhongmianji_chart {
+    position: relative;
+}
+
+#linzhongmianji_chart path {
+    stroke: #fff;
+}
+
+#linzhongmianji_explanation {
+    position: relative;
+    top: 140px;
+    left: 100px;
+    width: 100px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+    font-size: 8px;
+    visibility: visible;
+    height:20px;
+}
+
+#linzhongmianji_percentage {
+    font-size: 2.5em;
+}
+
 

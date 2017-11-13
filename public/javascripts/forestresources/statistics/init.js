@@ -582,8 +582,8 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 }
                 console.log(linzhongmianji)
                 // Dimensions of sunburst.
-                var width = 500;
-                var height = 500;
+                var width = 300;
+                var height = 300;
                 var radius = Math.min(width, height) / 2;
 
                 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
@@ -737,7 +737,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 function initializeBreadcrumbTrail() {
                     // Add the svg area.
                     var linzhongmianji_BreadcrumbTrail = d3.select("#linzhongmianji_sequence").append("svg:svg")
-                        .attr("width", width * 1.5)
+                        .attr("width", width *2)
                         .attr("height", 50)
                         .attr("id", "linzhongmianji_BreadcrumbTrail");
                     // Add the label at the end, for the percentage.

@@ -256,12 +256,6 @@
             </div>
         </div>
 
-        <!--<div class="ui two column doubling stackable centered grid container" id="tudimianji">
-            <div class="column">
-               <div id="tudimianjiecharts" style="width:500px;height:500px;"></div>
-            </div>
-        </div>-->
-
         <!--tudimianji d3-->
         <div class="ui stackable centered grid" id="tudimianji" style="padding-top: 20px">
             <div class="ui stackable centered grid container" id="tudimianji_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
@@ -299,9 +293,24 @@
 
 
         <!--linzhongmianji d3-->
-        <div class="ui stackable centered grid" id="linzhongmianji" style="padding-top: 20px">
+        <div class="ui two column doubling stackable centered grid" id="linzhongmianji" style="padding-top: 20px">
             <div class="ui stackable centered grid container" id="linzhongmianji_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林种面积统计</div>
-            <div class="ui stackable centered grid" id="linzhongmianji_data">
+            <div class="column">
+                <div id="linzhongmianji_sequence" style="padding-top: 20px"></div>
+                <div id="linzhongmianji_main">
+
+                    <div id="linzhongmianji_chart">
+                        <div id="linzhongmianji_explanation" style="visibility: hidden;">
+                            <span id="linzhongmianji_percentage"></span><br/>
+                        </div>
+                    </div>
+                </div>
+                <div id="linzhongmianji_sidebar" style="padding-top: 25px">
+                    <input type="checkbox" id="linzhongmianji_togglelegend" checked="checked"> 图例<br/>
+                    <div id="linzhongmianji_legend"></div>
+                </div>
+            </div>
+            <div class="column">
                 <div id="linzhongmianji_main">
                     <div id="linzhongmianji_sequence" style="padding-top: 20px"></div>
                     <div id="linzhongmianji_chart">
