@@ -229,7 +229,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
 
 });
 
-//森林林木面积蓄积
+//森林林木面积蓄积t2
 router.get('/statistics/t2/:xzc',function(req,res,next){
 
     var merge = function(obj,singleresultObj){
@@ -335,13 +335,13 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
 });
 
 
-
+//林种统计t3
 router.get('/statistics/t3/:xzc',function(req,res,next){
 
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.aera=value.aera+singleresultObj.aera;
+                value.area=value.area+singleresultObj.area;
                 value.stockvolume=value.stockvolume+singleresultObj.stockvolume;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
@@ -360,33 +360,30 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
     };
     var fieldName={
         "linzhong":['水土保持林','水源涵养林','自然保护林'],
-        "dilei":['乔木林','疏林地','国家特别规定灌木林地','其它灌木林地'],
+        "dilei":['乔木林','疏林地','国家特别规定灌木林地'],
         "linzu":['国家特别规定灌木林地','幼龄林','中龄林','近熟林','成熟林','过熟林']
     };
     var linzhong=function(fieldName){
         var linzhong=[];
         for(var i=0;i<fieldName.linzhong.length;i++){
             linzhong[i]={
-                aera:0,
+                area:0,
                 stockvolume:0,
                 name:fieldName.linzhong[i],
-                path:fieldName.linzhong[i],
                 children:[]
             };
             for(var j=0;j<fieldName.dilei.length;j++){
                 linzhong[i].children[j]={
-                    aera:0,
+                    area:0,
                     stockvolume:0,
                     name:fieldName.dilei[j],
-                    path:fieldName.linzhong[i]+'/'+fieldName.dilei[j],
                     children:[]
                 };
                 for(var k=0;k<fieldName.linzu.length;k++){
                     linzhong[i].children[j].children[k]={
-                        aera:0,
+                        area:0,
                         stockvolume:0,
                         name:fieldName.linzu[k],
-                        path:fieldName.linzhong[i]+'/'+fieldName.dilei[j]+'/'+fieldName.linzu[k]
                     }
                 }
             }
@@ -394,9 +391,9 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
         return linzhong;
     }(fieldName);
     if(req.params.xzc==="玛沁县"){
-        pool.query("select linzhong,dilei,linzu,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume " +
+        pool.query("select linzhong,dilei,linzu,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume " +
             "from maqinxiandataedit " +
-            "where dilei='乔木林' or dilei='疏林地' or dilei='国家特别规定灌木林地' or dilei='其它灌木林地' " +
+            "where dilei='乔木林' or dilei='疏林地' or dilei='国家特别规定灌木林地'" +
             "group by linzhong,dilei,linzu",
             function(err,result){
                 if(err){
@@ -409,20 +406,20 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
                     res.send('[]');
                 }else{
                     queryResult.forEach(function(value){
-                        if(value.linzu===''){
+                        if(value.linzu==''){
                             value.linzu="0";
                         }
                         resultObj.push({
                             name:value.linzhong,
-                            aera:value.aera,
+                            area:value.area,
                             stockvolume:value.stockvolume,
                             children:[{
                                 name:value.dilei,
-                                aera:value.aera,
+                                area:value.area,
                                 stockvolume:value.stockvolume,
                                 children:[{
                                     name:linzu[value.linzu],
-                                    aera:value.aera,
+                                    area:value.area,
                                     stockvolume:value.stockvolume
                                 }]
                             }]
@@ -435,10 +432,10 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
                 }
         });
     }else{
-        pool.query("select linzhong,dilei,linzu,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume " +
+        pool.query("select linzhong,dilei,linzu,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume " +
             "from maqinxiandataedit " +
-            "where (dilei='乔木林' or dilei='疏林地' or dilei='国家特别规定灌木林地' or dilei='其它灌木林地') and xiang=$1::text " +
-            "group by linzhong,dilei,linzu",[req.params.xzc],
+            "where (dilei='乔木林' or dilei='疏林地' or dilei='国家特别规定灌木林地') and xiang=$1::text " +
+            "group by linzhong, dilei, linzu",[req.params.xzc],
             function(err,result){
                 if(err){
                     console.error("error running query ",err);
@@ -452,15 +449,15 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
                     queryResult.forEach(function(value){
                         resultObj.push({
                             name:value.linzhong,
-                            aera:value.aera,
+                            area:value.area,
                             stockvolume:value.stockvolume,
                             children:[{
                                 name:value.dilei,
-                                aera:value.aera,
+                                area:value.area,
                                 stockvolume:value.stockvolume,
                                 children:[{
                                     name:linzu[value.linzu],
-                                    aera:value.aera,
+                                    area:value.area,
                                     stockvolume:value.stockvolume
                                 }]
                             }]
