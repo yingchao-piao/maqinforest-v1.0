@@ -235,7 +235,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.aera=value.aera+singleresultObj.aera;
+                value.area=value.area+singleresultObj.area;
                 value.stockvolume=value.stockvolume+singleresultObj.stockvolume;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
@@ -252,14 +252,14 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         var senlinlinmu=[];
         for(var i=0;i<fieldName.ld_qs.length;i++){
             senlinlinmu[i]={
-                aera:0,
+                area:0,
                 stockvolume:0,
                 name:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.dilei.length;j++){
                 senlinlinmu[i].children[j]={
-                    aera:0,
+                    area:0,
                     stockvolume:0,
                     name:fieldName.dilei[j]
                 };
@@ -268,7 +268,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         return senlinlinmu;
     }(fieldName);
     if(req.params.xzc==="玛沁县"){
-        pool.query("select ld_qs,dilei,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume" +
+        pool.query("select ld_qs,dilei,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume" +
             " from maqinxiandataedit where dilei='乔木林' or dilei='疏林地'" +
             " group by ld_qs,dilei",function(err,result){
             if(err){
@@ -281,12 +281,12 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
             queryResult.forEach(function(value){
                 resultObj.push({
                     name:value.ld_qs,
-                    aera:value.aera,
+                    area:value.area,
                     stockvolume:value.stockvolume,
                     children:[
                         {
                             name:value.dilei,
-                            aera:value.aera,
+                            area:value.area,
                             stockvolume:value.stockvolume
                         }
                     ]
@@ -298,7 +298,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
             res.send(senlinlinmu);
         });
     }else{
-        pool.query("select ld_qs,dilei,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as stockvolume" +
+        pool.query("select ld_qs,dilei,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume" +
             " from maqinxiandataedit where (dilei='乔木林' or dilei='疏林地') and xiang=$1::text" +
             " group by ld_qs,dilei",[req.params.xzc],function(err,result){
             if(err){
@@ -313,12 +313,12 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
                 queryResult.forEach(function(value){
                     resultObj.push({
                         name:value.ld_qs,
-                        aera:value.aera,
+                        area:value.area,
                         stockvolume:value.stockvolume,
                         children:[
                             {
                                 name:value.dilei,
-                                aera:value.aera,
+                                area:value.area,
                                 stockvolume:value.stockvolume
                             }
                         ]
@@ -333,6 +333,9 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         });
     }
 });
+
+
+
 router.get('/statistics/t3/:xzc',function(req,res,next){
 
     var merge = function(obj,singleresultObj){

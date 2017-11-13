@@ -107,13 +107,13 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     "重点公益林地": "#b95b36",
                     "一般公益林地": "#a173d1",
                     "其他": "#bbb42f",
-                    "乔木林": "#18bb41",
+                    "乔木林": "#18bb08",
                     "疏林地": "#bb904c",
-                    "苗圃地": "#8dbb7f",
+                    "苗圃地": "#bbb695",
                     "国家特别规定灌木林地": "#6cbba8",
                     "宜林荒山荒地": "#bb992e",
                     "水域": "#0b2bbb",
-                    "牧草地": "#42bb69",
+                    "牧草地": "#95bb5a",
                     "未利用地": "#bb7037",
                     "耕地": "#bb59ae",
                     "建设用地": "#4b4b4b",
@@ -380,14 +380,16 @@ $('.ui.link.six.cards .blue.card').click(function(){
             alert('error message: '+errorThrown.toString());
         },
         success:function(res){
+
             var senlinlinmu = JSON.parse(res);
-            console.log(senlinlinmu);
-            if(senlinlinmu.length===0){
-                alert('senlinlinmu response is null');
+
+            if(senlinlinmu.length==0){//某些县没有林地面积统计数据
+                document.getElementById("senlinlinmu_nodata").style.visibility="visible";;
+                document.getElementById("senlinlinmu_data").style.display="none";
             }else{
                 function toFixed_1(arr){
                     arr.forEach(function(value){
-                        value.aera=value.aera.toFixed(1);
+                        value.area=value.area.toFixed(1);
                         value.stockvolume=value.stockvolume.toFixed(1);
                         if(value.hasOwnProperty('children')){
                             toFixed_1(value['children']);
@@ -402,14 +404,22 @@ $('.ui.link.six.cards .blue.card').click(function(){
                         trigger: 'item',
                         formatter: "{a} <br/>{b}: {c} ({d}%)"
                     },
+                    color:['#9E1E18','#44615E', '#948B53'],
                     series:[
                         {
-                            name:'土地面积:公顷',
+                            name:'林地面积:公顷',
                             type:'pie',
-                            radius:[0,'30%'],
+                            radius: [0, '30%'],
+
                             label: {
                                 normal: {
-                                    position: 'inner'
+                                    position:"center",
+                                    formatter:"{b}:\n{c}公顷",
+                                    textStyle : {
+                                        color:"#FFF",
+                                        fontWeight : 'bold',
+                                        fontSize : 15
+                                    }
                                 }
                             },
                             labelLine: {
@@ -418,37 +428,48 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 }
                             },
                             data:[
-                                {value:senlinlinmu[0].aera,name:'国有'}
+                                {value:senlinlinmu[0].area,name:'总面积'},
+
                             ]
                         },
                         {
-                            name:'土地面积:公顷',
+                            name:'林地面积:公顷',
                             type:'pie',
                             radius: ['40%', '55%'],
                             data:[
-                                {value:senlinlinmu[0].children[1].aera,name:'疏林地',itemStyle:{
+                                {value:senlinlinmu[0].children[1].area,name:'疏林地',itemStyle:{
                                     normal:{
                                         label:{show:function(){
-                                            if(senlinlinmu[0].children[1].aera==0){
+                                            if(senlinlinmu[0].children[1].area==0){
                                                 return false;
+                                            };
+                                        }(),
+                                            textStyle : {
+                                                fontWeight : 'normal',
+                                                fontSize : 14
                                             }
-                                        }()},
+                                        },
                                         labelLine:{show:function(){
-                                            if(senlinlinmu[0].children[1].aera==0){
+                                            if(senlinlinmu[0].children[1].area==0){
                                                 return false;
                                             }
                                         }()}
                                     }
                                 }},
-                                {value:senlinlinmu[0].children[0].aera,name:'乔木林',itemStyle:{
+                                {value:senlinlinmu[0].children[0].area,name:'乔木林',itemStyle:{
                                     normal:{
                                         label:{show:function(){
-                                            if(senlinlinmu[0].children[0].aera==0){
+                                            if(senlinlinmu[0].children[0].area==0){
                                                 return false;
                                             }
-                                        }()},
+                                        }(),
+                                            textStyle : {
+                                                fontWeight : 'normal',
+                                                fontSize : 14
+                                            }
+                                        },
                                         labelLine:{show:function(){
-                                            if(senlinlinmu[0].children[0].aera==0){
+                                            if(senlinlinmu[0].children[0].area==0){
                                                 return false;
                                             }
                                         }()}
@@ -463,6 +484,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                         trigger: 'item',
                         formatter: "{a} <br/>{b}: {c} ({d}%)"
                     },
+                    color:['#9E1E18','#44615E', '#948B53'],
                     series:[
                         {
                             name:'活立木蓄积量:立方米',
@@ -470,7 +492,13 @@ $('.ui.link.six.cards .blue.card').click(function(){
                             radius:[0,'30%'],
                             label: {
                                 normal: {
-                                    position: 'inner'
+                                    position:"center",
+                                    formatter:"{b}:\n{c}立方米",
+                                    textStyle : {
+                                        color:"#FFF",
+                                        fontWeight : 'bold',
+                                        fontSize : 15
+                                    }
                                 }
                             },
                             labelLine: {
@@ -479,7 +507,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 }
                             },
                             data:[
-                                {value:senlinlinmu[0].stockvolume,name:'国有'}
+                                {value:senlinlinmu[0].stockvolume,name:'总活立木蓄积量'}
                             ]
                         },
                         {
@@ -493,7 +521,12 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                             if(senlinlinmu[0].children[1].stockvolume==0){
                                                 return false;
                                             }
-                                        }()},
+                                        }(),
+                                            textStyle : {
+                                                fontWeight : 'normal',
+                                                fontSize : 14
+                                            }
+                                        },
                                         labelLine:{show:function(){
                                             if(senlinlinmu[0].children[1].stockvolume==0){
                                                 return false;
@@ -507,7 +540,12 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                             if(senlinlinmu[0].children[0].stockvolume==0){
                                                 return false;
                                             }
-                                        }()},
+                                        }(),
+                                            textStyle : {
+                                                fontWeight : 'normal',
+                                                fontSize : 14
+                                            }
+                                        },
                                         labelLine:{show:function(){
                                             if(senlinlinmu[0].children[0].stockvolume==0){
                                                 return false;

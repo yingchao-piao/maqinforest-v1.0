@@ -1,3 +1,11 @@
+#tudimianji{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
 #tudimianji_main {
     float: left;
     width: 600px;
@@ -33,7 +41,7 @@
 #tudimianji_explanation {
     position: relative;
     top: 280px;
-    left: 200px;
+    left: 210px;
     width: 140px;
     text-align: center;
     color: #666;
@@ -45,5 +53,15 @@
 
 #tudimianji_percentage {
     font-size: 2.5em;
-
 }
+
+
+#senlinlinmu{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+

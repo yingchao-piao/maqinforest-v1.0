@@ -263,33 +263,39 @@
         </div>-->
 
         <!--tudimianji d3-->
-        <div class="text" id="tudimianji" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
-        <div class="ui stackable centered grid" id="tudimianji_data" style="padding-top: 20px">
-            <div id="tudimianji_main">
-                <div id="tudimianji_sequence" style="padding-top: 20px"></div>
-                <div id="tudimianji_chart">
-                    <div id="tudimianji_explanation" style="visibility: hidden;">
-                        <span id="tudimianji_percentage"></span><br/>
+        <div class="ui stackable centered grid" id="tudimianji" style="padding-top: 20px">
+            <div class="ui stackable centered grid container" id="tudimianji_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
+            <div class="ui stackable centered grid" id="tudimianji_data">
+                <div id="tudimianji_main">
+                    <div id="tudimianji_sequence" style="padding-top: 20px"></div>
+                    <div id="tudimianji_chart">
+                        <div id="tudimianji_explanation" style="visibility: hidden;">
+                            <span id="tudimianji_percentage"></span><br/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="tudimianji_sidebar" style="padding-top: 25px">
-                <input type="checkbox" id="tudimianji_togglelegend"> 图例<br/>
-                <div id="tudimianji_legend" style="visibility: hidden;"></div>
+                <div id="tudimianji_sidebar" style="padding-top: 25px">
+                    <input type="checkbox" id="tudimianji_togglelegend" checked="checked"> 图例<br/>
+                    <div id="tudimianji_legend"></div>
+                </div>
             </div>
         </div>
         <!--tudimianji d3 end-->
 
-        <!--linmuxuji echarts-->
-        <div class="ui two column doubling stackable centered grid container" id="senlinlinmu">
-            <div class="column">
-                <div id="senlinlinmumianji" style="width:550px;height: 400px;"></div>
-            </div>
-            <div class="column">
-                <div id="senlinlinmuxuji" style="width:550px;height: 400px;"></div>
+        <!--senlinlinmu echarts-->
+        <div id="senlinlinmu" style="padding-top: 20px;padding-bottom:20px">
+            <div class="text" id="senlinlinmu_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">森林林木面积蓄积统计</div>
+            <div class="text" id="senlinlinmu_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
+            <div class="ui two column doubling stackable centered grid container" id="senlinlinmu_data">
+                <div class="column">
+                    <div id="senlinlinmumianji" style="width:550px; height:550px;"></div>
+                </div>
+                <div class="column">
+                    <div id="senlinlinmuxuji" style="width:550px; height:550px;"></div>
+                </div>
             </div>
         </div>
-        <!--linmuxuji echarts end-->
+        <!--senlinlinmu echarts end-->
 
 
         <div class="ui two column doubling stackable centered grid container" id="linzhong">
