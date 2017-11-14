@@ -869,6 +869,302 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 }
 
             });
+            //linzhongxujicharts
+            d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
+
+                var linzhongxuji = {
+                    "name": "林种蓄积量统计",
+                    "children": root
+                }
+                console.log(linzhongxuji)
+                // Dimensions of sunburst.
+                var width = 300;
+                var height = 300;
+                var radius = Math.min(width, height) / 2;
+
+                // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                var b = {
+                    w: 75, h: 30, s: 3, t: 10
+                };
+
+                // Mapping of names to colors.
+                var colors = {
+                    "自然保护林": "#7399d1",
+                    "水源涵养林": "#507b3a",
+                    "水土保持林": "#ded3c2",
+                    "乔木林": "#64b952",
+                    "疏林地": "#d1c645",
+                    "国家特别规定灌木林地": "#bb732c",
+                    "幼龄林": "#86bb97",
+                    "中龄林": "#30c889",
+                    "近熟林": "#12bb8a",
+                    "成熟林": "#03b7bb"
+                };
+
+                // Total size of all segments; we set this later, after loading the data.
+                var totalSize = 0;
+
+                var xuji_svg = d3.select("#linzhongxuji_chart").append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("id", "linzhongxuji_container")
+                    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
+                var xuji_partition = d3.layout.partition()
+                    .size([2 * Math.PI, radius * radius])
+                    .value(function (d) {
+                        return d.stockvolume;
+                    });
+
+                var xuji_arc = d3.svg.arc()
+                    .startAngle(function (d) {
+                        return d.x;
+                    })
+                    .endAngle(function (d) {
+                        return d.x + d.dx;
+                    })
+                    .innerRadius(function (d) {
+                        return Math.sqrt(d.y);
+                    })
+                    .outerRadius(function (d) {
+                        return Math.sqrt(d.y + d.dy);
+                    });
+
+                // Basic setup of page elements.
+                initializeBreadcrumbTrail();
+                drawLegend();
+                d3.select("#linzhongxuji_togglelegend").on("click", toggleLegend);
+
+                //Bounding circle underneath the sunburst, to make it easier to detect
+                // when the mouse leaves the parent g.
+                xuji_svg.append("svg:circle")
+                    .attr("r", radius)
+                    .style("opacity", 0);
+
+
+                var xuji_nodes = xuji_partition.nodes(linzhongxuji)
+                    .filter(function (d) {
+                        return (d.dx > 0);
+                    });
+
+                var xuji_path = xuji_svg.data([linzhongxuji]).selectAll("path")
+                    .data(xuji_nodes)
+                    .enter().append("svg:path")
+                    .attr("display", function (d) {
+                        return d.depth ? null : "none";
+                    })
+                    .attr("d", xuji_arc)
+                    .attr("fill-rule", "evenodd")
+                    .style("fill", function (d) {
+                        return colors[d.name];
+                    })
+                    .style("opacity", 1)
+                    .on("mouseover", mouseover);
+
+                // Add the mouseleave handler to the bounding circle.
+                d3.select("#linzhongxuji_container").on("mouseleave", mouseleave);
+                // Get total size of the tree = value of root node from partition.
+                totalSize = xuji_path.node().__data__.value;
+
+                // Fade all but the current sequence, and show it in the breadcrumb trail.
+                function mouseover(d) {
+
+                    var percentage = (100 * d.value / totalSize).toPrecision(6);
+                    var percentageString = percentage + "%";
+
+
+                    d3.select("#linzhongxuji_percentage")
+                        .text(d.value.toFixed(2) + "\n" + percentageString);
+
+                    d3.select("#linzhongxuji_explanation")
+                        .style("visibility", "");
+
+                    var sequenceArray = getAncestors(d);
+                    updateBreadcrumbs(sequenceArray, percentageString);
+
+                    // Fade all the segments.
+                    d3.selectAll("xuji_path")
+                        .style("opacity", 0.3);
+
+                    // Then highlight only those that are an ancestor of the current segment.
+                    xuji_svg.selectAll("xuji_path")
+                        .filter(function (node) {
+                            return (sequenceArray.indexOf(node) >= 0);
+                        })
+                        .style("opacity", 1);
+                }
+
+                // Restore everything to full opacity when moving off the visualization.
+                function mouseleave(d) {
+
+                    // Hide the breadcrumb trail
+                    d3.select("#linzhongxuji_BreadcrumbTrail")
+                        .style("visibility", "hidden");
+
+                    // Deactivate all segments during transition.
+                    d3.selectAll("path").on("mouseover", null);
+
+                    // Transition each segment to full opacity and then reactivate it.
+                    d3.selectAll("path")
+                        .transition()
+                        .duration(1000)
+                        .style("opacity", 1)
+                        .each("end", function () {
+                            d3.select(this).on("mouseover", mouseover);
+                        });
+
+                    d3.select("#linzhongxuji_explanation")
+                        .style("visibility", "hidden");
+                }
+
+                // Given a node in a partition layout, return an array of all of its ancestor
+                // nodes, highest first, but excluding the root.
+                function getAncestors(node) {
+                    var path = [];
+                    var current = node;
+                    while (current.parent) {
+                        path.unshift(current);
+                        current = current.parent;
+                    }
+                    return path;
+                }
+
+                function initializeBreadcrumbTrail() {
+                    // Add the svg area.
+                    var linzhongxuji_BreadcrumbTrail = d3.select("#linzhongxuji_sequence").append("svg:svg")
+                        .attr("width", width *2)
+                        .attr("height", 50)
+                        .attr("id", "linzhongxuji_BreadcrumbTrail");
+                    // Add the label at the end, for the percentage.
+                    linzhongxuji_BreadcrumbTrail.append("svg:text")
+                        .attr("id", "linzhongxuji_endlabel")
+                        .style("fill", "#000");
+                }
+
+                // Generate a string that describes the points of a breadcrumb polygon.
+                function breadcrumbPoints(d, i) {
+                    var points = [];
+                    points.push("0,0");
+                    points.push(b.w * 2 + ",0");
+                    points.push(b.w * 2 + b.t + "," + (b.h / 2));
+                    points.push(b.w * 2 + "," + b.h);
+                    points.push("0," + b.h);
+                    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                        points.push(b.t + "," + (b.h / 2));
+                    }
+                    return points.join(" ");
+                }
+
+                // Update the breadcrumb trail to show the current sequence and percentage.
+                function updateBreadcrumbs(nodeArray, percentageString) {
+
+                    // Data join; key function combines name and depth (= position in sequence).
+                    var xuji_g = d3.select("#linzhongxuji_BreadcrumbTrail")
+                        .selectAll("g")
+                        .data(nodeArray, function (d) {
+                            return d.name + d.depth;
+                        });
+
+                    // Add breadcrumb and label for entering nodes.
+                    var xuji_entering = xuji_g.enter().append("svg:g");
+
+                    xuji_entering.append("svg:polygon")
+                        .attr("points", breadcrumbPoints)
+                        .style("fill", function (d) {
+                            return colors[d.name];
+                        });
+
+                    xuji_entering.append("svg:text")
+                        .attr("x", (b.w * 2 + b.t) / 2)
+                        .attr("y", b.h / 2)
+                        .attr("dy", "0.35em")
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return d.name;
+                        });
+
+                    // Set position for entering and updating nodes.
+                    xuji_g.attr("transform", function (d, i) {
+                        return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
+                    });
+
+                    // Remove exiting nodes.
+                    xuji_g.exit().remove();
+
+                    // Now move and update the percentage at the end.
+                    d3.select("#linzhongxuji_BreadcrumbTrail").select("#xuji_endlabel")
+                        .attr("x", (nodeArray.length + 0.5) * (b.w + b.s) * 2)
+                        .attr("y", b.h / 2)
+                        .attr("dy", "0.35em")
+                        .attr("text-anchor", "middle")
+                        .text(percentageString);
+
+                    // Make the breadcrumb trail visible, if it's hidden.
+                    d3.select("#linzhongxuji_BreadcrumbTrail")
+                        .style("visibility", "");
+
+                }
+
+                function drawLegend() {
+
+                    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                    var li = {
+                        w: 160, h: 30, s: 3, r: 3
+                    };
+
+                    var xuji_legend = d3.select("#linzhongxuji_legend").append("svg:svg")
+                        .attr("width", li.w)
+                        .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                    var xuji_g = xuji_legend.selectAll("g")
+                        .data(d3.entries(colors))
+                        .enter().append("svg:g")
+                        .attr("transform", function (d, i) {
+                            return "translate(0," + i * (li.h + li.s) + ")";
+                        });
+
+                    xuji_g.append("svg:rect")
+                        .attr("rx", li.r)
+                        .attr("ry", li.r)
+                        .attr("width", li.w)
+                        .attr("height", li.h)
+                        .style("fill", function (d) {
+                            return d.value;
+                        })
+                        .on("mouseover", function () {
+                            d3.select(this)
+                                .style("opacity", 0.5);
+
+                        })
+                        .on("mouseout", function () {
+                            d3.select(this)
+                                .transition()
+                                .duration(100)
+                                .style("opacity", 1);
+                        })
+                    ;
+
+                    xuji_g.append("svg:text")
+                        .attr("x", li.w / 2)
+                        .attr("y", li.h / 2)
+                        .attr("dy", "0.35em")
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return d.key;
+                        });
+                }
+
+                function toggleLegend() {
+                    var xuji_legend = d3.select("#linzhongxuji_legend");
+                    if (xuji_legend.style("visibility") == "hidden") {
+                        xuji_legend.style("visibility", "");
+                    } else {
+                        xuji_legend.style("visibility", "hidden");
+                    }
+                }
+
+            });
 
         }
     });
