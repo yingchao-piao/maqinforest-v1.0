@@ -132,7 +132,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
 
                 var partition = d3.layout.partition()
                     .size([2 * Math.PI, radius * radius])
-                    .value(function(d) { return d.size; });
+                    .value(function(d) { return d.area; });
 
                 var arc = d3.svg.arc()
                     .startAngle(function(d) { return d.x; })
@@ -143,6 +143,16 @@ $('.ui.link.six.cards .blue.card').click(function(){
                 d3.json('/forestresources/statistics/t1/'+xzcname, function (error, root) {
                     //console.log(JSON.stringify(root));
                     // Basic setup of page elements.
+                    var area_sum=0;
+                    for(var i=0;i<root.length;i++){
+                        area_sum=area_sum+root[i].area;
+                    }
+
+                    var tudimianji = {
+                        "name": "林地面积统计",
+                        "children": root
+                    }
+
                     initializeBreadcrumbTrail();
                     drawLegend();
                     d3.select("#tudimianji_togglelegend").on("click", toggleLegend);
@@ -154,12 +164,12 @@ $('.ui.link.six.cards .blue.card').click(function(){
                         .style("opacity", 0);
 
 
-                    var nodes = partition.nodes(root)
+                    var nodes = partition.nodes(tudimianji)
                         .filter(function (d) {
                             return (d.dx > 0);
                         });
 
-                    var path = svg.data([root]).selectAll("path")
+                    var path = svg.data([tudimianji]).selectAll("path")
                         .data(nodes)
                         .enter().append("svg:path")
                         .attr("display", function (d) {
@@ -173,13 +183,18 @@ $('.ui.link.six.cards .blue.card').click(function(){
                         .style("opacity", 1)
                         .on("mouseover", mouseover);
 
+                    d3.select("#tudimianji_percentage")
+                        .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                    d3.select("#tudimainji_explanation")
+                        .style("visibility", "");
+
                     // Add the mouseleave handler to the bounding circle.
                     d3.select("#tudimianji_container").on("mouseleave", mouseleave);
                     // Get total size of the tree = value of root node from partition.
                     totalSize = path.node().__data__.value;
                     // Fade all but the current sequence, and show it in the breadcrumb trail.
                     function mouseover(d) {
-
+                        console.log("first");
                         var percentage = (100 * d.value / totalSize).toPrecision(4);
                         var percentageString = percentage + "%";
 
@@ -194,7 +209,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                         updateBreadcrumbs(sequenceArray, percentageString);
 
                         // Fade all the segments.
-                        d3.selectAll("path")
+                        d3.select("#tudimianji_container").selectAll("path")
                             .style("opacity", 0.3);
 
                         // Then highlight only those that are an ancestor of the current segment.
@@ -208,15 +223,16 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     // Restore everything to full opacity when moving off the visualization.
                     function mouseleave(d) {
 
+
                         // Hide the breadcrumb trail
                         d3.select("#tudimianji_BreadcrumbTrail")
                             .style("visibility", "hidden");
 
                         // Deactivate all segments during transition.
-                        d3.selectAll("path").on("mouseover", null);
+                        d3.select("#tudimianji_container").selectAll("path").on("mouseover", null);
 
                         // Transition each segment to full opacity and then reactivate it.
-                        d3.selectAll("path")
+                        d3.select("#tudimianji_container").selectAll("path")
                             .transition()
                             .duration(1000)
                             .style("opacity", 1)
@@ -224,8 +240,10 @@ $('.ui.link.six.cards .blue.card').click(function(){
                                 d3.select(this).on("mouseover", mouseover);
                             });
 
-                        d3.select("#tudimianji_explanation")
-                            .style("visibility", "hidden");
+                        d3.select("#tudimianji_percentage")
+                            .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                        d3.select("#tudimainji_explanation")
+                            .style("visibility", "");
                     }
 
                     // Given a node in a partition layout, return an array of all of its ancestor
@@ -242,7 +260,7 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     function initializeBreadcrumbTrail() {
                         // Add the svg area.
                         var tudimianji_BreadcrumbTrail = d3.select("#tudimianji_sequence").append("svg:svg")
-                            .attr("width", width*1.5)
+                            .attr("width", width*2)
                             .attr("height", 50)
                             .attr("id", "tudimianji_BreadcrumbTrail");
                         // Add the label at the end, for the percentage.
@@ -572,602 +590,635 @@ $('.ui.link.six.cards .blue.card').click(function(){
         },
         success:function(res) {
 
-            var linzhong = JSON.parse(res);
-            //console.log(linzhong);
-            d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
+            var linzhongdata = JSON.parse(res);
 
-                var linzhongmianji = {
-                    "name": "林种面积统计",
-                    "children": root
-                }
-                console.log(linzhongmianji)
-                // Dimensions of sunburst.
-                var width = 300;
-                var height = 300;
-                var radius = Math.min(width, height) / 2;
+            var area_sum=0;
+            for(var i=0;i<linzhongdata.length;i++){
+                area_sum=area_sum+linzhongdata[i].area;
+            };
 
-                // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-                var b = {
-                    w: 75, h: 30, s: 3, t: 10
-                };
+            var stock_sum=0;
+            for(var i=0;i<linzhongdata.length;i++){
+                stock_sum=stock_sum+linzhongdata[i].stockvolume;
+            };
 
-                // Mapping of names to colors.
-                var colors = {
-                    "自然保护林": "#7399d1",
-                    "水源涵养林": "#507b3a",
-                    "水土保持林": "#ded3c2",
-                    "乔木林": "#64b952",
-                    "疏林地": "#d1c645",
-                    "国家特别规定灌木林地": "#bb732c",
-                    "幼龄林": "#86bb97",
-                    "中龄林": "#30c889",
-                    "近熟林": "#12bb8a",
-                    "成熟林": "#03b7bb"
-                };
+            if(area_sum==0){//没有林种面积统计数据
+                document.getElementById("linzhongmianji_nodata").style.visibility="visible";
+                document.getElementById("linzhongmianji_data").style.display="none";
+            }else{
+                //林种面积统计
+                d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
 
-                // Total size of all segments; we set this later, after loading the data.
-                var totalSize = 0;
+                    var linzhongmianji = {
+                        "name": "林种面积统计",
+                        "children": root
+                    }
+                    //console.log(linzhongmianji)
+                    // Dimensions of sunburst.
+                    var width = 300;
+                    var height = 300;
+                    var radius = Math.min(width, height) / 2;
 
-                var svg = d3.select("#linzhongmianji_chart").append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("id", "linzhongmianji_container")
-                    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+                    // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                    var b = {
+                        w: 75, h: 30, s: 3, t: 10
+                    };
 
-                var partition = d3.layout.partition()
-                    .size([2 * Math.PI, radius * radius])
-                    .value(function (d) {
-                        return d.area;
-                    });
+                    // Mapping of names to colors.
+                    var colors = {
+                        "自然保护林": "#7399d1",
+                        "水源涵养林": "#507b3a",
+                        "水土保持林": "#ded3c2",
+                        "乔木林": "#64b952",
+                        "疏林地": "#d1c645",
+                        "国家特别规定灌木林地": "#bb732c",
+                        "幼龄林": "#86bb97",
+                        "中龄林": "#30c889",
+                        "近熟林": "#12bb8a",
+                        "成熟林": "#03b7bb"
+                    };
 
-                var arc = d3.svg.arc()
-                    .startAngle(function (d) {
-                        return d.x;
-                    })
-                    .endAngle(function (d) {
-                        return d.x + d.dx;
-                    })
-                    .innerRadius(function (d) {
-                        return Math.sqrt(d.y);
-                    })
-                    .outerRadius(function (d) {
-                        return Math.sqrt(d.y + d.dy);
-                    });
+                    // Total size of all segments; we set this later, after loading the data.
+                    var totalSize = 0;
 
-                // Basic setup of page elements.
-                initializeBreadcrumbTrail();
-                drawLegend();
-                d3.select("#linzhongmianji_togglelegend").on("click", toggleLegend);
+                    var svg = d3.select("#linzhongmianji_chart").append("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .append("g")
+                        .attr("id", "linzhongmianji_container")
+                        .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-                //Bounding circle underneath the sunburst, to make it easier to detect
-                // when the mouse leaves the parent g.
-                svg.append("svg:circle")
-                    .attr("r", radius)
-                    .style("opacity", 0);
+                    var partition = d3.layout.partition()
+                        .size([2 * Math.PI, radius * radius])
+                        .value(function (d) {
+                            return d.area;
+                        });
+
+                    var arc = d3.svg.arc()
+                        .startAngle(function (d) {
+                            return d.x;
+                        })
+                        .endAngle(function (d) {
+                            return d.x + d.dx;
+                        })
+                        .innerRadius(function (d) {
+                            return Math.sqrt(d.y);
+                        })
+                        .outerRadius(function (d) {
+                            return Math.sqrt(d.y + d.dy);
+                        });
+
+                    // Basic setup of page elements.
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#linzhongmianji_togglelegend").on("click", toggleLegend);
+
+                    //Bounding circle underneath the sunburst, to make it easier to detect
+                    // when the mouse leaves the parent g.
+                    svg.append("svg:circle")
+                        .attr("r", radius)
+                        .style("opacity", 0);
 
 
-                var nodes = partition.nodes(linzhongmianji)
-                    .filter(function (d) {
-                        return (d.dx > 0);
-                    });
+                    var nodes = partition.nodes(linzhongmianji)
+                        .filter(function (d) {
+                            return (d.dx > 0);
+                        });
 
-                var path = svg.data([linzhongmianji]).selectAll("path")
-                    .data(nodes)
-                    .enter().append("svg:path")
-                    .attr("display", function (d) {
-                        return d.depth ? null : "none";
-                    })
-                    .attr("d", arc)
-                    .attr("fill-rule", "evenodd")
-                    .style("fill", function (d) {
-                        return colors[d.name];
-                    })
-                    .style("opacity", 1)
-                    .on("mouseover", mouseover);
-
-                // Add the mouseleave handler to the bounding circle.
-                d3.select("#linzhongmianji_container").on("mouseleave", mouseleave);
-                // Get total size of the tree = value of root node from partition.
-                totalSize = path.node().__data__.value;
-
-                // Fade all but the current sequence, and show it in the breadcrumb trail.
-                function mouseover(d) {
-
-                    var percentage = (100 * d.value / totalSize).toPrecision(6);
-                    var percentageString = percentage + "%";
-
+                    var path = svg.data([linzhongmianji]).selectAll("path")
+                        .data(nodes)
+                        .enter().append("svg:path")
+                        .attr("display", function (d) {
+                            return d.depth ? null : "none";
+                        })
+                        .attr("d", arc)
+                        .attr("fill-rule", "evenodd")
+                        .style("fill", function (d) {
+                            return colors[d.name];
+                        })
+                        .style("opacity", 1)
+                        .on("mouseover", mouseover);
 
                     d3.select("#linzhongmianji_percentage")
-                        .text(d.value.toFixed(2) + "\n" + percentageString);
-
-                    d3.select("#linzhongmianji_explanation")
+                        .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                    d3.select("#linzhongmainji_explanation")
                         .style("visibility", "");
 
-                    var sequenceArray = getAncestors(d);
-                    updateBreadcrumbs(sequenceArray, percentageString);
+                    // Add the mouseleave handler to the bounding circle.
+                    d3.select("#linzhongmianji_container").on("mouseleave", mouseleave);
+                    // Get total size of the tree = value of root node from partition.
+                    totalSize = path.node().__data__.value;
 
-                    // Fade all the segments.
-                    d3.selectAll("path")
-                        .style("opacity", 0.3);
+                    // Fade all but the current sequence, and show it in the breadcrumb trail.
+                    function mouseover(d) {
+                        console.log("second");
+                        var percentage = (100 * d.value / totalSize).toPrecision(6);
+                        var percentageString = percentage + "%";
 
-                    // Then highlight only those that are an ancestor of the current segment.
-                    svg.selectAll("path")
-                        .filter(function (node) {
-                            return (sequenceArray.indexOf(node) >= 0);
-                        })
-                        .style("opacity", 1);
-                }
 
-                // Restore everything to full opacity when moving off the visualization.
-                function mouseleave(d) {
+                        d3.select("#linzhongmianji_percentage")
+                            .text(d.value.toFixed(2) + "\n" + percentageString);
 
-                    // Hide the breadcrumb trail
-                    d3.select("#linzhongmianji_BreadcrumbTrail")
-                        .style("visibility", "hidden");
+                        d3.select("#linzhongmianji_explanation")
+                            .style("visibility", "");
 
-                    // Deactivate all segments during transition.
-                    d3.selectAll("path").on("mouseover", null);
+                        var sequenceArray = getAncestors(d);
+                        updateBreadcrumbs(sequenceArray, percentageString);
 
-                    // Transition each segment to full opacity and then reactivate it.
-                    d3.selectAll("path")
-                        .transition()
-                        .duration(1000)
-                        .style("opacity", 1)
-                        .each("end", function () {
-                            d3.select(this).on("mouseover", mouseover);
-                        });
+                        // Fade all the segments.
+                        d3.select("#linzhongmianji_container").selectAll("path")
+                            .style("opacity", 0.3);
 
-                    d3.select("#linzhongmianji_explanation")
-                        .style("visibility", "hidden");
-                }
-
-                // Given a node in a partition layout, return an array of all of its ancestor
-                // nodes, highest first, but excluding the root.
-                function getAncestors(node) {
-                    var path = [];
-                    var current = node;
-                    while (current.parent) {
-                        path.unshift(current);
-                        current = current.parent;
+                        // Then highlight only those that are an ancestor of the current segment.
+                        svg.selectAll("path")
+                            .filter(function (node) {
+                                return (sequenceArray.indexOf(node) >= 0);
+                            })
+                            .style("opacity", 1);
                     }
-                    return path;
-                }
 
-                function initializeBreadcrumbTrail() {
-                    // Add the svg area.
-                    var linzhongmianji_BreadcrumbTrail = d3.select("#linzhongmianji_sequence").append("svg:svg")
-                        .attr("width", width *2)
-                        .attr("height", 50)
-                        .attr("id", "linzhongmianji_BreadcrumbTrail");
-                    // Add the label at the end, for the percentage.
-                    linzhongmianji_BreadcrumbTrail.append("svg:text")
-                        .attr("id", "endlabel")
-                        .style("fill", "#000");
-                }
+                    // Restore everything to full opacity when moving off the visualization.
+                    function mouseleave(d) {
 
-                // Generate a string that describes the points of a breadcrumb polygon.
-                function breadcrumbPoints(d, i) {
-                    var points = [];
-                    points.push("0,0");
-                    points.push(b.w * 2 + ",0");
-                    points.push(b.w * 2 + b.t + "," + (b.h / 2));
-                    points.push(b.w * 2 + "," + b.h);
-                    points.push("0," + b.h);
-                    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-                        points.push(b.t + "," + (b.h / 2));
+                        // Hide the breadcrumb trail
+                        d3.select("#linzhongmianji_BreadcrumbTrail")
+                            .style("visibility", "hidden");
+
+                        // Deactivate all segments during transition.
+                        d3.select("#linzhongmianji_container").selectAll("path").on("mouseover", null);
+
+                        // Transition each segment to full opacity and then reactivate it.
+                        d3.select("#linzhongmianji_container").selectAll("path")
+                            .transition()
+                            .duration(1000)
+                            .style("opacity", 1)
+                            .each("end", function () {
+                                d3.select(this).on("mouseover", mouseover);
+                            });
+
+                        d3.select("#linzhongmianji_percentage")
+                            .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                        d3.select("#linzhongmainji_explanation")
+                            .style("visibility", "");
                     }
-                    return points.join(" ");
+
+                    // Given a node in a partition layout, return an array of all of its ancestor
+                    // nodes, highest first, but excluding the root.
+                    function getAncestors(node) {
+                        var path = [];
+                        var current = node;
+                        while (current.parent) {
+                            path.unshift(current);
+                            current = current.parent;
+                        }
+                        return path;
+                    }
+
+                    function initializeBreadcrumbTrail() {
+                        // Add the svg area.
+                        var linzhongmianji_BreadcrumbTrail = d3.select("#linzhongmianji_sequence").append("svg:svg")
+                            .attr("width", width *2)
+                            .attr("height", 50)
+                            .attr("id", "linzhongmianji_BreadcrumbTrail");
+                        // Add the label at the end, for the percentage.
+                        linzhongmianji_BreadcrumbTrail.append("svg:text")
+                            .attr("id", "endlabel")
+                            .style("fill", "#000");
+                    }
+
+                    // Generate a string that describes the points of a breadcrumb polygon.
+                    function breadcrumbPoints(d, i) {
+                        var points = [];
+                        points.push("0,0");
+                        points.push(b.w * 2 + ",0");
+                        points.push(b.w * 2 + b.t + "," + (b.h / 2));
+                        points.push(b.w * 2 + "," + b.h);
+                        points.push("0," + b.h);
+                        if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                            points.push(b.t + "," + (b.h / 2));
+                        }
+                        return points.join(" ");
+                    }
+
+                    // Update the breadcrumb trail to show the current sequence and percentage.
+                    function updateBreadcrumbs(nodeArray, percentageString) {
+
+                        // Data join; key function combines name and depth (= position in sequence).
+                        var g = d3.select("#linzhongmianji_BreadcrumbTrail")
+                            .selectAll("g")
+                            .data(nodeArray, function (d) {
+                                return d.name + d.depth;
+                            });
+
+                        // Add breadcrumb and label for entering nodes.
+                        var entering = g.enter().append("svg:g");
+
+                        entering.append("svg:polygon")
+                            .attr("points", breadcrumbPoints)
+                            .style("fill", function (d) {
+                                return colors[d.name];
+                            });
+
+                        entering.append("svg:text")
+                            .attr("x", (b.w * 2 + b.t) / 2)
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function (d) {
+                                return d.name;
+                            });
+
+                        // Set position for entering and updating nodes.
+                        g.attr("transform", function (d, i) {
+                            return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
+                        });
+
+                        // Remove exiting nodes.
+                        g.exit().remove();
+
+                        // Now move and update the percentage at the end.
+                        d3.select("#linzhongmianji_BreadcrumbTrail").select("#endlabel")
+                            .attr("x", (nodeArray.length + 0.5) * (b.w * 2+ b.s))
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(percentageString);
+
+                        // Make the breadcrumb trail visible, if it's hidden.
+                        d3.select("#linzhongmianji_BreadcrumbTrail")
+                            .style("visibility", "");
+
+                    }
+
+                    function drawLegend() {
+
+                        // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                        var li = {
+                            w: 125, h: 30, s: 3, r: 3
+                        };
+
+                        var legend = d3.select("#linzhongmianji_legend").append("svg:svg")
+                            .attr("width", li.w)
+                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                        var g = legend.selectAll("g")
+                            .data(d3.entries(colors))
+                            .enter().append("svg:g")
+                            .attr("transform", function (d, i) {
+                                return "translate(0," + i * (li.h + li.s) + ")";
+                            });
+
+                        g.append("svg:rect")
+                            .attr("rx", li.r)
+                            .attr("ry", li.r)
+                            .attr("width", li.w)
+                            .attr("height", li.h)
+                            .style("fill", function (d) {
+                                return d.value;
+                            })
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("opacity", 0.5);
+
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .transition()
+                                    .duration(100)
+                                    .style("opacity", 1);
+                            })
+                        ;
+
+                        g.append("svg:text")
+                            .attr("x", li.w / 2)
+                            .attr("y", li.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function (d) {
+                                return d.key;
+                            });
+                    }
+
+                    function toggleLegend() {
+                        var legend = d3.select("#linzhongmianji_legend");
+                        if (legend.style("visibility") == "hidden") {
+                            legend.style("visibility", "");
+                        } else {
+                            legend.style("visibility", "hidden");
+                        }
+                    }
+
+                });
+                if(stock_sum==0){
+                    document.getElementById("linzhongxuji_nodata").style.visibility="visible";
+                    document.getElementById("linzhongxuji_data").style.display="none";
                 }
+                else{
+                    //林中蓄积量统计
+                    d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
 
-                // Update the breadcrumb trail to show the current sequence and percentage.
-                function updateBreadcrumbs(nodeArray, percentageString) {
+                        var linzhongxuji = {
+                            "name": "林种活立木蓄积量统计",
+                            "children": root
+                        }
+                        console.log(linzhongxuji)
+                        // Dimensions of sunburst.
+                        var width = 300;
+                        var height = 300;
+                        var radius = Math.min(width, height) / 2;
 
-                    // Data join; key function combines name and depth (= position in sequence).
-                    var g = d3.select("#linzhongmianji_BreadcrumbTrail")
-                        .selectAll("g")
-                        .data(nodeArray, function (d) {
-                            return d.name + d.depth;
-                        });
+                        // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                        var b = {
+                            w: 75, h: 30, s: 3, t: 10
+                        };
 
-                    // Add breadcrumb and label for entering nodes.
-                    var entering = g.enter().append("svg:g");
+                        // Mapping of names to colors.
+                        var colors = {
+                            "自然保护林": "#7399d1",
+                            //"水源涵养林": "#507b3a",
+                            "水土保持林": "#ded3c2",
+                            "乔木林": "#64b952",
+                            "疏林地": "#d1c645",
+                            //"国家特别规定灌木林地": "#bb732c",
+                            "幼龄林": "#86bb97",
+                            "中龄林": "#30c889",
+                            "近熟林": "#12bb8a",
+                            "成熟林": "#03b7bb"
+                        };
 
-                    entering.append("svg:polygon")
-                        .attr("points", breadcrumbPoints)
-                        .style("fill", function (d) {
-                            return colors[d.name];
-                        });
+                        // Total size of all segments; we set this later, after loading the data.
+                        var totalSize = 0;
 
-                    entering.append("svg:text")
-                        .attr("x", (b.w * 2 + b.t) / 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function (d) {
-                            return d.name;
-                        });
+                        var svg = d3.select("#linzhongxuji_chart").append("svg")
+                            .attr("width", width)
+                            .attr("height", height)
+                            .append("g")
+                            .attr("id", "linzhongxuji_container")
+                            .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-                    // Set position for entering and updating nodes.
-                    g.attr("transform", function (d, i) {
-                        return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
-                    });
+                        var partition = d3.layout.partition()
+                            .size([2 * Math.PI, radius * radius])
+                            .value(function (d) {
+                                return d.stockvolume;
+                            });
 
-                    // Remove exiting nodes.
-                    g.exit().remove();
+                        var arc = d3.svg.arc()
+                            .startAngle(function (d) {
+                                return d.x;
+                            })
+                            .endAngle(function (d) {
+                                return d.x + d.dx;
+                            })
+                            .innerRadius(function (d) {
+                                return Math.sqrt(d.y);
+                            })
+                            .outerRadius(function (d) {
+                                return Math.sqrt(d.y + d.dy);
+                            });
 
-                    // Now move and update the percentage at the end.
-                    d3.select("#linzhongmianji_BreadcrumbTrail").select("#endlabel")
-                        .attr("x", (nodeArray.length + 0.5) * (b.w + b.s) * 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(percentageString);
+                        // Basic setup of page elements.
+                        initializeBreadcrumbTrail();
+                        drawLegend();
+                        d3.select("#linzhongxuji_togglelegend").on("click", toggleLegend);
 
-                    // Make the breadcrumb trail visible, if it's hidden.
-                    d3.select("#linzhongmianji_BreadcrumbTrail")
-                        .style("visibility", "");
+                        //Bounding circle underneath the sunburst, to make it easier to detect
+                        // when the mouse leaves the parent g.
+                        svg.append("svg:circle")
+                            .attr("r", radius)
+                            .style("opacity", 0);
 
-                }
 
-                function drawLegend() {
+                        var nodes = partition.nodes(linzhongxuji)
+                            .filter(function (d) {
+                                return (d.dx > 0);
+                            });
 
-                    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
-                    var li = {
-                        w: 160, h: 30, s: 3, r: 3
-                    };
+                        var path = svg.data([linzhongxuji]).selectAll("path")
+                            .data(nodes)
+                            .enter().append("svg:path")
+                            .attr("display", function (d) {
+                                return d.depth ? null : "none";
+                            })
+                            .attr("d", arc)
+                            .attr("fill-rule", "evenodd")
+                            .style("fill", function (d) {
+                                return colors[d.name];
+                            })
+                            .style("opacity", 1)
+                            .on("mouseover", mouseover);
 
-                    var legend = d3.select("#linzhongmianji_legend").append("svg:svg")
-                        .attr("width", li.w)
-                        .attr("height", d3.keys(colors).length * (li.h + li.s));
+                        d3.select("#linzhongxuji_percentage")
+                            .text("总蓄积量\n" + stock_sum.toFixed(2)+"立方米");
+                        d3.select("#linzhongxuji_explanation")
+                            .style("visibility", "");
 
-                    var g = legend.selectAll("g")
-                        .data(d3.entries(colors))
-                        .enter().append("svg:g")
-                        .attr("transform", function (d, i) {
-                            return "translate(0," + i * (li.h + li.s) + ")";
-                        });
+                        // Add the mouseleave handler to the bounding circle.
+                        d3.select("#linzhongxuji_container").on("mouseleave", mouseleave);
+                        // Get total size of the tree = value of root node from partition.
+                        totalSize = path.node().__data__.value;
 
-                    g.append("svg:rect")
-                        .attr("rx", li.r)
-                        .attr("ry", li.r)
-                        .attr("width", li.w)
-                        .attr("height", li.h)
-                        .style("fill", function (d) {
-                            return d.value;
-                        })
-                        .on("mouseover", function () {
-                            d3.select(this)
-                                .style("opacity", 0.5);
+                        // Fade all but the current sequence, and show it in the breadcrumb trail.
+                        function mouseover(d) {
+                            console.log("third");
+                            var percentage = (100 * d.value / totalSize).toPrecision(6);
+                            var percentageString = percentage + "%";
 
-                        })
-                        .on("mouseout", function () {
-                            d3.select(this)
-                                .transition()
-                                .duration(100)
+
+                            d3.select("#linzhongxuji_percentage")
+                                .text(d.value.toFixed(2) + "\n" + percentageString);
+
+                            d3.select("#linzhongxuji_explanation")
+                                .style("visibility", "");
+
+                            var sequenceArray = getAncestors(d);
+                            updateBreadcrumbs(sequenceArray, percentageString);
+
+                            // Fade all the segments.
+                            d3.select("#linzhongxuji_container").selectAll("path")
+                                .style("opacity", 0.3);
+
+                            // Then highlight only those that are an ancestor of the current segment.
+                            svg.selectAll("path")
+                                .filter(function (node) {
+                                    return (sequenceArray.indexOf(node) >= 0);
+                                })
                                 .style("opacity", 1);
-                        })
-                    ;
+                        }
 
-                    g.append("svg:text")
-                        .attr("x", li.w / 2)
-                        .attr("y", li.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function (d) {
-                            return d.key;
-                        });
-                }
+                        // Restore everything to full opacity when moving off the visualization.
+                        function mouseleave(d) {
 
-                function toggleLegend() {
-                    var legend = d3.select("#linzhongmianji_legend");
-                    if (legend.style("visibility") == "hidden") {
-                        legend.style("visibility", "");
-                    } else {
-                        legend.style("visibility", "hidden");
-                    }
-                }
+                            // Hide the breadcrumb trail
+                            d3.select("#linzhongxuji_BreadcrumbTrail")
+                                .style("visibility", "hidden");
 
-            });
-            //linzhongxujicharts
-            d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
+                            // Deactivate all segments during transition.
+                            d3.select("#linzhongxuji_container").selectAll("path").on("mouseover", null);
 
-                var linzhongxuji = {
-                    "name": "林种蓄积量统计",
-                    "children": root
-                }
-                console.log(linzhongxuji)
-                // Dimensions of sunburst.
-                var width = 300;
-                var height = 300;
-                var radius = Math.min(width, height) / 2;
-
-                // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-                var b = {
-                    w: 75, h: 30, s: 3, t: 10
-                };
-
-                // Mapping of names to colors.
-                var colors = {
-                    "自然保护林": "#7399d1",
-                    "水源涵养林": "#507b3a",
-                    "水土保持林": "#ded3c2",
-                    "乔木林": "#64b952",
-                    "疏林地": "#d1c645",
-                    "国家特别规定灌木林地": "#bb732c",
-                    "幼龄林": "#86bb97",
-                    "中龄林": "#30c889",
-                    "近熟林": "#12bb8a",
-                    "成熟林": "#03b7bb"
-                };
-
-                // Total size of all segments; we set this later, after loading the data.
-                var totalSize = 0;
-
-                var xuji_svg = d3.select("#linzhongxuji_chart").append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("id", "linzhongxuji_container")
-                    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
-
-                var xuji_partition = d3.layout.partition()
-                    .size([2 * Math.PI, radius * radius])
-                    .value(function (d) {
-                        return d.stockvolume;
-                    });
-
-                var xuji_arc = d3.svg.arc()
-                    .startAngle(function (d) {
-                        return d.x;
-                    })
-                    .endAngle(function (d) {
-                        return d.x + d.dx;
-                    })
-                    .innerRadius(function (d) {
-                        return Math.sqrt(d.y);
-                    })
-                    .outerRadius(function (d) {
-                        return Math.sqrt(d.y + d.dy);
-                    });
-
-                // Basic setup of page elements.
-                initializeBreadcrumbTrail();
-                drawLegend();
-                d3.select("#linzhongxuji_togglelegend").on("click", toggleLegend);
-
-                //Bounding circle underneath the sunburst, to make it easier to detect
-                // when the mouse leaves the parent g.
-                xuji_svg.append("svg:circle")
-                    .attr("r", radius)
-                    .style("opacity", 0);
-
-
-                var xuji_nodes = xuji_partition.nodes(linzhongxuji)
-                    .filter(function (d) {
-                        return (d.dx > 0);
-                    });
-
-                var xuji_path = xuji_svg.data([linzhongxuji]).selectAll("path")
-                    .data(xuji_nodes)
-                    .enter().append("svg:path")
-                    .attr("display", function (d) {
-                        return d.depth ? null : "none";
-                    })
-                    .attr("d", xuji_arc)
-                    .attr("fill-rule", "evenodd")
-                    .style("fill", function (d) {
-                        return colors[d.name];
-                    })
-                    .style("opacity", 1)
-                    .on("mouseover", mouseover);
-
-                // Add the mouseleave handler to the bounding circle.
-                d3.select("#linzhongxuji_container").on("mouseleave", mouseleave);
-                // Get total size of the tree = value of root node from partition.
-                totalSize = xuji_path.node().__data__.value;
-
-                // Fade all but the current sequence, and show it in the breadcrumb trail.
-                function mouseover(d) {
-
-                    var percentage = (100 * d.value / totalSize).toPrecision(6);
-                    var percentageString = percentage + "%";
-
-
-                    d3.select("#linzhongxuji_percentage")
-                        .text(d.value.toFixed(2) + "\n" + percentageString);
-
-                    d3.select("#linzhongxuji_explanation")
-                        .style("visibility", "");
-
-                    var sequenceArray = getAncestors(d);
-                    updateBreadcrumbs(sequenceArray, percentageString);
-
-                    // Fade all the segments.
-                    d3.selectAll("xuji_path")
-                        .style("opacity", 0.3);
-
-                    // Then highlight only those that are an ancestor of the current segment.
-                    xuji_svg.selectAll("xuji_path")
-                        .filter(function (node) {
-                            return (sequenceArray.indexOf(node) >= 0);
-                        })
-                        .style("opacity", 1);
-                }
-
-                // Restore everything to full opacity when moving off the visualization.
-                function mouseleave(d) {
-
-                    // Hide the breadcrumb trail
-                    d3.select("#linzhongxuji_BreadcrumbTrail")
-                        .style("visibility", "hidden");
-
-                    // Deactivate all segments during transition.
-                    d3.selectAll("path").on("mouseover", null);
-
-                    // Transition each segment to full opacity and then reactivate it.
-                    d3.selectAll("path")
-                        .transition()
-                        .duration(1000)
-                        .style("opacity", 1)
-                        .each("end", function () {
-                            d3.select(this).on("mouseover", mouseover);
-                        });
-
-                    d3.select("#linzhongxuji_explanation")
-                        .style("visibility", "hidden");
-                }
-
-                // Given a node in a partition layout, return an array of all of its ancestor
-                // nodes, highest first, but excluding the root.
-                function getAncestors(node) {
-                    var path = [];
-                    var current = node;
-                    while (current.parent) {
-                        path.unshift(current);
-                        current = current.parent;
-                    }
-                    return path;
-                }
-
-                function initializeBreadcrumbTrail() {
-                    // Add the svg area.
-                    var linzhongxuji_BreadcrumbTrail = d3.select("#linzhongxuji_sequence").append("svg:svg")
-                        .attr("width", width *2)
-                        .attr("height", 50)
-                        .attr("id", "linzhongxuji_BreadcrumbTrail");
-                    // Add the label at the end, for the percentage.
-                    linzhongxuji_BreadcrumbTrail.append("svg:text")
-                        .attr("id", "linzhongxuji_endlabel")
-                        .style("fill", "#000");
-                }
-
-                // Generate a string that describes the points of a breadcrumb polygon.
-                function breadcrumbPoints(d, i) {
-                    var points = [];
-                    points.push("0,0");
-                    points.push(b.w * 2 + ",0");
-                    points.push(b.w * 2 + b.t + "," + (b.h / 2));
-                    points.push(b.w * 2 + "," + b.h);
-                    points.push("0," + b.h);
-                    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-                        points.push(b.t + "," + (b.h / 2));
-                    }
-                    return points.join(" ");
-                }
-
-                // Update the breadcrumb trail to show the current sequence and percentage.
-                function updateBreadcrumbs(nodeArray, percentageString) {
-
-                    // Data join; key function combines name and depth (= position in sequence).
-                    var xuji_g = d3.select("#linzhongxuji_BreadcrumbTrail")
-                        .selectAll("g")
-                        .data(nodeArray, function (d) {
-                            return d.name + d.depth;
-                        });
-
-                    // Add breadcrumb and label for entering nodes.
-                    var xuji_entering = xuji_g.enter().append("svg:g");
-
-                    xuji_entering.append("svg:polygon")
-                        .attr("points", breadcrumbPoints)
-                        .style("fill", function (d) {
-                            return colors[d.name];
-                        });
-
-                    xuji_entering.append("svg:text")
-                        .attr("x", (b.w * 2 + b.t) / 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function (d) {
-                            return d.name;
-                        });
-
-                    // Set position for entering and updating nodes.
-                    xuji_g.attr("transform", function (d, i) {
-                        return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
-                    });
-
-                    // Remove exiting nodes.
-                    xuji_g.exit().remove();
-
-                    // Now move and update the percentage at the end.
-                    d3.select("#linzhongxuji_BreadcrumbTrail").select("#xuji_endlabel")
-                        .attr("x", (nodeArray.length + 0.5) * (b.w + b.s) * 2)
-                        .attr("y", b.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(percentageString);
-
-                    // Make the breadcrumb trail visible, if it's hidden.
-                    d3.select("#linzhongxuji_BreadcrumbTrail")
-                        .style("visibility", "");
-
-                }
-
-                function drawLegend() {
-
-                    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
-                    var li = {
-                        w: 160, h: 30, s: 3, r: 3
-                    };
-
-                    var xuji_legend = d3.select("#linzhongxuji_legend").append("svg:svg")
-                        .attr("width", li.w)
-                        .attr("height", d3.keys(colors).length * (li.h + li.s));
-
-                    var xuji_g = xuji_legend.selectAll("g")
-                        .data(d3.entries(colors))
-                        .enter().append("svg:g")
-                        .attr("transform", function (d, i) {
-                            return "translate(0," + i * (li.h + li.s) + ")";
-                        });
-
-                    xuji_g.append("svg:rect")
-                        .attr("rx", li.r)
-                        .attr("ry", li.r)
-                        .attr("width", li.w)
-                        .attr("height", li.h)
-                        .style("fill", function (d) {
-                            return d.value;
-                        })
-                        .on("mouseover", function () {
-                            d3.select(this)
-                                .style("opacity", 0.5);
-
-                        })
-                        .on("mouseout", function () {
-                            d3.select(this)
+                            // Transition each segment to full opacity and then reactivate it.
+                            d3.select("#linzhongxuji_container").selectAll("path")
                                 .transition()
-                                .duration(100)
-                                .style("opacity", 1);
-                        })
-                    ;
+                                .duration(1000)
+                                .style("opacity", 1)
+                                .each("end", function () {
+                                    d3.select(this).on("mouseover", mouseover);
+                                });
 
-                    xuji_g.append("svg:text")
-                        .attr("x", li.w / 2)
-                        .attr("y", li.h / 2)
-                        .attr("dy", "0.35em")
-                        .attr("text-anchor", "middle")
-                        .text(function (d) {
-                            return d.key;
-                        });
+                            d3.select("#linzhongxuji_percentage")
+                                .text("总蓄积量\n" + stock_sum.toFixed(2)+"立方米");
+                            d3.select("#linzhongxuji_explanation")
+                                .style("visibility", "");
+                        }
+
+                        // Given a node in a partition layout, return an array of all of its ancestor
+                        // nodes, highest first, but excluding the root.
+                        function getAncestors(node) {
+                            var path = [];
+                            var current = node;
+                            while (current.parent) {
+                                path.unshift(current);
+                                current = current.parent;
+                            }
+                            return path;
+                        }
+
+                        function initializeBreadcrumbTrail() {
+                            // Add the svg area.
+                            var linzhongxuji_BreadcrumbTrail = d3.select("#linzhongxuji_sequence").append("svg:svg")
+                                .attr("width", width *2)
+                                .attr("height", 50)
+                                .attr("id", "linzhongxuji_BreadcrumbTrail");
+                            // Add the label at the end, for the percentage.
+                            linzhongxuji_BreadcrumbTrail.append("svg:text")
+                                .attr("id", "endlabel")
+                                .style("fill", "#000");
+                        }
+
+                        // Generate a string that describes the points of a breadcrumb polygon.
+                        function breadcrumbPoints(d, i) {
+                            var points = [];
+                            points.push("0,0");
+                            points.push(b.w * 2 + ",0");
+                            points.push(b.w * 2 + b.t + "," + (b.h / 2));
+                            points.push(b.w * 2 + "," + b.h);
+                            points.push("0," + b.h);
+                            if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                                points.push(b.t + "," + (b.h / 2));
+                            }
+                            return points.join(" ");
+                        }
+
+                        // Update the breadcrumb trail to show the current sequence and percentage.
+                        function updateBreadcrumbs(nodeArray, percentageString) {
+
+                            // Data join; key function combines name and depth (= position in sequence).
+                            var g = d3.select("#linzhongxuji_BreadcrumbTrail")
+                                .selectAll("g")
+                                .data(nodeArray, function (d) {
+                                    return d.name + d.depth;
+                                });
+
+                            // Add breadcrumb and label for entering nodes.
+                            var entering = g.enter().append("svg:g");
+
+                            entering.append("svg:polygon")
+                                .attr("points", breadcrumbPoints)
+                                .style("fill", function (d) {
+                                    return colors[d.name];
+                                });
+
+                            entering.append("svg:text")
+                                .attr("x", (b.w * 2 + b.t) / 2)
+                                .attr("y", b.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(function (d) {
+                                    return d.name;
+                                });
+
+                            // Set position for entering and updating nodes.
+                            g.attr("transform", function (d, i) {
+                                return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
+                            });
+
+                            // Remove exiting nodes.
+                            g.exit().remove();
+
+                            // Now move and update the percentage at the end.
+                            d3.select("#linzhongxuji_BreadcrumbTrail").select("#endlabel")
+                                .attr("x", (nodeArray.length + 0.5) * (b.w * 2+ b.s))
+                                .attr("y", b.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(percentageString);
+
+                            // Make the breadcrumb trail visible, if it's hidden.
+                            d3.select("#linzhongxuji_BreadcrumbTrail")
+                                .style("visibility", "");
+
+                        }
+
+                        function drawLegend() {
+
+                            // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                            var li = {
+                                w: 125, h: 30, s: 3, r: 3
+                            };
+
+                            var legend = d3.select("#linzhongxuji_legend").append("svg:svg")
+                                .attr("width", li.w)
+                                .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                            var g = legend.selectAll("g")
+                                .data(d3.entries(colors))
+                                .enter().append("svg:g")
+                                .attr("transform", function (d, i) {
+                                    return "translate(0," + i * (li.h + li.s) + ")";
+                                });
+
+                            g.append("svg:rect")
+                                .attr("rx", li.r)
+                                .attr("ry", li.r)
+                                .attr("width", li.w)
+                                .attr("height", li.h)
+                                .style("fill", function (d) {
+                                    return d.value;
+                                })
+                                .on("mouseover", function () {
+                                    d3.select(this)
+                                        .style("opacity", 0.5);
+
+                                })
+                                .on("mouseout", function () {
+                                    d3.select(this)
+                                        .transition()
+                                        .duration(100)
+                                        .style("opacity", 1);
+                                })
+                            ;
+
+                            g.append("svg:text")
+                                .attr("x", li.w / 2)
+                                .attr("y", li.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(function (d) {
+                                    return d.key;
+                                });
+                        }
+
+                        function toggleLegend() {
+                            var legend = d3.select("#linzhongxuji_legend");
+                            if (legend.style("visibility") == "hidden") {
+                                legend.style("visibility", "");
+                            } else {
+                                legend.style("visibility", "hidden");
+                            }
+                        }
+
+                    });
                 }
-
-                function toggleLegend() {
-                    var xuji_legend = d3.select("#linzhongxuji_legend");
-                    if (xuji_legend.style("visibility") == "hidden") {
-                        xuji_legend.style("visibility", "");
-                    } else {
-                        xuji_legend.style("visibility", "hidden");
-                    }
-                }
-
-            });
-
+            }
         }
     });
-
-
 })

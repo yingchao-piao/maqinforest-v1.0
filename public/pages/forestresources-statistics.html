@@ -256,14 +256,14 @@
             </div>
         </div>
 
-        <!--tudimianji d3-->
+        <!--tudimianji t1 d3-->
         <div class="ui stackable centered grid" id="tudimianji" style="padding-top: 20px">
             <div class="ui stackable centered grid container" id="tudimianji_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
             <div class="ui stackable centered grid" id="tudimianji_data">
                 <div id="tudimianji_main">
                     <div id="tudimianji_sequence" style="padding-top: 20px"></div>
                     <div id="tudimianji_chart">
-                        <div id="tudimianji_explanation" style="visibility: hidden;">
+                        <div id="tudimianji_explanation">
                             <span id="tudimianji_percentage"></span><br/>
                         </div>
                     </div>
@@ -274,9 +274,9 @@
                 </div>
             </div>
         </div>
-        <!--tudimianji d3 end-->
+        <!--tudimianji t1 d3 end-->
 
-        <!--senlinlinmu echarts-->
+        <!--senlinlinmu t2 echarts-->
         <div id="senlinlinmu" style="padding-top: 20px;padding-bottom:20px">
             <div class="text" id="senlinlinmu_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">森林林木面积蓄积统计</div>
             <div class="text" id="senlinlinmu_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
@@ -289,42 +289,56 @@
                 </div>
             </div>
         </div>
-        <!--senlinlinmu echarts end-->
+        <!--senlinlinmu t2 echarts end-->
 
 
-        <!--linzhongmianji d3-->
-        <div class="ui two column doubling stackable centered grid" id="linzhong" style="padding-top: 20px">
-            <div class="ui stackable centered grid container" id="linzhong_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林种面积统计</div>
-            <div class="column">
-                <div id="linzhongmianji_sequence" style="padding-top: 20px"></div>
-                <div id="linzhongmianji_main">
-                    <div id="linzhongmianji_chart">
-                        <div id="linzhongmianji_explanation" style="visibility: hidden;">
-                            <span id="linzhongmianji_percentage"></span><br/>
+        <!--linzhongmianji t3 d3-->
+        <div id="linzhong" style="padding-top: 20px;padding-bottom:20px">
+            <div class="text" id="linzhong_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林种面积蓄积统计</div>
+            <div class="ui two column doubling stackable centered grid" id="linzhong_data" style="padding-top: 20px">
+                <div class="column" id="linzhongmianji">
+                    <div class="ui stackable centered grid container" id="linzhongmianji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">林种面积统计</div>
+                    <div class="ui stackable centered grid container" id="linzhongmianji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
+                    <div id="linzhongmianji_data">
+                        <div id="linzhongmianji_sequence" style="padding-top: 20px"></div>
+                        <div class="ui stackable centered grid container">
+                            <div id="linzhongmianji_main">
+                                <div id="linzhongmianji_chart">
+                                    <div id="linzhongmianji_explanation">
+                                        <span id="linzhongmianji_percentage"></span><br/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="linzhongmianji_sidebar" style="margin-left:20px;padding-top: 25px">
+                                <input type="checkbox" id="linzhongmianji_togglelegend" checked="checked"> 图例<br/>
+                                <div id="linzhongmianji_legend"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div id="linzhongmianji_sidebar" style="padding-top: 25px">
-                    <input type="checkbox" id="linzhongmianji_togglelegend" checked="checked"> 图例<br/>
-                    <div id="linzhongmianji_legend"></div>
-                </div>
-            </div>
-            <div class="column">
-                <div id="linzhongxuji_main">
-                    <div id="linzhongxuji_sequence" style="padding-top: 20px"></div>
-                    <div id="linzhongxuji_chart">
-                        <div id="linzhongxuji_explanation" style="visibility: hidden;">
-                            <span id="linzhongxuji_percentage"></span><br/>
+                <div class="column" id="linzhongxuji">
+                    <div class="ui stackable centered grid container" id="linzhongxuji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">林种活立木蓄积量统计</div>
+                    <div class="ui stackable centered grid container" id="linzhongxuji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
+                    <div id="linzhongxuji_data">
+                        <div id="linzhongxuji_sequence" style="padding-top: 20px"></div>
+                        <div class="ui stackable centered grid container">
+                            <div id="linzhongxuji_main">
+                                <div id="linzhongxuji_chart">
+                                    <div id="linzhongxuji_explanation">
+                                        <span id="linzhongxuji_percentage"></span><br/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="linzhongxuji_sidebar" style="margin-left:20px;padding-top: 25px">
+                                <input type="checkbox" id="linzhongxuji_togglelegend" checked="checked"> 图例<br/>
+                                <div id="linzhongxuji_legend"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div id="linzhongxuji_sidebar" style="padding-top: 25px">
-                    <input type="checkbox" id="linzhongxuji_togglelegend" checked="checked"> 图例<br/>
-                    <div id="linzhongxuji_legend"></div>
                 </div>
             </div>
         </div>
-        <!--linzhongmianji d3 end-->
+        <!--linzhongmianji t3 d3 end-->
 
         <div class="ui stackable centered grid" id="qiaomulinmianji">
             <div class="three wide center aligned column">

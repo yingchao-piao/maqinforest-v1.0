@@ -78,7 +78,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
     var merge = function(obj,singleresultObj){
         obj.forEach(function(value){
             if(value.name===singleresultObj.name){
-                value.size=value.size+singleresultObj.size;
+                value.area=value.area+singleresultObj.area;
                 if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
                     merge(value['children'], singleresultObj['children'][0]);
                 }
@@ -95,17 +95,19 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
         var area_tudi=[];
         for(var i=0;i<fieldName.ld_qs.length;i++){
             area_tudi[i]={
+                area:0,
                 name:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.sen_lin_lb.length;j++){
                 area_tudi[i].children[j]={
+                    area:0,
                     name:fieldName.sen_lin_lb[j],
                     children:[]
                 };
                 for(var k=0;k<fieldName.dilei.length;k++){
                     area_tudi[i].children[j].children[k]={
-                        size:0,
+                        area:0,
                         name:fieldName.dilei[k]
                     }
                 }
@@ -137,13 +139,15 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     }
                     resultObj.push({
                         name:value.ld_qs,
+                        area:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
+                                area:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
-                                        size:value.area
+                                        area:value.area
                                     }
                                 ]
                             }
@@ -154,19 +158,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     merge(area_tudi,singleresultObj);
                 });
 
-                function toFixed_1(area_tudi){
-                    area_tudi.forEach(function(value){
-                        if(value.hasOwnProperty('children')){
-                            toFixed_1(value['children']);
-                        }
-                    });
-                }
-                toFixed_1(area_tudi);
-                var results={
-                    "name": "林地面积统计",
-                    "children": area_tudi
-                }
-                res.send(results);
+                res.send(area_tudi);
             }
         );
     }else{
@@ -193,13 +185,15 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     }
                     resultObj.push({
                         name:value.ld_qs,
+                        area:value.area,
                         children:[
                             {
                                 name:value.sen_lin_lb,
+                                area:value.area,
                                 children:[
                                     {
                                         name:value.dilei,
-                                        size:value.area
+                                        area:value.area
                                     }
                                 ]
                             }
@@ -210,19 +204,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                     merge(area_tudi,singleresultObj);
                 });
 
-                function toFixed_1(area_tudi){
-                    area_tudi.forEach(function(value){
-                        if(value.hasOwnProperty('children')){
-                            toFixed_1(value['children']);
-                        }
-                    });
-                }
-                toFixed_1(area_tudi);
-                var results={
-                    "name": "林地面积统计",
-                    "children": area_tudi
-                }
-                res.send(results);
+                res.send(area_tudi);
             }
         );
     }
@@ -350,6 +332,7 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
             }
         });
     };
+
     var linzu={
         "0":"国家特别规定灌木林地",
         "1":"幼龄林",
@@ -446,31 +429,37 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
                 if(queryResult.length===0){
                     res.send('[]');
                 }else{
-                    queryResult.forEach(function(value){
+                    queryResult.forEach(function (value) {
+                        if (value.linzu == '') {
+                            value.linzu = "0";
+                        }
                         resultObj.push({
-                            name:value.linzhong,
-                            area:value.area,
-                            stockvolume:value.stockvolume,
-                            children:[{
-                                name:value.dilei,
-                                area:value.area,
-                                stockvolume:value.stockvolume,
-                                children:[{
-                                    name:linzu[value.linzu],
-                                    area:value.area,
-                                    stockvolume:value.stockvolume
+                            name: value.linzhong,
+                            area: value.area,
+                            stockvolume: value.stockvolume,
+                            children: [{
+                                name: value.dilei,
+                                area: value.area,
+                                stockvolume: value.stockvolume,
+                                children: [{
+                                    name: linzu[value.linzu],
+                                    area: value.area,
+                                    stockvolume: value.stockvolume
                                 }]
                             }]
                         })
                     });
-                    resultObj.forEach(function(singleresultObj){
-                        merge(linzhong,singleresultObj);
+                    resultObj.forEach(function (singleresultObj) {
+                        merge(linzhong, singleresultObj);
                     });
+
                     res.send(linzhong);
                 }
             });
     }
 });
+
+
 router.get('/statistics/t4/:xzc',function(req,res,next){
     var client = new pg.Client(conString);
     client.connect(function(err,result){

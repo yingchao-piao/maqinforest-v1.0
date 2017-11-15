@@ -46,7 +46,7 @@
     text-align: center;
     color: #666;
     z-index: -1;
-    font-size: 12px;
+    font-size: 10px;
     visibility: visible;
     height:54px;
 }
@@ -82,7 +82,7 @@
 }
 
 #linzhongmianji_sequence {
-    width: 600px;
+    width: 545px;
     height: 50px;
 }
 
@@ -91,7 +91,7 @@
 }
 
 #linzhongmianji_sequence text, #linzhongmianji_legend text {
-    font-weight: 200;
+    font-size: 12px;
     fill: #fff;
 }
 
@@ -131,7 +131,7 @@
 }
 
 #linzhongxuji_sequence {
-    width: 600px;
+    width: 545px;
     height: 50px;
 }
 
@@ -140,7 +140,7 @@
 }
 
 #linzhongxuji_sequence text, #linzhongxuji_legend text {
-    font-weight: 200;
+    font-size: 12px;
     fill: #fff;
 }
 
