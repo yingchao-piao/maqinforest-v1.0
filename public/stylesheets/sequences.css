@@ -1,3 +1,4 @@
+/*tudimianji t1*/
 #tudimianji{
     margin-left: 10rem;
     margin-right: 10rem;
@@ -55,7 +56,7 @@
     font-size: 2.5em;
 }
 
-
+/*senlinlinmu t2*/
 #senlinlinmu{
     margin-left: 10rem;
     margin-right: 10rem;
@@ -64,6 +65,7 @@
     border: 1px solid rgba(34, 36, 38, 0.15);
 }
 
+/*linzhong t3*/
 #linzhong{
     margin-left: 10rem;
     margin-right: 10rem;
@@ -166,5 +168,112 @@
 }
 
 #linzhongxuji_percentage {
+    font-size: 2.5em;
+}
+
+
+/*qiaomulin t4*/
+#qiaomulin{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+#qiaomulinmianji_main {
+    float: left;
+    width: 300px;
+}
+
+#qiaomulinmianji_sidebar {
+    float: right;
+}
+
+#qiaomulinmianji_sequence {
+    width: 545px;
+    height: 50px;
+}
+
+#qiaomulinmianji_legend {
+    padding: 10px 0 0 3px;
+}
+
+#qiaomulinmianji_sequence text, #qiaomulinmianji_legend text {
+    font-size: 12px;
+    fill: #fff;
+}
+
+#qiaomulinmianji_chart {
+    position: relative;
+}
+
+#qiaomulinmianji_chart path {
+    stroke: #fff;
+}
+
+#qiaomulinmianji_explanation {
+    position: relative;
+    top: 140px;
+    left: 100px;
+    width: 100px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+    font-size: 8px;
+    visibility: visible;
+    height:20px;
+}
+
+#qiaomulinmianji_percentage {
+    font-size: 2.5em;
+}
+
+
+#qiaomulinxuji_main {
+    float: left;
+    width: 300px;
+}
+
+#qiaomulinxuji_sidebar {
+    float: right;
+}
+
+#qiaomulinxuji_sequence {
+    width: 545px;
+    height: 50px;
+}
+
+#qiaomulinxuji_legend {
+    padding: 10px 0 0 3px;
+}
+
+#qiaomulinxuji_sequence text, #qiaomulinxuji_legend text {
+    font-size: 12px;
+    fill: #fff;
+}
+
+#qiaomulinxuji_chart {
+    position: relative;
+}
+
+#qiaomulinxuji_chart path {
+    stroke: #fff;
+}
+
+#qiaomulinxuji_explanation {
+    position: relative;
+    top: 140px;
+    left: 100px;
+    width: 100px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+    font-size: 8px;
+    visibility: visible;
+    height:20px;
+}
+
+#qiaomulinxuji_percentage {
     font-size: 2.5em;
 }

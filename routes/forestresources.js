@@ -339,12 +339,11 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
         "2":"中龄林",
         "3":"近熟林",
         "4":"成熟林",
-        "5":"过熟林"
     };
     var fieldName={
         "linzhong":['水土保持林','水源涵养林','自然保护林'],
         "dilei":['乔木林','疏林地','国家特别规定灌木林地'],
-        "linzu":['国家特别规定灌木林地','幼龄林','中龄林','近熟林','成熟林','过熟林']
+        "linzu":['国家特别规定灌木林地','幼龄林','中龄林','近熟林','成熟林']
     };
     var linzhong=function(fieldName){
         var linzhong=[];
@@ -459,39 +458,141 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
     }
 });
 
-
+//乔木林面积蓄积按龄组t4
 router.get('/statistics/t4/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select qiyuan,youshishuzhong,dilei,linzu,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as hlmxj " +
-            "from maqinxiandataedit where dilei='乔木林'" +
-            "group by qiyuan,youshishuzhong,dilei,linzu) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
+
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                value.stockvolume=value.stockvolume+singleresultObj.stockvolume;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
         });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
+    };
+
+    var linzu={
+        "1":"幼龄林",
+        "2":"中龄林",
+        "3":"近熟林",
+        "4":"成熟林"
+    };
+    var fieldName={
+        "qiyuan":['纯天然','植苗'],
+        "youshishuzhong":['青海云杉','柏树类','白桦','其它灌木树种','山杨','青杨'],
+        "linzu":['幼龄林','中龄林','近熟林','成熟林']
+    };
+
+    var qiaomulin=function(fieldName){
+        var qiaomulin=[];
+        for(var i=0;i<fieldName.qiyuan.length;i++){
+            qiaomulin[i]={
+                area:0,
+                stockvolume:0,
+                name:fieldName.qiyuan[i],
+                children:[]
+            };
+            for(var j=0;j<fieldName.youshishuzhong.length;j++){
+                qiaomulin[i].children[j]={
+                    area:0,
+                    stockvolume:0,
+                    name:fieldName.youshishuzhong[j],
+                    children:[]
+                };
+                for(var k=0;k<fieldName.linzu.length;k++){
+                    qiaomulin[i].children[j].children[k]={
+                        area:0,
+                        stockvolume:0,
+                        name:fieldName.linzu[k],
+                    }
+                }
+            }
+        }
+        return qiaomulin;
+    }(fieldName);
+
+    if(req.params.xzc==="玛沁县"){
+        pool.query("select qiyuan,youshishuzhong,linzu,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume " +
+            "from maqinxiandataedit where dilei='乔木林'" +
+            "group by qiyuan,youshishuzhong,linzu",
+        function(err,result){
+            if(err){
+                console.error("error running query ",err);
+            }
+
+            var resultObj =[];
+            var queryResult=result.rows;
+
+            if(queryResult.length===0){
+                res.send('[]');
+            }else{
+                queryResult.forEach(function(value){
+                    resultObj.push({
+                        name:value.qiyuan,
+                        area:value.area,
+                        stockvolume:value.stockvolume,
+                        children:[{
+                            name:value.youshishuzhong,
+                            area:value.area,
+                            stockvolume:value.stockvolume,
+                            children:[{
+                                name:linzu[value.linzu],
+                                area:value.area,
+                                stockvolume:value.stockvolume
+                            }]
+                        }]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(qiaomulin,singleresultObj);
+                });
+                res.send(qiaomulin);
+            }
         });
     }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select qiyuan,youshishuzhong,dilei,linzu,sum(mianji) as aera,sum(huo_lmgqxj*mianji) as hlmxj " +
-            "from maqinxiandataedit where dilei='乔木林' and xiang='" +req.params.xzc+
-            "' group by qiyuan,youshishuzhong,dilei,linzu) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
+        pool.query("select qiyuan,youshishuzhong,linzu,sum(mianji) as area,sum(huo_lmgqxj*mianji) as stockvolume " +
+            "from maqinxiandataedit " +
+            "where dilei='乔木林' and xiang=$1::text " +
+            "group by qiyuan, youshishuzhong, linzu",[req.params.xzc],
+            function(err,result){
+                if(err){
+                    console.error("error running query ",err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                if(queryResult.length===0){
+                    res.send('[]');
+                }else{
+                    queryResult.forEach(function (value) {
+                        resultObj.push({
+                            name: value.qiyuan,
+                            area: value.area,
+                            stockvolume: value.stockvolume,
+                            children: [{
+                                name: value.youshishuzhong,
+                                area: value.area,
+                                stockvolume: value.stockvolume,
+                                children: [{
+                                    name: linzu[value.linzu],
+                                    area: value.area,
+                                    stockvolume: value.stockvolume
+                                }]
+                            }]
+                        })
+                    });
+                    resultObj.forEach(function (singleresultObj) {
+                        merge(qiaomulin, singleresultObj);
+                    });
+
+                    res.send(qiaomulin);
+                }
+            });
     }
+
 });
 router.get('/statistics/t5/:xzc',function(req,res,next){
     var client = new pg.Client(conString);

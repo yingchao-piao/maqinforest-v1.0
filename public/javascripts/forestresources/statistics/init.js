@@ -194,7 +194,6 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     totalSize = path.node().__data__.value;
                     // Fade all but the current sequence, and show it in the breadcrumb trail.
                     function mouseover(d) {
-                        console.log("first");
                         var percentage = (100 * d.value / totalSize).toPrecision(4);
                         var percentageString = percentage + "%";
 
@@ -605,6 +604,8 @@ $('.ui.link.six.cards .blue.card').click(function(){
             if(area_sum==0){//没有林种面积统计数据
                 document.getElementById("linzhongmianji_nodata").style.visibility="visible";
                 document.getElementById("linzhongmianji_data").style.display="none";
+                document.getElementById("linzhongxuji_nodata").style.visibility="visible";
+                document.getElementById("linzhongxuji_data").style.display="none";
             }else{
                 //林种面积统计
                 d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
@@ -711,7 +712,6 @@ $('.ui.link.six.cards .blue.card').click(function(){
 
                     // Fade all but the current sequence, and show it in the breadcrumb trail.
                     function mouseover(d) {
-                        console.log("second");
                         var percentage = (100 * d.value / totalSize).toPrecision(6);
                         var percentageString = percentage + "%";
 
@@ -914,14 +914,13 @@ $('.ui.link.six.cards .blue.card').click(function(){
                     document.getElementById("linzhongxuji_data").style.display="none";
                 }
                 else{
-                    //林中蓄积量统计
+                    //林种蓄积量统计
                     d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
 
                         var linzhongxuji = {
                             "name": "林种活立木蓄积量统计",
                             "children": root
                         }
-                        console.log(linzhongxuji)
                         // Dimensions of sunburst.
                         var width = 300;
                         var height = 300;
@@ -1019,7 +1018,6 @@ $('.ui.link.six.cards .blue.card').click(function(){
 
                         // Fade all but the current sequence, and show it in the breadcrumb trail.
                         function mouseover(d) {
-                            console.log("third");
                             var percentage = (100 * d.value / totalSize).toPrecision(6);
                             var percentageString = percentage + "%";
 
@@ -1221,4 +1219,653 @@ $('.ui.link.six.cards .blue.card').click(function(){
             }
         }
     });
+
+    //乔木林面积蓄积t4
+    $.ajax({
+        url: '/forestresources/statistics/t4/' + xzcname,
+        type: 'GET',
+        dataType: 'text',
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert('error message: ' + errorThrown.toString());
+        },
+        success: function (res) {
+            var qiaomulindata = JSON.parse(res);
+            console.log(qiaomulindata);
+
+            var area_sum=0;
+            for(var i=0;i<qiaomulindata.length;i++){
+                area_sum=area_sum+qiaomulindata[i].area;
+            };
+
+            var stock_sum=0;
+            for(var i=0;i<qiaomulindata.length;i++){
+                stock_sum=stock_sum+qiaomulindata[i].stockvolume;
+            };
+
+            if(area_sum==0){//没有面积统计数据
+                document.getElementById("qiaomulinmianji_nodata").style.visibility="visible";
+                document.getElementById("qiaomulinmianji_data").style.display="none";
+                document.getElementById("qiaomulinxuji_nodata").style.visibility="visible";
+                document.getElementById("qiaomulinxuji_data").style.display="none";
+            }else{
+                //面积统计
+                d3.json('/forestresources/statistics/t4/' + xzcname, function (error, root) {
+
+                    var qiaomulinmianji = {
+                        "name": "乔木林面积统计",
+                        "children": root
+                    }
+
+                    // Dimensions of sunburst.
+                    var width = 300;
+                    var height = 300;
+                    var radius = Math.min(width, height) / 2;
+
+                    // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                    var b = {
+                        w: 75, h: 30, s: 3, t: 10
+                    };
+
+                    // Mapping of names to colors.
+                    var colors = {
+                        "纯天然": "#7399d1",
+                        "植苗": "#507b3a",
+                        "青海云杉": "#ded3c2",
+                        "柏树类": "#64b952",
+                        "白桦": "#d1c645",
+                        "其它灌木树种": "#bb732c",
+                        "山杨": "#bb6fa9",
+                        "青杨": "#8142bb",
+                        "幼龄林": "#86bb97",
+                        "中龄林": "#30c889",
+                        "近熟林": "#12bb8a",
+                        "成熟林": "#03b7bb"
+                    };
+
+                    // Total size of all segments; we set this later, after loading the data.
+                    var totalSize = 0;
+
+                    var svg = d3.select("#qiaomulinmianji_chart").append("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .append("g")
+                        .attr("id", "qiaomulinmianji_container")
+                        .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
+                    var partition = d3.layout.partition()
+                        .size([2 * Math.PI, radius * radius])
+                        .value(function (d) {
+                            return d.area;
+                        });
+
+                    var arc = d3.svg.arc()
+                        .startAngle(function (d) {
+                            return d.x;
+                        })
+                        .endAngle(function (d) {
+                            return d.x + d.dx;
+                        })
+                        .innerRadius(function (d) {
+                            return Math.sqrt(d.y);
+                        })
+                        .outerRadius(function (d) {
+                            return Math.sqrt(d.y + d.dy);
+                        });
+
+                    // Basic setup of page elements.
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#qiaomulinmianji_togglelegend").on("click", toggleLegend);
+
+                    //Bounding circle underneath the sunburst, to make it easier to detect
+                    // when the mouse leaves the parent g.
+                    svg.append("svg:circle")
+                        .attr("r", radius)
+                        .style("opacity", 0);
+
+
+                    var nodes = partition.nodes(qiaomulinmianji)
+                        .filter(function (d) {
+                            return (d.dx > 0);
+                        });
+
+                    var path = svg.data([qiaomulinmianji]).selectAll("path")
+                        .data(nodes)
+                        .enter().append("svg:path")
+                        .attr("display", function (d) {
+                            return d.depth ? null : "none";
+                        })
+                        .attr("d", arc)
+                        .attr("fill-rule", "evenodd")
+                        .style("fill", function (d) {
+                            return colors[d.name];
+                        })
+                        .style("opacity", 1)
+                        .on("mouseover", mouseover);
+
+                    d3.select("#qiaomulinmianji_percentage")
+                        .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                    d3.select("#qiaomulinmianji_explanation")
+                        .style("visibility", "");
+
+                    // Add the mouseleave handler to the bounding circle.
+                    d3.select("#qiaomulinmianji_container").on("mouseleave", mouseleave);
+                    // Get total size of the tree = value of root node from partition.
+                    totalSize = path.node().__data__.value;
+
+                    // Fade all but the current sequence, and show it in the breadcrumb trail.
+                    function mouseover(d) {
+                        var percentage = (100 * d.value / totalSize).toPrecision(6);
+                        var percentageString = percentage + "%";
+
+
+                        d3.select("#qiaomulinmianji_percentage")
+                            .text(d.value.toFixed(2) + "\n" + percentageString);
+
+                        d3.select("#qiaomulinmianji_explanation")
+                            .style("visibility", "");
+
+                        var sequenceArray = getAncestors(d);
+                        updateBreadcrumbs(sequenceArray, percentageString);
+
+                        // Fade all the segments.
+                        d3.select("#qiaomulinmianji_container").selectAll("path")
+                            .style("opacity", 0.3);
+
+                        // Then highlight only those that are an ancestor of the current segment.
+                        svg.selectAll("path")
+                            .filter(function (node) {
+                                return (sequenceArray.indexOf(node) >= 0);
+                            })
+                            .style("opacity", 1);
+                    }
+
+                    // Restore everything to full opacity when moving off the visualization.
+                    function mouseleave(d) {
+
+                        // Hide the breadcrumb trail
+                        d3.select("#qiaomulinmianji_BreadcrumbTrail")
+                            .style("visibility", "hidden");
+
+                        // Deactivate all segments during transition.
+                        d3.select("#qiaomulinmianji_container").selectAll("path").on("mouseover", null);
+
+                        // Transition each segment to full opacity and then reactivate it.
+                        d3.select("#qiaomulinmianji_container").selectAll("path")
+                            .transition()
+                            .duration(1000)
+                            .style("opacity", 1)
+                            .each("end", function () {
+                                d3.select(this).on("mouseover", mouseover);
+                            });
+
+                        d3.select("#qiaomulinmianji_percentage")
+                            .text("总面积\n" + area_sum.toFixed(2)+"公顷");
+                        d3.select("#qiaomulinmianji_explanation")
+                            .style("visibility", "");
+                    }
+
+                    // Given a node in a partition layout, return an array of all of its ancestor
+                    // nodes, highest first, but excluding the root.
+                    function getAncestors(node) {
+                        var path = [];
+                        var current = node;
+                        while (current.parent) {
+                            path.unshift(current);
+                            current = current.parent;
+                        }
+                        return path;
+                    }
+
+                    function initializeBreadcrumbTrail() {
+                        // Add the svg area.
+                        var qiaomulinmianji_BreadcrumbTrail = d3.select("#qiaomulinmianji_sequence").append("svg:svg")
+                            .attr("width", width *2)
+                            .attr("height", 50)
+                            .attr("id", "qiaomulinmianji_BreadcrumbTrail");
+                        // Add the label at the end, for the percentage.
+                        qiaomulinmianji_BreadcrumbTrail.append("svg:text")
+                            .attr("id", "endlabel")
+                            .style("fill", "#000");
+                    }
+
+                    // Generate a string that describes the points of a breadcrumb polygon.
+                    function breadcrumbPoints(d, i) {
+                        var points = [];
+                        points.push("0,0");
+                        points.push(b.w * 2 + ",0");
+                        points.push(b.w * 2 + b.t + "," + (b.h / 2));
+                        points.push(b.w * 2 + "," + b.h);
+                        points.push("0," + b.h);
+                        if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                            points.push(b.t + "," + (b.h / 2));
+                        }
+                        return points.join(" ");
+                    }
+
+                    // Update the breadcrumb trail to show the current sequence and percentage.
+                    function updateBreadcrumbs(nodeArray, percentageString) {
+
+                        // Data join; key function combines name and depth (= position in sequence).
+                        var g = d3.select("#qiaomulinmianji_BreadcrumbTrail")
+                            .selectAll("g")
+                            .data(nodeArray, function (d) {
+                                return d.name + d.depth;
+                            });
+
+                        // Add breadcrumb and label for entering nodes.
+                        var entering = g.enter().append("svg:g");
+
+                        entering.append("svg:polygon")
+                            .attr("points", breadcrumbPoints)
+                            .style("fill", function (d) {
+                                return colors[d.name];
+                            });
+
+                        entering.append("svg:text")
+                            .attr("x", (b.w * 2 + b.t) / 2)
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function (d) {
+                                return d.name;
+                            });
+
+                        // Set position for entering and updating nodes.
+                        g.attr("transform", function (d, i) {
+                            return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
+                        });
+
+                        // Remove exiting nodes.
+                        g.exit().remove();
+
+                        // Now move and update the percentage at the end.
+                        d3.select("#qiaomulinmianji_BreadcrumbTrail").select("#endlabel")
+                            .attr("x", (nodeArray.length + 0.5) * (b.w * 2+ b.s))
+                            .attr("y", b.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(percentageString);
+
+                        // Make the breadcrumb trail visible, if it's hidden.
+                        d3.select("#qiaomulinmianji_BreadcrumbTrail")
+                            .style("visibility", "");
+
+                    }
+
+                    function drawLegend() {
+
+                        // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                        var li = {
+                            w: 125, h: 30, s: 3, r: 3
+                        };
+
+                        var legend = d3.select("#qiaomulinmianji_legend").append("svg:svg")
+                            .attr("width", li.w)
+                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                        var g = legend.selectAll("g")
+                            .data(d3.entries(colors))
+                            .enter().append("svg:g")
+                            .attr("transform", function (d, i) {
+                                return "translate(0," + i * (li.h + li.s) + ")";
+                            });
+
+                        g.append("svg:rect")
+                            .attr("rx", li.r)
+                            .attr("ry", li.r)
+                            .attr("width", li.w)
+                            .attr("height", li.h)
+                            .style("fill", function (d) {
+                                return d.value;
+                            })
+                            .on("mouseover", function () {
+                                d3.select(this)
+                                    .style("opacity", 0.5);
+
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this)
+                                    .transition()
+                                    .duration(100)
+                                    .style("opacity", 1);
+                            })
+                        ;
+
+                        g.append("svg:text")
+                            .attr("x", li.w / 2)
+                            .attr("y", li.h / 2)
+                            .attr("dy", "0.35em")
+                            .attr("text-anchor", "middle")
+                            .text(function (d) {
+                                return d.key;
+                            });
+                    }
+
+                    function toggleLegend() {
+                        var legend = d3.select("#qiaomulinmianji_legend");
+                        if (legend.style("visibility") == "hidden") {
+                            legend.style("visibility", "");
+                        } else {
+                            legend.style("visibility", "hidden");
+                        }
+                    }
+
+                });
+                if(stock_sum==0){
+                    document.getElementById("qiaomulinxuji_nodata").style.visibility="visible";
+                    document.getElementById("qiaomulinxuji_data").style.display="none";
+                }
+                else{
+                    //蓄积量统计
+                    d3.json('/forestresources/statistics/t4/' + xzcname, function (error, root) {
+
+                        var qiaomulinxuji = {
+                            "name": "林种活立木蓄积量统计",
+                            "children": root
+                        }
+                        // Dimensions of sunburst.
+                        var width = 300;
+                        var height = 300;
+                        var radius = Math.min(width, height) / 2;
+
+                        // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+                        var b = {
+                            w: 75, h: 30, s: 3, t: 10
+                        };
+
+                        // Mapping of names to colors.
+                        var colors = {
+                            "纯天然": "#7399d1",
+                            "植苗": "#507b3a",
+                            "青海云杉": "#ded3c2",
+                            "柏树类": "#64b952",
+                            "白桦": "#d1c645",
+                            "其它灌木树种": "#bb732c",
+                            "山杨": "#bb6fa9",
+                            "青杨": "#8142bb",
+                            "幼龄林": "#86bb97",
+                            "中龄林": "#30c889",
+                            "近熟林": "#12bb8a",
+                            "成熟林": "#03b7bb"
+                        };
+
+                        // Total size of all segments; we set this later, after loading the data.
+                        var totalSize = 0;
+
+                        var svg = d3.select("#qiaomulinxuji_chart").append("svg")
+                            .attr("width", width)
+                            .attr("height", height)
+                            .append("g")
+                            .attr("id", "qiaomulinxuji_container")
+                            .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
+                        var partition = d3.layout.partition()
+                            .size([2 * Math.PI, radius * radius])
+                            .value(function (d) {
+                                return d.stockvolume;
+                            });
+
+                        var arc = d3.svg.arc()
+                            .startAngle(function (d) {
+                                return d.x;
+                            })
+                            .endAngle(function (d) {
+                                return d.x + d.dx;
+                            })
+                            .innerRadius(function (d) {
+                                return Math.sqrt(d.y);
+                            })
+                            .outerRadius(function (d) {
+                                return Math.sqrt(d.y + d.dy);
+                            });
+
+                        // Basic setup of page elements.
+                        initializeBreadcrumbTrail();
+                        drawLegend();
+                        d3.select("#qiaomulinxuji_togglelegend").on("click", toggleLegend);
+
+                        //Bounding circle underneath the sunburst, to make it easier to detect
+                        // when the mouse leaves the parent g.
+                        svg.append("svg:circle")
+                            .attr("r", radius)
+                            .style("opacity", 0);
+
+
+                        var nodes = partition.nodes(qiaomulinxuji)
+                            .filter(function (d) {
+                                return (d.dx > 0);
+                            });
+
+                        var path = svg.data([qiaomulinxuji]).selectAll("path")
+                            .data(nodes)
+                            .enter().append("svg:path")
+                            .attr("display", function (d) {
+                                return d.depth ? null : "none";
+                            })
+                            .attr("d", arc)
+                            .attr("fill-rule", "evenodd")
+                            .style("fill", function (d) {
+                                return colors[d.name];
+                            })
+                            .style("opacity", 1)
+                            .on("mouseover", mouseover);
+
+                        d3.select("#qiaomulinxuji_percentage")
+                            .text("总蓄积量\n" + stock_sum.toFixed(2)+"立方米");
+                        d3.select("#qiaomulinxuji_explanation")
+                            .style("visibility", "");
+
+                        // Add the mouseleave handler to the bounding circle.
+                        d3.select("#qiaomulinxuji_container").on("mouseleave", mouseleave);
+                        // Get total size of the tree = value of root node from partition.
+                        totalSize = path.node().__data__.value;
+
+                        // Fade all but the current sequence, and show it in the breadcrumb trail.
+                        function mouseover(d) {
+                            var percentage = (100 * d.value / totalSize).toPrecision(6);
+                            var percentageString = percentage + "%";
+
+
+                            d3.select("#qiaomulinxuji_percentage")
+                                .text(d.value.toFixed(2) + "\n" + percentageString);
+
+                            d3.select("#qiaomulinxuji_explanation")
+                                .style("visibility", "");
+
+                            var sequenceArray = getAncestors(d);
+                            updateBreadcrumbs(sequenceArray, percentageString);
+
+                            // Fade all the segments.
+                            d3.select("#qiaomulinxuji_container").selectAll("path")
+                                .style("opacity", 0.3);
+
+                            // Then highlight only those that are an ancestor of the current segment.
+                            svg.selectAll("path")
+                                .filter(function (node) {
+                                    return (sequenceArray.indexOf(node) >= 0);
+                                })
+                                .style("opacity", 1);
+                        }
+
+                        // Restore everything to full opacity when moving off the visualization.
+                        function mouseleave(d) {
+
+                            // Hide the breadcrumb trail
+                            d3.select("#qiaomulinxuji_BreadcrumbTrail")
+                                .style("visibility", "hidden");
+
+                            // Deactivate all segments during transition.
+                            d3.select("#qiaomulinxuji_container").selectAll("path").on("mouseover", null);
+
+                            // Transition each segment to full opacity and then reactivate it.
+                            d3.select("#qiaomulinxuji_container").selectAll("path")
+                                .transition()
+                                .duration(1000)
+                                .style("opacity", 1)
+                                .each("end", function () {
+                                    d3.select(this).on("mouseover", mouseover);
+                                });
+
+                            d3.select("#qiaomulinxuji_percentage")
+                                .text("总蓄积量\n" + stock_sum.toFixed(2)+"立方米");
+                            d3.select("#qiaomulinxuji_explanation")
+                                .style("visibility", "");
+                        }
+
+                        // Given a node in a partition layout, return an array of all of its ancestor
+                        // nodes, highest first, but excluding the root.
+                        function getAncestors(node) {
+                            var path = [];
+                            var current = node;
+                            while (current.parent) {
+                                path.unshift(current);
+                                current = current.parent;
+                            }
+                            return path;
+                        }
+
+                        function initializeBreadcrumbTrail() {
+                            // Add the svg area.
+                            var qiaomulinxuji_BreadcrumbTrail = d3.select("#qiaomulinxuji_sequence").append("svg:svg")
+                                .attr("width", width *2)
+                                .attr("height", 50)
+                                .attr("id", "qiaomulinxuji_BreadcrumbTrail");
+                            // Add the label at the end, for the percentage.
+                            qiaomulinxuji_BreadcrumbTrail.append("svg:text")
+                                .attr("id", "endlabel")
+                                .style("fill", "#000");
+                        }
+
+                        // Generate a string that describes the points of a breadcrumb polygon.
+                        function breadcrumbPoints(d, i) {
+                            var points = [];
+                            points.push("0,0");
+                            points.push(b.w * 2 + ",0");
+                            points.push(b.w * 2 + b.t + "," + (b.h / 2));
+                            points.push(b.w * 2 + "," + b.h);
+                            points.push("0," + b.h);
+                            if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+                                points.push(b.t + "," + (b.h / 2));
+                            }
+                            return points.join(" ");
+                        }
+
+                        // Update the breadcrumb trail to show the current sequence and percentage.
+                        function updateBreadcrumbs(nodeArray, percentageString) {
+
+                            // Data join; key function combines name and depth (= position in sequence).
+                            var g = d3.select("#qiaomulinxuji_BreadcrumbTrail")
+                                .selectAll("g")
+                                .data(nodeArray, function (d) {
+                                    return d.name + d.depth;
+                                });
+
+                            // Add breadcrumb and label for entering nodes.
+                            var entering = g.enter().append("svg:g");
+
+                            entering.append("svg:polygon")
+                                .attr("points", breadcrumbPoints)
+                                .style("fill", function (d) {
+                                    return colors[d.name];
+                                });
+
+                            entering.append("svg:text")
+                                .attr("x", (b.w * 2 + b.t) / 2)
+                                .attr("y", b.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(function (d) {
+                                    return d.name;
+                                });
+
+                            // Set position for entering and updating nodes.
+                            g.attr("transform", function (d, i) {
+                                return "translate(" + i * (b.w * 2 + b.s) + ", 0)";
+                            });
+
+                            // Remove exiting nodes.
+                            g.exit().remove();
+
+                            // Now move and update the percentage at the end.
+                            d3.select("#qiaomulinxuji_BreadcrumbTrail").select("#endlabel")
+                                .attr("x", (nodeArray.length + 0.5) * (b.w * 2+ b.s))
+                                .attr("y", b.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(percentageString);
+
+                            // Make the breadcrumb trail visible, if it's hidden.
+                            d3.select("#qiaomulinxuji_BreadcrumbTrail")
+                                .style("visibility", "");
+
+                        }
+
+                        function drawLegend() {
+
+                            // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+                            var li = {
+                                w: 125, h: 30, s: 3, r: 3
+                            };
+
+                            var legend = d3.select("#qiaomulinxuji_legend").append("svg:svg")
+                                .attr("width", li.w)
+                                .attr("height", d3.keys(colors).length * (li.h + li.s));
+
+                            var g = legend.selectAll("g")
+                                .data(d3.entries(colors))
+                                .enter().append("svg:g")
+                                .attr("transform", function (d, i) {
+                                    return "translate(0," + i * (li.h + li.s) + ")";
+                                });
+
+                            g.append("svg:rect")
+                                .attr("rx", li.r)
+                                .attr("ry", li.r)
+                                .attr("width", li.w)
+                                .attr("height", li.h)
+                                .style("fill", function (d) {
+                                    return d.value;
+                                })
+                                .on("mouseover", function () {
+                                    d3.select(this)
+                                        .style("opacity", 0.5);
+
+                                })
+                                .on("mouseout", function () {
+                                    d3.select(this)
+                                        .transition()
+                                        .duration(100)
+                                        .style("opacity", 1);
+                                })
+                            ;
+
+                            g.append("svg:text")
+                                .attr("x", li.w / 2)
+                                .attr("y", li.h / 2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "middle")
+                                .text(function (d) {
+                                    return d.key;
+                                });
+                        }
+
+                        function toggleLegend() {
+                            var legend = d3.select("#qiaomulinxuji_legend");
+                            if (legend.style("visibility") == "hidden") {
+                                legend.style("visibility", "");
+                            } else {
+                                legend.style("visibility", "hidden");
+                            }
+                        }
+
+                    });
+                }
+            }
+
+
+        }
+    });
+
+
 })

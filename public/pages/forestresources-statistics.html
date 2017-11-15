@@ -231,7 +231,7 @@
                     <a class="item" href="#linzhong">
                         林种
                     </a>
-                    <a class="ui item" href="#qiaomulinmianji">
+                    <a class="ui item" href="#qiaomulin">
                         乔木林面积蓄积按龄组
                     </a>
                     <a class="ui item" href="#shengtaigongyilin">
@@ -340,62 +340,53 @@
         </div>
         <!--linzhongmianji t3 d3 end-->
 
-        <div class="ui stackable centered grid" id="qiaomulinmianji">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
+        <!--qiaomulin t4 d3-->
+        <div id="qiaomulin" style="padding-top: 20px;padding-bottom:20px">
+            <div class="text" id="qiaomulin_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">乔木林面积蓄积统计</div>
+            <div class="ui two column doubling stackable centered grid" id="qiaomulin_data" style="padding-top: 20px">
+                <div class="column" id="qiaomulinmianji">
+                    <div class="ui stackable centered grid container" id="qiaomulinmianji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">乔木林面积统计</div>
+                    <div class="ui stackable centered grid container" id="qiaomulinmianji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
+                    <div id="qiaomulinmianji_data">
+                        <div id="qiaomulinmianji_sequence" style="padding-top: 20px"></div>
+                        <div class="ui stackable centered grid container">
+                            <div id="qiaomulinmianji_main">
+                                <div id="qiaomulinmianji_chart">
+                                    <div id="qiaomulinmianji_explanation">
+                                        <span id="qiaomulinmianji_percentage"></span><br/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="qiaomulinmianji_sidebar" style="margin-left:20px;padding-top: 25px">
+                                <input type="checkbox" id="qiaomulinmianji_togglelegend" checked="checked"> 图例<br/>
+                                <div id="qiaomulinmianji_legend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column" id="qiaomulinxuji">
+                    <div class="ui stackable centered grid container" id="qiaomulinxuji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">乔木林活立木蓄积量统计</div>
+                    <div class="ui stackable centered grid container" id="qiaomulinxuji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
+                    <div id="qiaomulinxuji_data">
+                        <div id="qiaomulinxuji_sequence" style="padding-top: 20px"></div>
+                        <div class="ui stackable centered grid container">
+                            <div id="qiaomulinxuji_main">
+                                <div id="qiaomulinxuji_chart">
+                                    <div id="qiaomulinxuji_explanation">
+                                        <span id="qiaomulinxuji_percentage"></span><br/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="qiaomulinxujixuji_sidebar" style="margin-left:20px;padding-top: 25px">
+                                <input type="checkbox" id="qiaomulinxuji_togglelegend" checked="checked"> 图例<br/>
+                                <div id="qiaomulinxuji_legend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
         </div>
-        <div class="ui stackable centered grid" id="shengtaigongyilin">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
-        <div class="ui stackable centered grid" id="guanmulin">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
-        <div class="ui stackable centered grid" id="lindijiegouxianzhuang">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
-        <div class="ui stackable centered grid" id="guojiajigongyilin">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
-        <div class="ui stackable centered grid" id="lindizhiliang">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
-        <div class="ui stackable centered grid" id="lindibaohudengji">
-            <div class="three wide center aligned column">
-                <h2 class="header" style="font-family: 'STFangsong'">玛沁县</h2>
-                <img src="../images/maqin.png" class="ui centered medium image">
-            </div>
-            <div class="three wide column">fd</div>
-            <div class="three wide column">fdfa</div>
-        </div>
+        <!--qiaomulin t4 d3 end-->
 
     </div>
 
