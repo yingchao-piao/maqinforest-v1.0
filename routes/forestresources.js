@@ -384,7 +384,7 @@ router.get('/statistics/t3/:xzc',function(req,res,next){
                 var resultObj =[];
 
                 var queryResult=result.rows;
-                if(queryResult.length===0){
+                if(queryResult.length==0){
                     res.send('[]');
                 }else{
                     queryResult.forEach(function(value){
@@ -506,7 +506,7 @@ router.get('/statistics/t4/:xzc',function(req,res,next){
                     qiaomulin[i].children[j].children[k]={
                         area:0,
                         stockvolume:0,
-                        name:fieldName.linzu[k],
+                        name:fieldName.linzu[k]
                     }
                 }
             }
@@ -594,202 +594,162 @@ router.get('/statistics/t4/:xzc',function(req,res,next){
     }
 
 });
+
+//生态公益林t5
 router.get('/statistics/t5/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,g_cheng_lb,shiquandengji,gjgongyilinbaohudengji,sum(mianji) as aera " +
-            "from maqinxiandataedit where shiquandengji!=''" +
-            "group by dilei,g_cheng_lb,shiquandengji,gjgongyilinbaohudengji) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
         });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
+    };
+
+    var fieldName={
+        "shiquandengji":['国家公益林','地方公益林'],
+        "g_cheng_lb":['退耕还林工程','其他林业工程','其他'],
+        "baohudengji":['一级保护','二级保护','三级保护'],
+        "dilei":['乔木林','疏林地','国家特别规定灌木林地','宜林荒山荒地','苗圃地']
+    };
+
+    var shengtaigongyilin=function(fieldName){
+        var shengtaigongyilin=[];
+        for(var i=0;i<fieldName.shiquandengji.length;i++){
+            shengtaigongyilin[i]={
+                area:0,
+                name:fieldName.shiquandengji[i],
+                children:[]
+            };
+            for(var j=0;j<fieldName.g_cheng_lb.length;j++){
+                shengtaigongyilin[i].children[j]={
+                    area:0,
+                    name:fieldName.g_cheng_lb[j],
+                    children:[]
+                };
+                for(var k=0;k<fieldName.baohudengji.length;k++){
+                    shengtaigongyilin[i].children[j].children[k]={
+                        area:0,
+                        name:fieldName.baohudengji[k],
+                        children:[]
+                    };
+                    for(var m=0;m<fieldName.dilei.length;m++){
+                        shengtaigongyilin[i].children[j].children[k].children[m]={
+                            area:0,
+                            name:fieldName.dilei[m]
+                        }
+                    }
+                }
+            }
+        }
+        return shengtaigongyilin;
+    }(fieldName);
+
+    if(req.params.xzc=="玛沁县"){
+        pool.query("select shiquandengji,g_cheng_lb,baohudengji,dilei,sum(mianji) as area" +
+            " from maqinxiandataedit " +
+            " where shiquandengji!='' " +
+            " group by shiquandengji,g_cheng_lb,baohudengji,dilei",
+        function(err,result){
+            if(err){
+                console.error("error running query ",err);
+            }
+
+            var resultObj =[];
+            var queryResult=result.rows;
+
+            if(queryResult.length==0){
+                res.send('[]');
+            }else{
+                queryResult.forEach(function(value){
+                    if(value.g_cheng_lb==''){
+                        value.g_cheng_lb="其他";
+                    }
+                    resultObj.push({
+                        name:value.shiquandengji,
+                        area:value.area,
+                        children:[{
+                            name:value.g_cheng_lb,
+                            area:value.area,
+                            children:[{
+                                name:value.baohudengji,
+                                area:value.area,
+                                children:[{
+                                    name:value.dilei,
+                                    area:value.area,
+                                }]
+                            }]
+                        }]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(shengtaigongyilin,singleresultObj);
+                });
+                res.send(shengtaigongyilin);
+            }
         });
     }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,g_cheng_lb,shiquandengji,gjgongyilinbaohudengji,sum(mianji) as aera " +
-            "from maqinxiandataedit where shiquandengji!='' and xiang='" +req.params.xzc+
-            "' group by dilei,g_cheng_lb,shiquandengji,gjgongyilinbaohudengji) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
+        pool.query("select shiquandengji,g_cheng_lb,baohudengji,dilei,sum(mianji) as area " +
+            " from maqinxiandataedit " +
+            " where shiquandengji!='' and xiang=$1::text " +
+            " group by shiquandengji,g_cheng_lb,baohudengji,dilei",[req.params.xzc],
+            function(err,result){
+                if(err){
+                    console.error("error running query ",err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                if(queryResult.length===0){
+                    res.send('[]');
+                }else{
+                    queryResult.forEach(function(value){
+                        if(value.g_cheng_lb==''){
+                            value.g_cheng_lb="其他";
+                        }
+                        resultObj.push({
+                            name:value.shiquandengji,
+                            area:value.area,
+                            children:[{
+                                name:value.g_cheng_lb,
+                                area:value.area,
+                                children:[{
+                                    name:value.baohudengji,
+                                    area:value.area,
+                                    children:[{
+                                        name:value.dilei,
+                                        area:value.area,
+                                    }]
+                                }]
+                            }]
+                        })
+                    });
+                    resultObj.forEach(function(singleresultObj){
+                        merge(shengtaigongyilin,singleresultObj);
+                    });
+                    res.send(shengtaigongyilin);
+                }
+            });
     }
 });
+
+
 router.get('/statistics/t6/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,ld_qs,qiyuan,youshishuzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where dilei='国家特别规定灌木林地'" +
-            "group by dilei,ld_qs,qiyuan,youshishuzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,ld_qs,qiyuan,youshishuzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where dilei='国家特别规定灌木林地' and xiang='" +req.params.xzc+
-            "' group by dilei,ld_qs,qiyuan,youshishuzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }
+
 });
 router.get('/statistics/t9/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,qiyuan,sen_lin_lb,linzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where sen_lin_lb=''" +
-            "group by dilei,qiyuan,sen_lin_lb,linzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select dilei,qiyuan,sen_lin_lb,linzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where sen_lin_lb='' and xiang='" +req.params.xzc+
-            "' group by dilei,qiyuan,sen_lin_lb,linzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }
+
 });
 router.get('/statistics/t10/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select qiyuan,baohudengji,dilei,shiquandengji,linzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where baohudengji!=''" +
-            "group by qiyuan,baohudengji,dilei,shiquandengji,linzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select qiyuan,baohudengji,dilei,shiquandengji,linzhong,sum(mianji) as aera " +
-            "from maqinxiandataedit where baohudengji!='' and xiang='" +req.params.xzc+
-            "' group by qiyuan,baohudengji,dilei,shiquandengji,linzhong) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }
+
 });
 router.get('/statistics/t11/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select zl_dj,sum(mianji) as aera " +
-            "from maqinxiandataedit where zl_dj!=''" +
-            "group by zl_dj) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select zl_dj,sum(mianji) as aera " +
-            "from maqinxiandataedit where zl_dj!='' and xiang='" +req.params.xzc+
-            "' group by zl_dj) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }
+
 });
 router.get('/statistics/t12/:xzc',function(req,res,next){
-    var client = new pg.Client(conString);
-    client.connect(function(err,result){
-        if(err){
-            console.log(err.message);
-        }
-    });
-    if(req.params.xzc==="玛沁县"){
-        var query =  client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select baohudengji,sum(mianji) as aera " +
-            "from maqinxiandataedit where baohudengji!=''" +
-            "group by baohudengji) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }else{
-        var query = client.query("select array_to_json(array_agg(row_to_json(t)))" +
-            "from (select baohudengji,sum(mianji) as aera " +
-            "from maqinxiandataedit where baohudengji!='' and xiang='" +req.params.xzc+
-            "' group by baohudengji) t;");
-        query.on('row',function(row,result){
-            result.addRow(row);
-        });
-        query.on('end',function(result){
-            res.send(result.rows[0]);
-            res.end();
-        });
-    }
+
 });
 module.exports = router;

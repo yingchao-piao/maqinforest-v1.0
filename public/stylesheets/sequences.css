@@ -277,3 +277,61 @@
 #qiaomulinxuji_percentage {
     font-size: 2.5em;
 }
+
+/*shengtaigongyilin t5*/
+#shengtaigongyilin{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+#shengtaigongyilin_main {
+    float: left;
+    width: 600px;
+}
+
+#shengtaigongyilin_sidebar {
+    float: right;
+    width: 160px;
+}
+
+#shengtaigongyilin_sequence {
+    width: 600px;
+    height: 50px;
+}
+
+#shengtaigongyilin_legend {
+    padding: 10px 0 0 3px;
+}
+
+#shengtaigongyilin_sequence text, #shengtaigongyilin_legend text {
+    font-weight: 400;
+    fill: #fff;
+}
+
+#shengtaigongyilin_chart {
+    position: relative;
+}
+
+#shengtaigongyilin_chart path {
+    stroke: #fff;
+}
+
+#shengtaigongyilin_explanation {
+    position: relative;
+    top: 280px;
+    left: 210px;
+    width: 140px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+    font-size: 10px;
+    visibility: visible;
+    height:54px;
+}
+
+#shengtaigongyilin_percentage {
+    font-size: 2.5em;
+}
