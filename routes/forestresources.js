@@ -235,8 +235,7 @@ router.get('/statistics/t2/:xzc',function(req,res,next){
         for(var i=0;i<fieldName.ld_qs.length;i++){
             senlinlinmu[i]={
                 area:0,
-                stockvolume:0,
-                name:fieldName.ld_qs[i],
+                stockvolume:0,                name:fieldName.ld_qs[i],
                 children:[]
             };
             for(var j=0;j<fieldName.dilei.length;j++){
@@ -736,19 +735,174 @@ router.get('/statistics/t5/:xzc',function(req,res,next){
     }
 });
 
-
+//灌木林t6
 router.get('/statistics/t6/:xzc',function(req,res,next){
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
+        });
+    };
+
+    var fieldName={
+        "qiyuan":['纯天然'],
+        "dilei":['国家特别规定灌木林地'],
+        "youshishuzhong":['沙棘','山生柳','金露梅','杜鹃','梭梭','其它灌木树种','其它柳类灌木'],
+        "yubidu":['疏','中','密']
+    };
+
+    var guanmulin=function(fieldName){
+        var guanmulin=[];
+        for(var i=0;i<fieldName.qiyuan.length;i++){
+            guanmulin[i]={
+                area:0,
+                name:fieldName.qiyuan[i],
+                children:[]
+            };
+            for(var j=0;j<fieldName.dilei.length;j++){
+                guanmulin[i].children[j]={
+                    area:0,
+                    name:fieldName.dilei[j],
+                    children:[]
+                };
+                for(var k=0;k<fieldName.youshishuzhong.length;k++){
+                    guanmulin[i].children[j].children[k]={
+                        area:0,
+                        name:fieldName.youshishuzhong[k],
+                        children:[]
+                    };
+                    for(var m=0;m<fieldName.yubidu.length;m++) {
+                        guanmulin[i].children[j].children[k].children[m] = {
+                            area: 0,
+                            name: fieldName.yubidu[m],
+                        }
+                    }
+                }
+            }
+        }
+        return guanmulin;
+    }(fieldName);
+    if(req.params.xzc==="玛沁县") {
+        pool.query("select qiyuan,dilei,youshishuzhong,yubidu,sum(mianji) as area " +
+            " from maqinxiandataedit " +
+            " where dilei='国家特别规定灌木林地' " +
+            " group by qiyuan,dilei,youshishuzhong,yubidu",
+            function (err, result) {
+                if (err) {
+                    console.error("error running query ", err);
+                }
+                var resultObj = [];
+
+                var queryResult = result.rows;
+                if (queryResult.length == 0) {
+                    res.send('[]');
+                } else {
+                    queryResult.forEach(function (value) {
+                        if (value.yubidu <0.5) {
+                            value.yubidu = "疏";
+                        }
+                        if (0.5 <= value.yubidu < 0.7) {
+                            value.yubidu = "中";
+                        }
+                        if (0.7 <= value.yubidu) {
+                            value.yubidu = "密";
+                        }
+                        resultObj.push({
+                            name: value.qiyuan,
+                            area: value.area,
+                            children: [{
+                                name: value.dilei,
+                                area: value.area,
+                                children: [{
+                                    name: value.youshishuzhong,
+                                    area: value.area,
+                                    children: [{
+                                        name: value.yubidu,
+                                        area: value.area
+                                    }]
+                                }]
+                            }]
+                        })
+                    });
+                    resultObj.forEach(function (singleresultObj) {
+                        merge(guanmulin, singleresultObj);
+                    });
+                    res.send(guanmulin);
+                }
+            });
+    }else{
+        pool.query("select qiyuan,dilei,youshishuzhong,yubidu,sum(mianji) as area " +
+            " from maqinxiandataedit " +
+            " where dilei='国家特别规定灌木林地' and xiang=$1::text "+
+            " group by qiyuan,dilei,youshishuzhong,yubidu", [req.params.xzc],
+            function(err,result){
+                if (err) {
+                    console.error("error running query ", err);
+                }
+                var resultObj = [];
+
+                var queryResult = result.rows;
+                if (queryResult.length == 0) {
+                    res.send('[]');
+                } else {
+                    queryResult.forEach(function (value) {
+                        if (value.yubidu <0.5) {
+                            value.yubidu = "疏";
+                        }
+                        if (0.5 <= value.yubidu < 0.7) {
+                            value.yubidu = "中";
+                        }
+                        if (0.7 <= value.yubidu) {
+                            value.yubidu = "密";
+                        }
+                        resultObj.push({
+                            name: value.qiyuan,
+                            area: value.area,
+                            children: [{
+                                name: value.dilei,
+                                area: value.area,
+                                children: [{
+                                    name: value.youshishuzhong,
+                                    area: value.area,
+                                    children: [{
+                                        name: value.yubidu,
+                                        area: value.area
+                                    }]
+                                }]
+                            }]
+                        })
+                    });
+                    resultObj.forEach(function (singleresultObj) {
+                        merge(guanmulin, singleresultObj);
+                    });
+                    res.send(guanmulin);
+                }
+            });
+    }
 
 });
+
+//林地结构现状t9
 router.get('/statistics/t9/:xzc',function(req,res,next){
 
 });
+
+//国家级公益林地分保护等级t10
 router.get('/statistics/t10/:xzc',function(req,res,next){
 
 });
+
+//林地质量等级t11
 router.get('/statistics/t11/:xzc',function(req,res,next){
 
 });
+
+//林地保护等级面积t12
 router.get('/statistics/t12/:xzc',function(req,res,next){
 
 });

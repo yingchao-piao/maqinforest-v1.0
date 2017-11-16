@@ -335,3 +335,61 @@
 #shengtaigongyilin_percentage {
     font-size: 2.5em;
 }
+
+/*guanmulin t6*/
+#guanmulin{
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+#guanmulin_main {
+    float: left;
+    width: 600px;
+}
+
+#guanmulin_sidebar {
+    float: right;
+    width: 160px;
+}
+
+#guanmulin_sequence {
+    width: 600px;
+    height: 50px;
+}
+
+#guanmulin_legend {
+    padding: 10px 0 0 3px;
+}
+
+#guanmulin_sequence text, #guanmulin_legend text {
+    font-weight: 400;
+    fill: #fff;
+}
+
+#guanmulin_chart {
+    position: relative;
+}
+
+#guanmulin_chart path {
+    stroke: #fff;
+}
+
+#guanmulin_explanation {
+    position: relative;
+    top: 280px;
+    left: 210px;
+    width: 140px;
+    text-align: center;
+    color: #666;
+    z-index: -1;
+    font-size: 10px;
+    visibility: visible;
+    height:54px;
+}
+
+#guanmulin_percentage {
+    font-size: 2.5em;
+}
