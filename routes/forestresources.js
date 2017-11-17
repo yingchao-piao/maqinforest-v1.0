@@ -1007,6 +1007,131 @@ router.get('/statistics/t9/:xzc',function(req,res,next){
 //国家级公益林地分保护等级t10
 router.get('/statistics/t10/:xzc',function(req,res,next){
 
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
+        });
+    };
+    var fieldName={
+        "shiquandengji":['国家公益林'],
+        "baohudengji":['一级保护','二级保护','三级保护'],
+        "qiyuan":['纯天然','植苗','其他起源']
+    };
+    var guojiajigongyilin=function(fieldName){
+        var guojiajigongyilin=[];
+        for(var i=0;i<fieldName.shiquandengji.length;i++){
+            guojiajigongyilin[i]={
+                area:0,
+                name:fieldName.shiquandengji[i],
+                children:[]
+            };
+            for(var j=0;j<fieldName.baohudengji.length;j++){
+                guojiajigongyilin[i].children[j]={
+                    area:0,
+                    name:fieldName.baohudengji[j],
+                    children:[]
+                };
+                for(var k=0;k<fieldName.qiyuan.length;k++){
+                    guojiajigongyilin[i].children[j].children[k]={
+                        area:0,
+                        name:fieldName.qiyuan[k]
+                    }
+                }
+            }
+        }
+        return guojiajigongyilin;
+    }(fieldName);
+
+    if(req.params.xzc==="玛沁县"){
+        pool.query(
+            " select shiquandengji,baohudengji,qiyuan,sum(mianji) as area "  +
+            " from maqinxiandataedit where shiquandengji='国家公益林' " +
+            " group by shiquandengji,baohudengji,qiyuan ",
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.qiyuan==''){
+                        value.qiyuan='其他起源';
+                    }
+
+                    resultObj.push({
+                        name:value.shiquandengji,
+                        area:value.area,
+                        children:[
+                            {
+                                name:value.baohudengji,
+                                area:value.area,
+                                children:[
+                                    {
+                                        name: value.qiyuan,
+                                        area: value.area
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(guojiajigongyilin,singleresultObj);
+                });
+
+                res.send(guojiajigongyilin);
+            }
+        );
+    }else{
+        pool.query(
+            " select shiquandengji,baohudengji,qiyuan,sum(mianji) as area "+
+            " from maqinxiandataedit where shiquandengji='国家公益林' and xiang=$1::text " +
+            " group by shiquandengji,baohudengji,qiyuan ",[req.params.xzc],
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.qiyuan==''){
+                        value.qiyuan='其他起源';
+                    }
+
+                    resultObj.push({
+                        name:value.shiquandengji,
+                        area:value.area,
+                        children:[
+                            {
+                                name:value.baohudengji,
+                                area:value.area,
+                                children:[
+                                    {
+                                        name: value.qiyuan,
+                                        area: value.area
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(guojiajigongyilin,singleresultObj);
+                });
+
+                res.send(guojiajigongyilin);
+            }
+        );
+    }
+
 });
 
 //林地质量等级t11

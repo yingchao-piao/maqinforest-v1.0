@@ -2273,7 +2273,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
                     // Mapping of names to colors.
                     var scale=d3.scale.category20c();
-                    console.log(scale);
+
                     var colors = {
                         "纯天然":scale(0),
                         "国家特别规定灌木林地":scale(1),
@@ -2665,8 +2665,8 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     i++;
                 }
 
-                console.log(sen_lin_lb);
-                console.log(qiyuan);
+                // console.log(sen_lin_lb);
+                // console.log(qiyuan);
 
 
 
@@ -2694,6 +2694,176 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             name: '不同起源:公顷',
                             type: 'pie',
                             radius: ['40%', '55%'],
+                            center: ['50%', '50%'],
+                            data: qiyuan
+                        }
+                    ]
+                });
+
+            }
+
+        }
+    });
+
+    //国家级公益林地分保护等级t10
+    $.ajax({
+        url: '/forestresources/statistics/t10/' + xzcname,
+        type: 'GET',
+        dataType: 'text',
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert('error message: ' + errorThrown.toString());
+        },
+        success: function (res) {
+
+            var results = JSON.parse(res);
+
+            if (results.length == 0) {//某些县没有统计数据
+                document.getElementById("guojiajigongyilin_nodata").style.visibility = "visible";
+                document.getElementById("guojiajigongyilin_data").style.display = "none";
+            } else {
+
+                var shiquandengji=[];
+                var baohudengji=[];
+                var qiyuan=[];
+                var guojiajigongyilin={
+                    name:"国家级公益林地分保护等级",
+                    children:results
+                };
+
+                var i=0;
+
+                while(i<guojiajigongyilin.children.length){
+                    shiquandengji.push({
+                        name:guojiajigongyilin.children[i].name,
+                        value:guojiajigongyilin.children[i].area,
+                        itemStyle:{
+                            normal: {
+                                label: {
+                                    show: function () {
+                                        if (guojiajigongyilin.children[i].area == 0) {
+                                            return false;
+                                        }
+                                    }(),
+                                    position: "center",
+                                    formatter: "{b}",
+                                    textStyle: {
+                                        color: "#FFF",
+                                        fontWeight: 'bold',
+                                        fontSize: 15
+                                    }
+                                },
+                                labelLine: {
+                                    show: function () {
+                                        if (guojiajigongyilin.children[i].area == 0) {
+                                            return false;
+                                        }
+                                    }()
+                                }
+                            }
+                        }
+                    });
+                    if(guojiajigongyilin.children[i].hasOwnProperty('children')) {
+                        for (var j = 0; j < guojiajigongyilin.children[i].children.length; j++) {
+                            baohudengji.push({
+                                name: guojiajigongyilin.children[i].children[j].name,
+                                value: guojiajigongyilin.children[i].children[j].area,
+                                itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: function () {
+                                                if (guojiajigongyilin.children[i].children[j].area == 0) {
+                                                    return false;
+                                                }
+                                            }(),
+                                            position: "inner",
+                                            formatter: "{b}",
+                                            textStyle: {
+                                                fontWeight: 'normal',
+                                                fontSize: 14
+                                            }
+                                        },
+                                        labelLine: {
+                                            show: function () {
+                                                if (guojiajigongyilin.children[i].children[j].area == 0) {
+                                                    return false;
+                                                }
+                                            }()
+                                        }
+                                    }
+                                }
+                            });
+                            if (guojiajigongyilin.children[i].children[j].hasOwnProperty('children')) {
+                                for (var k = 0; k < guojiajigongyilin.children[i].children[j].children.length; k++) {
+                                    qiyuan.push({
+                                        name: guojiajigongyilin.children[i].children[j].name + "/" + guojiajigongyilin.children[i].children[j].children[k].name,
+                                        value: guojiajigongyilin.children[i].children[j].children[k].area,
+                                        itemStyle: {
+                                            normal: {
+                                                label: {
+                                                    show: function () {
+                                                        if (guojiajigongyilin.children[i].children[j].children[k].area == 0) {
+                                                            return false;
+                                                        }
+                                                    }(),
+                                                    formatter: "{b}",
+                                                    textStyle: {
+                                                        fontWeight: 'normal',
+                                                        fontSize: 14
+                                                    }
+                                                },
+                                                labelLine: {
+                                                    show: function () {
+                                                        if (guojiajigongyilin.children[i].children[j].children[k].area == 0) {
+                                                            return false;
+                                                        }
+                                                    }()
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    };
+                    i++;
+                }
+
+
+
+                var guojiajigongyilinEchart = echarts.init(document.getElementById('guojiajigongyilin_data'));
+                guojiajigongyilinEchart.setOption({
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        x: 'left',
+                        textStyle:{
+                            fontSize:14
+                        },
+                        data:['国家公益林','一级保护','二级保护','三级保护']
+
+                    },
+                    series: [
+                        {
+                            name: '国家公益林:公顷',
+                            type: 'pie',
+                            radius: [0, '15%'],
+                            center: ['50%', '50%'],
+                            data: shiquandengji
+                        },
+                        {
+                            name: '保护等级:公顷',
+                            type: 'pie',
+                            radius: ['20%', '35%'],
+                            center: ['50%', '50%'],
+                            data: baohudengji
+                        },
+                        {
+                            name: '不同起源:公顷',
+                            type: 'pie',
+                            radius: ['45%', '60%'],
                             center: ['50%', '50%'],
                             data: qiyuan
                         }
