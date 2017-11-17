@@ -487,7 +487,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                                 if (senlinlinmu[0].children[1].area == 0) {
                                                     return false;
                                                 }
-                                                ;
                                             }(),
                                             textStyle: {
                                                 fontWeight: 'normal',
@@ -2575,5 +2574,136 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
         }
     });
+
+    //林地结构现状t9
+    $.ajax({
+        url: '/forestresources/statistics/t9/' + xzcname,
+        type: 'GET',
+        dataType: 'text',
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert('error message: ' + errorThrown.toString());
+        },
+        success: function (res) {
+
+            var results = JSON.parse(res);
+
+            if (results.length == 0) {//某些县没有林地面积统计数据
+                document.getElementById("lindijiegouxianzhuang_nodata").style.visibility = "visible";
+                document.getElementById("lindijiegouxianzhuang_data").style.display = "none";
+            } else {
+
+                var sen_lin_lb=[];
+                var qiyuan=[];
+                var lindijiegouxianzhuang={
+                    name:"林地现状统计",
+                    children:results
+                };
+
+                var i=0;
+
+                while(i<lindijiegouxianzhuang.children.length){
+                    sen_lin_lb.push({
+                        name:lindijiegouxianzhuang.children[i].name,
+                        value:lindijiegouxianzhuang.children[i].area,
+                        itemStyle:{
+                            normal: {
+                                label: {
+                                    show: function () {
+                                        if (lindijiegouxianzhuang.children[i].area == 0) {
+                                            return false;
+                                        }
+                                    }(),
+                                    position: "inner",
+                                    formatter: "{b}",
+                                    textStyle: {
+                                        color: "#FFF",
+                                        fontWeight: 'bold',
+                                        fontSize: 15
+                                    }
+                                },
+                                labelLine: {
+                                    show: function () {
+                                        if (lindijiegouxianzhuang.children[i].area == 0) {
+                                            return false;
+                                        }
+                                    }()
+                                }
+                            }
+                        }
+                    });
+                    if(lindijiegouxianzhuang.children[i].hasOwnProperty('children')){
+                        for(var j=0;j<lindijiegouxianzhuang.children[i].children.length;j++){
+                            qiyuan.push({
+                                name:lindijiegouxianzhuang.children[i].name +"/" + lindijiegouxianzhuang.children[i].children[j].name,
+                                value:lindijiegouxianzhuang.children[i].children[j].area,
+                                itemStyle:{
+                                    normal: {
+                                        label: {
+                                            show: function () {
+                                                if (lindijiegouxianzhuang.children[i].children[j].area == 0) {
+                                                    return false;
+                                                }
+                                            }(),
+                                            formatter: "{b}",
+                                            textStyle: {
+                                                fontWeight: 'normal',
+                                                fontSize: 14
+                                            }
+                                        },
+                                        labelLine: {
+                                            show: function () {
+                                                if (lindijiegouxianzhuang.children[i].children[j].area == 0) {
+                                                    return false;
+                                                }
+                                            }()
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    i++;
+                }
+
+                console.log(sen_lin_lb);
+                console.log(qiyuan);
+
+
+
+                var lindijiegouxianzhuangEchart = echarts.init(document.getElementById('lindijiegouxianzhuang_data'));
+                lindijiegouxianzhuangEchart.setOption({
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        x: 'left',
+                        data:['重点公益林地','一般公益林地','其他类别']/*'重点公益林地/纯天然','重点公益林地/植苗','重点公益林地/其他起源',
+                            '一般公益林地/纯天然','一般公益林地/植苗','一般公益林地/其他起源','其他类别/纯天然','其他类别/植苗','其他类别/其他起源'*/
+                    },
+                    series: [
+                        {
+                            name: '林地类别:公顷',
+                            type: 'pie',
+                            radius: [0, '30%'],
+                            center: ['50%', '50%'],
+                            data: sen_lin_lb
+                        },
+                        {
+                            name: '不同起源:公顷',
+                            type: 'pie',
+                            radius: ['40%', '55%'],
+                            center: ['50%', '50%'],
+                            data: qiyuan
+                        }
+                    ]
+                });
+
+            }
+
+        }
+    });
+
 })
 

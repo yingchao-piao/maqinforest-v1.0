@@ -890,7 +890,119 @@ router.get('/statistics/t6/:xzc',function(req,res,next){
 //林地结构现状t9
 router.get('/statistics/t9/:xzc',function(req,res,next){
 
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
+        });
+    };
+    var fieldName={
+        "sen_lin_lb":['重点公益林地','一般公益林地','其他类别'],
+        "qiyuan":['纯天然','植苗','其他起源']
+    };
+    var lindijiegouxianzhuang=function(fieldName){
+        var lindijiegouxianzhuang=[];
+        for(var i=0;i<fieldName.sen_lin_lb.length;i++){
+            lindijiegouxianzhuang[i]={
+                area:0,
+                name:fieldName.sen_lin_lb[i],
+                children:[]
+            };
+            for(var j=0;j<fieldName.qiyuan.length;j++){
+                lindijiegouxianzhuang[i].children[j]={
+                    area:0,
+                    name:fieldName.qiyuan[j],
+
+                }
+            }
+        }
+        return lindijiegouxianzhuang;
+    }(fieldName);
+    if(req.params.xzc==="玛沁县"){
+        pool.query(
+            ' select sen_lin_lb,qiyuan,sum(mianji) as area ' +
+            ' from maqinxiandataedit ' +
+            ' group by sen_lin_lb,qiyuan ',
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.sen_lin_lb==''){
+                        value.sen_lin_lb='其他类别';
+                    }
+                    if(value.qiyuan==''){
+                        value.qiyuan='其他起源';
+                    }
+
+                    resultObj.push({
+                        name:value.sen_lin_lb,
+                        area:value.area,
+                        children:[
+                            {
+                                name:value.qiyuan,
+                                area:value.area
+                            }
+                        ]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindijiegouxianzhuang,singleresultObj);
+                });
+
+                res.send(lindijiegouxianzhuang);
+            }
+        );
+    }else{
+        pool.query(
+            ' select sen_lin_lb,qiyuan,sum(mianji) as area '+
+            ' from maqinxiandataedit where xiang=$1::text ' +
+            ' group by sen_lin_lb,qiyuan ',[req.params.xzc],
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.sen_lin_lb==''){
+                        value.sen_lin_lb='其他类别';
+                    }
+                    if(value.qiyuan==''){
+                        value.qiyuan='其他起源';
+                    }
+
+                    resultObj.push({
+                        name:value.sen_lin_lb,
+                        area:value.area,
+                        children:[
+                            {
+                                name:value.qiyuan,
+                                area:value.area
+                            }
+                        ]
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindijiegouxianzhuang,singleresultObj);
+                });
+
+                res.send(lindijiegouxianzhuang);
+            }
+        );
+    }
+
 });
+
 
 //国家级公益林地分保护等级t10
 router.get('/statistics/t10/:xzc',function(req,res,next){

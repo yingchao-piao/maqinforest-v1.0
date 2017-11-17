@@ -393,3 +393,14 @@
 #guanmulin_percentage {
     font-size: 2.5em;
 }
+
+/*lindijiegouxianzhuang t9*/
+#lindijiegouxianzhuang {
+    margin-left: 10rem;
+    margin-right: 10rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+
