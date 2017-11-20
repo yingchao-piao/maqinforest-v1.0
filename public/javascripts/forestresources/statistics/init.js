@@ -2040,7 +2040,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         });
 
                     // Mapping of names to colors.
-                    var colors = d3.scale.category20b();
+                    var colors = d3.scale.category20c();
 
 
                     initializeBreadcrumbTrail();
