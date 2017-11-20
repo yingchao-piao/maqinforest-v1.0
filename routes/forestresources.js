@@ -88,7 +88,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
     };
     var fieldName={
         "ld_qs":['非国有林地','国有林地','非林地'],
-        "sen_lin_lb":['重点公益林地','一般公益林地','其他'],
+        "sen_lin_lb":['重点公益林地','一般公益林地','其他森林类别'],
         "dilei":['苗圃地','乔木林','国家特别规定灌木林地','宜林荒山荒地','疏林地','水域','未利用地','牧草地','耕地','建设用地']
     };
     var area_tudi=function(fieldName){
@@ -135,7 +135,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                         value.ld_qs='非林地';
                     }
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='其他';
+                        value.sen_lin_lb='其他森林类别';
                     }
                     resultObj.push({
                         name:value.ld_qs,
@@ -181,7 +181,7 @@ router.get('/statistics/t1/:xzc',function(req,res,next){
                         value.ld_qs='非林地';
                     }
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='其他';
+                        value.sen_lin_lb='其他森林类别';
                     }
                     resultObj.push({
                         name:value.ld_qs,
@@ -902,7 +902,7 @@ router.get('/statistics/t9/:xzc',function(req,res,next){
         });
     };
     var fieldName={
-        "sen_lin_lb":['重点公益林地','一般公益林地','其他类别'],
+        "sen_lin_lb":['重点公益林地','一般公益林地','其他森林类别'],
         "qiyuan":['纯天然','植苗','其他起源']
     };
     var lindijiegouxianzhuang=function(fieldName){
@@ -937,7 +937,7 @@ router.get('/statistics/t9/:xzc',function(req,res,next){
                 var queryResult=result.rows;
                 queryResult.forEach(function(value){
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='其他类别';
+                        value.sen_lin_lb='其他森林类别';
                     }
                     if(value.qiyuan==''){
                         value.qiyuan='其他起源';
@@ -975,7 +975,7 @@ router.get('/statistics/t9/:xzc',function(req,res,next){
                 var queryResult=result.rows;
                 queryResult.forEach(function(value){
                     if(value.sen_lin_lb==''){
-                        value.sen_lin_lb='其他类别';
+                        value.sen_lin_lb='其他森林类别';
                     }
                     if(value.qiyuan==''){
                         value.qiyuan='其他起源';
