@@ -610,7 +610,7 @@ router.get('/statistics/t5/:xzc',function(req,res,next){
 
     var fieldName={
         "shiquandengji":['国家公益林','地方公益林'],
-        "g_cheng_lb":['退耕还林工程','其他林业工程','其他'],
+        "g_cheng_lb":['退耕还林工程','其他林业工程','无工程类别'],
         "baohudengji":['一级保护','二级保护','三级保护'],
         "dilei":['乔木林','疏林地','国家特别规定灌木林地','宜林荒山荒地','苗圃地']
     };
@@ -665,7 +665,7 @@ router.get('/statistics/t5/:xzc',function(req,res,next){
             }else{
                 queryResult.forEach(function(value){
                     if(value.g_cheng_lb==''){
-                        value.g_cheng_lb="其他";
+                        value.g_cheng_lb="无工程类别";
                     }
                     resultObj.push({
                         name:value.shiquandengji,
@@ -707,7 +707,7 @@ router.get('/statistics/t5/:xzc',function(req,res,next){
                 }else{
                     queryResult.forEach(function(value){
                         if(value.g_cheng_lb==''){
-                            value.g_cheng_lb="其他";
+                            value.g_cheng_lb="无工程类别";
                         }
                         resultObj.push({
                             name:value.shiquandengji,

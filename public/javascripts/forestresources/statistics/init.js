@@ -102,27 +102,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 w: 75, h: 30, s: 3, t: 10
             };
 
-            // Mapping of names to colors.
-            var colors = {
-                "国有林地": "#5687d1",
-                "非国有林地": "#7b615c",
-                "非林地": "#ded3c2",
-                "重点公益林地": "#b95b36",
-                "一般公益林地": "#a173d1",
-                "其他": "#bbb42f",
-                "乔木林": "#18bb08",
-                "疏林地": "#bb904c",
-                "苗圃地": "#bbb695",
-                "国家特别规定灌木林地": "#6cbba8",
-                "宜林荒山荒地": "#bb992e",
-                "水域": "#0b2bbb",
-                "牧草地": "#95bb5a",
-                "未利用地": "#bb7037",
-                "耕地": "#bb59ae",
-                "建设用地": "#4b4b4b",
-
-            };
-
             // Total size of all segments; we set this later, after loading the data.
             var totalSize = 0;
 
@@ -166,10 +145,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     "children": root
                 }
 
-                initializeBreadcrumbTrail();
-                drawLegend();
-                d3.select("#tudimianji_togglelegend").on("click", toggleLegend);
-
                 //Bounding circle underneath the sunburst, to make it easier to detect
                 // when the mouse leaves the parent g.
                 svg.append("svg:circle")
@@ -182,6 +157,11 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         return (d.dx > 0);
                     });
 
+
+                // Mapping of names to colors.
+
+                var colors = d3.scale.category20c();
+
                 var path = svg.data([tudimianji]).selectAll("path")
                     .data(nodes)
                     .enter().append("svg:path")
@@ -191,10 +171,15 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     .attr("d", arc)
                     .attr("fill-rule", "evenodd")
                     .style("fill", function (d) {
-                        return colors[d.name];
+                        return colors(d.name);
                     })
                     .style("opacity", 1)
                     .on("mouseover", mouseover);
+
+
+                initializeBreadcrumbTrail();
+                drawLegend();
+                d3.select("#tudimianji_togglelegend").on("click", toggleLegend);
 
                 d3.select("#tudimianji_percentage")
                     .text("总面积\n" + area_sum.toFixed(2) + "公顷");
@@ -313,7 +298,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     entering.append("svg:polygon")
                         .attr("points", breadcrumbPoints)
                         .style("fill", function (d) {
-                            return colors[d.name];
+                            return colors(d.name);
                         });
 
                     entering.append("svg:text")
@@ -353,17 +338,37 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var li = {
                         w: 160, h: 30, s: 3, r: 3
                     };
+                    var data_name=[];
 
+                    for(var i=1;i<nodes.length;i++){
+                        var j=0;
+                        while(j<data_name.length){
+                            if(nodes[i].name==data_name[j].name){
+                                break;
+                            }
+                            j++;
+                        }
+                        if(j==data_name.length){
+                            data_name.push({
+                                name:nodes[i].name,
+                                area:nodes[i].area
+                            })
+                        }
+                    };
                     var legend = d3.select("#tudimianji_legend").append("svg:svg")
                         .attr("width", li.w)
-                        .attr("height", d3.keys(colors).length * (li.h + li.s));
+                        .attr("height", data_name.length * (li.h + li.s));
+
+
 
                     var g = legend.selectAll("g")
-                        .data(d3.entries(colors))
+                        .data(data_name)
                         .enter().append("svg:g")
+                        .attr("class","legend")
                         .attr("transform", function (d, i) {
                             return "translate(0," + i * (li.h + li.s) + ")";
-                        });
+                        })
+
 
                     g.append("svg:rect")
                         .attr("rx", li.r)
@@ -371,7 +376,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("width", li.w)
                         .attr("height", li.h)
                         .style("fill", function (d) {
-                            return d.value;
+                            return d.area==0?'black': colors(d.name)
                         })
                         .on("mouseover", function () {
                             d3.select(this)
@@ -392,8 +397,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("dy", "0.35em")
                         .attr("text-anchor", "middle")
                         .text(function (d) {
-                            return d.key;
+                            return d.name;
                         });
+
                 }
 
                 function toggleLegend() {
@@ -672,19 +678,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         w: 75, h: 30, s: 3, t: 10
                     };
 
-                    // Mapping of names to colors.
-                    var colors = {
-                        "自然保护林": "#7399d1",
-                        "水源涵养林": "#507b3a",
-                        "水土保持林": "#ded3c2",
-                        "乔木林": "#64b952",
-                        "疏林地": "#d1c645",
-                        "国家特别规定灌木林地": "#bb732c",
-                        "幼龄林": "#86bb97",
-                        "中龄林": "#30c889",
-                        "近熟林": "#12bb8a",
-                        "成熟林": "#03b7bb"
-                    };
 
                     // Total size of all segments; we set this later, after loading the data.
                     var totalSize = 0;
@@ -716,10 +709,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             return Math.sqrt(d.y + d.dy);
                         });
 
-                    // Basic setup of page elements.
-                    initializeBreadcrumbTrail();
-                    drawLegend();
-                    d3.select("#linzhongmianji_togglelegend").on("click", toggleLegend);
+
 
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
@@ -733,6 +723,14 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             return (d.dx > 0);
                         });
 
+                    // Mapping of names to colors.
+                    var colors = d3.scale.category20();
+
+                    // Basic setup of page elements.
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#linzhongmianji_togglelegend").on("click", toggleLegend);
+
                     var path = svg.data([linzhongmianji]).selectAll("path")
                         .data(nodes)
                         .enter().append("svg:path")
@@ -742,7 +740,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")
                         .style("fill", function (d) {
-                            return colors[d.name];
+                            return colors(d.name);
                         })
                         .style("opacity", 1)
                         .on("mouseover", mouseover);
@@ -863,7 +861,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         entering.append("svg:polygon")
                             .attr("points", breadcrumbPoints)
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             });
 
                         entering.append("svg:text")
@@ -904,12 +902,30 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             w: 125, h: 30, s: 3, r: 3
                         };
 
+                        var data_name=[];
+
+                        for(var i=1;i<nodes.length;i++){
+                            var j=0;
+                            while(j<data_name.length){
+                                if(nodes[i].name==data_name[j].name){
+                                    break;
+                                }
+                                j++;
+                            }
+                            if(j==data_name.length){
+                                data_name.push({
+                                    name:nodes[i].name,
+                                    area:nodes[i].area
+                                })
+                            }
+                        };
+
                         var legend = d3.select("#linzhongmianji_legend").append("svg:svg")
                             .attr("width", li.w)
-                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+                            .attr("height", data_name.length * (li.h + li.s));
 
                         var g = legend.selectAll("g")
-                            .data(d3.entries(colors))
+                            .data(data_name)
                             .enter().append("svg:g")
                             .attr("transform", function (d, i) {
                                 return "translate(0," + i * (li.h + li.s) + ")";
@@ -921,7 +937,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("width", li.w)
                             .attr("height", li.h)
                             .style("fill", function (d) {
-                                return d.value;
+                                return d.area==0?'black': colors(d.name)
                             })
                             .on("mouseover", function () {
                                 d3.select(this)
@@ -942,7 +958,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")
                             .text(function (d) {
-                                return d.key;
+                                return d.name;
                             });
                     }
 
@@ -978,19 +994,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             w: 75, h: 30, s: 3, t: 10
                         };
 
-                        // Mapping of names to colors.
-                        var colors = {
-                            "自然保护林": "#7399d1",
-                            //"水源涵养林": "#507b3a",
-                            "水土保持林": "#ded3c2",
-                            "乔木林": "#64b952",
-                            "疏林地": "#d1c645",
-                            //"国家特别规定灌木林地": "#bb732c",
-                            "幼龄林": "#86bb97",
-                            "中龄林": "#30c889",
-                            "近熟林": "#12bb8a",
-                            "成熟林": "#03b7bb"
-                        };
 
                         // Total size of all segments; we set this later, after loading the data.
                         var totalSize = 0;
@@ -1022,10 +1025,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 return Math.sqrt(d.y + d.dy);
                             });
 
-                        // Basic setup of page elements.
-                        initializeBreadcrumbTrail();
-                        drawLegend();
-                        d3.select("#linzhongxuji_togglelegend").on("click", toggleLegend);
 
                         //Bounding circle underneath the sunburst, to make it easier to detect
                         // when the mouse leaves the parent g.
@@ -1039,6 +1038,15 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 return (d.dx > 0);
                             });
 
+                        // Mapping of names to colors.
+                        var colors = d3.scale.category20();
+
+
+                        // Basic setup of page elements.
+                        initializeBreadcrumbTrail();
+                        drawLegend();
+                        d3.select("#linzhongxuji_togglelegend").on("click", toggleLegend);
+
                         var path = svg.data([linzhongxuji]).selectAll("path")
                             .data(nodes)
                             .enter().append("svg:path")
@@ -1048,7 +1056,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("d", arc)
                             .attr("fill-rule", "evenodd")
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             })
                             .style("opacity", 1)
                             .on("mouseover", mouseover);
@@ -1169,7 +1177,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             entering.append("svg:polygon")
                                 .attr("points", breadcrumbPoints)
                                 .style("fill", function (d) {
-                                    return colors[d.name];
+                                    return colors(d.name);
                                 });
 
                             entering.append("svg:text")
@@ -1209,13 +1217,30 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             var li = {
                                 w: 125, h: 30, s: 3, r: 3
                             };
+                            var data_name=[];
+
+                            for(var i=1;i<nodes.length;i++){
+                                var j=0;
+                                while(j<data_name.length){
+                                    if(nodes[i].name==data_name[j].name){
+                                        break;
+                                    }
+                                    j++;
+                                }
+                                if(j==data_name.length){
+                                    data_name.push({
+                                        name:nodes[i].name,
+                                        area:nodes[i].area
+                                    })
+                                }
+                            };
 
                             var legend = d3.select("#linzhongxuji_legend").append("svg:svg")
                                 .attr("width", li.w)
-                                .attr("height", d3.keys(colors).length * (li.h + li.s));
+                                .attr("height", data_name.length * (li.h + li.s));
 
                             var g = legend.selectAll("g")
-                                .data(d3.entries(colors))
+                                .data(data_name)
                                 .enter().append("svg:g")
                                 .attr("transform", function (d, i) {
                                     return "translate(0," + i * (li.h + li.s) + ")";
@@ -1227,7 +1252,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 .attr("width", li.w)
                                 .attr("height", li.h)
                                 .style("fill", function (d) {
-                                    return d.value;
+                                    return d.area==0?'black': colors(d.name)
                                 })
                                 .on("mouseover", function () {
                                     d3.select(this)
@@ -1248,7 +1273,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 .attr("dy", "0.35em")
                                 .attr("text-anchor", "middle")
                                 .text(function (d) {
-                                    return d.key;
+                                    return d.name;
                                 });
                         }
 
@@ -1315,21 +1340,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         w: 75, h: 30, s: 3, t: 10
                     };
 
-                    // Mapping of names to colors.
-                    var colors = {
-                        "纯天然": "#7399d1",
-                        "植苗": "#507b3a",
-                        "青海云杉": "#ded3c2",
-                        "柏树类": "#64b952",
-                        "白桦": "#d1c645",
-                        "其它灌木树种": "#bb732c",
-                        "山杨": "#bb6fa9",
-                        "青杨": "#8142bb",
-                        "幼龄林": "#86bb97",
-                        "中龄林": "#30c889",
-                        "近熟林": "#12bb8a",
-                        "成熟林": "#03b7bb"
-                    };
 
                     // Total size of all segments; we set this later, after loading the data.
                     var totalSize = 0;
@@ -1361,11 +1371,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             return Math.sqrt(d.y + d.dy);
                         });
 
-                    // Basic setup of page elements.
-                    initializeBreadcrumbTrail();
-                    drawLegend();
-                    d3.select("#qiaomulinmianji_togglelegend").on("click", toggleLegend);
-
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
                     svg.append("svg:circle")
@@ -1378,6 +1383,15 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             return (d.dx > 0);
                         });
 
+                    // Mapping of names to colors.
+                    var colors = d3.scale.category20c();
+
+
+                    // Basic setup of page elements.
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#qiaomulinmianji_togglelegend").on("click", toggleLegend);
+
                     var path = svg.data([qiaomulinmianji]).selectAll("path")
                         .data(nodes)
                         .enter().append("svg:path")
@@ -1387,7 +1401,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")
                         .style("fill", function (d) {
-                            return colors[d.name];
+                            return colors(d.name);
                         })
                         .style("opacity", 1)
                         .on("mouseover", mouseover);
@@ -1508,7 +1522,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         entering.append("svg:polygon")
                             .attr("points", breadcrumbPoints)
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             });
 
                         entering.append("svg:text")
@@ -1548,13 +1562,29 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var li = {
                             w: 125, h: 30, s: 3, r: 3
                         };
+                        var data_name=[];
 
+                        for(var i=1;i<nodes.length;i++){
+                            var j=0;
+                            while(j<data_name.length){
+                                if(nodes[i].name==data_name[j].name){
+                                    break;
+                                }
+                                j++;
+                            }
+                            if(j==data_name.length){
+                                data_name.push({
+                                    name:nodes[i].name,
+                                    area:nodes[i].area
+                                })
+                            }
+                        };
                         var legend = d3.select("#qiaomulinmianji_legend").append("svg:svg")
                             .attr("width", li.w)
-                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+                            .attr("height", data_name.length * (li.h + li.s));
 
                         var g = legend.selectAll("g")
-                            .data(d3.entries(colors))
+                            .data(data_name)
                             .enter().append("svg:g")
                             .attr("transform", function (d, i) {
                                 return "translate(0," + i * (li.h + li.s) + ")";
@@ -1566,7 +1596,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("width", li.w)
                             .attr("height", li.h)
                             .style("fill", function (d) {
-                                return d.value;
+                                return d.area==0?'black': colors(d.name)
                             })
                             .on("mouseover", function () {
                                 d3.select(this)
@@ -1587,7 +1617,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")
                             .text(function (d) {
-                                return d.key;
+                                return d.name;
                             });
                     }
 
@@ -1623,21 +1653,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             w: 75, h: 30, s: 3, t: 10
                         };
 
-                        // Mapping of names to colors.
-                        var colors = {
-                            "纯天然": "#7399d1",
-                            "植苗": "#507b3a",
-                            "青海云杉": "#ded3c2",
-                            "柏树类": "#64b952",
-                            "白桦": "#d1c645",
-                            "其它灌木树种": "#bb732c",
-                            "山杨": "#bb6fa9",
-                            "青杨": "#8142bb",
-                            "幼龄林": "#86bb97",
-                            "中龄林": "#30c889",
-                            "近熟林": "#12bb8a",
-                            "成熟林": "#03b7bb"
-                        };
+
 
                         // Total size of all segments; we set this later, after loading the data.
                         var totalSize = 0;
@@ -1669,10 +1685,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 return Math.sqrt(d.y + d.dy);
                             });
 
-                        // Basic setup of page elements.
-                        initializeBreadcrumbTrail();
-                        drawLegend();
-                        d3.select("#qiaomulinxuji_togglelegend").on("click", toggleLegend);
 
                         //Bounding circle underneath the sunburst, to make it easier to detect
                         // when the mouse leaves the parent g.
@@ -1686,6 +1698,15 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 return (d.dx > 0);
                             });
 
+                        // Mapping of names to colors.
+                        var colors = d3.scale.category20c();
+
+
+                        // Basic setup of page elements.
+                        initializeBreadcrumbTrail();
+                        drawLegend();
+                        d3.select("#qiaomulinxuji_togglelegend").on("click", toggleLegend);
+
                         var path = svg.data([qiaomulinxuji]).selectAll("path")
                             .data(nodes)
                             .enter().append("svg:path")
@@ -1695,7 +1716,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("d", arc)
                             .attr("fill-rule", "evenodd")
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             })
                             .style("opacity", 1)
                             .on("mouseover", mouseover);
@@ -1816,7 +1837,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             entering.append("svg:polygon")
                                 .attr("points", breadcrumbPoints)
                                 .style("fill", function (d) {
-                                    return colors[d.name];
+                                    return colors(d.name);
                                 });
 
                             entering.append("svg:text")
@@ -1857,12 +1878,30 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 w: 125, h: 30, s: 3, r: 3
                             };
 
+                            var data_name=[];
+
+                            for(var i=1;i<nodes.length;i++){
+                                var j=0;
+                                while(j<data_name.length){
+                                    if(nodes[i].name==data_name[j].name){
+                                        break;
+                                    }
+                                    j++;
+                                }
+                                if(j==data_name.length){
+                                    data_name.push({
+                                        name:nodes[i].name,
+                                        area:nodes[i].area
+                                    })
+                                }
+                            };
+
                             var legend = d3.select("#qiaomulinxuji_legend").append("svg:svg")
                                 .attr("width", li.w)
-                                .attr("height", d3.keys(colors).length * (li.h + li.s));
+                                .attr("height", data_name.length * (li.h + li.s));
 
                             var g = legend.selectAll("g")
-                                .data(d3.entries(colors))
+                                .data(data_name)
                                 .enter().append("svg:g")
                                 .attr("transform", function (d, i) {
                                     return "translate(0," + i * (li.h + li.s) + ")";
@@ -1874,7 +1913,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 .attr("width", li.w)
                                 .attr("height", li.h)
                                 .style("fill", function (d) {
-                                    return d.value;
+                                    return d.area==0?'black': colors(d.name)
                                 })
                                 .on("mouseover", function () {
                                     d3.select(this)
@@ -1895,7 +1934,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 .attr("dy", "0.35em")
                                 .attr("text-anchor", "middle")
                                 .text(function (d) {
-                                    return d.key;
+                                    return d.name;
                                 });
                         }
 
@@ -1944,22 +1983,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         w: 75, h: 30, s: 3, t: 10
                     };
 
-                    // Mapping of names to colors.
-                    var colors = {
-                        "国家公益林": "#5687d1",
-                        "地方公益林": "#7b615c",
-                        "退耕还林工程": "#ded3c2",
-                        "其他林业工程": "#b95b36",
-                        "其他": "#a173d1",
-                        "一级保护": "#bbb42f",
-                        "二级保护": "#18bb08",
-                        "三级保护": "#8abbba",
-                        "乔木林": "#bbb695",
-                        "疏林地": "#6cbba8",
-                        "国家特别规定灌木林地": "#bb992e",
-                        "宜林荒山荒地": "#95bb5a",
-                        "苗圃地": "#bb7037"
-                    };
+
 
                     // Total size of all segments; we set this later, after loading the data.
                     var totalSize = 0;
@@ -2001,9 +2025,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         "children": root
                     }
 
-                    initializeBreadcrumbTrail();
-                    drawLegend();
-                    d3.select("#shengtaigongyilin_togglelegend").on("click", toggleLegend);
+
 
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
@@ -2017,6 +2039,14 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             return (d.dx > 0);
                         });
 
+                    // Mapping of names to colors.
+                    var colors = d3.scale.category20b();
+
+
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#shengtaigongyilin_togglelegend").on("click", toggleLegend);
+
                     var path = svg.data([shengtaigongyilin]).selectAll("path")
                         .data(nodes)
                         .enter().append("svg:path")
@@ -2026,7 +2056,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")
                         .style("fill", function (d) {
-                            return colors[d.name];
+                            return colors(d.name);
                         })
                         .style("opacity", 1)
                         .on("mouseover", mouseover);
@@ -2148,7 +2178,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         entering.append("svg:polygon")
                             .attr("points", breadcrumbPoints)
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             });
 
                         entering.append("svg:text")
@@ -2188,13 +2218,29 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var li = {
                             w: 160, h: 30, s: 3, r: 3
                         };
+                        var data_name=[];
 
+                        for(var i=1;i<nodes.length;i++){
+                            var j=0;
+                            while(j<data_name.length){
+                                if(nodes[i].name==data_name[j].name){
+                                    break;
+                                }
+                                j++;
+                            }
+                            if(j==data_name.length){
+                                data_name.push({
+                                    name:nodes[i].name,
+                                    area:nodes[i].area
+                                })
+                            }
+                        };
                         var legend = d3.select("#shengtaigongyilin_legend").append("svg:svg")
                             .attr("width", li.w)
-                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+                            .attr("height", data_name.length * (li.h + li.s));
 
                         var g = legend.selectAll("g")
-                            .data(d3.entries(colors))
+                            .data(data_name)
                             .enter().append("svg:g")
                             .attr("transform", function (d, i) {
                                 return "translate(0," + i * (li.h + li.s) + ")";
@@ -2206,7 +2252,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("width", li.w)
                             .attr("height", li.h)
                             .style("fill", function (d) {
-                                return d.value;
+                                return d.area==0?'black': colors(d.name)
                             })
                             .on("mouseover", function () {
                                 d3.select(this)
@@ -2227,7 +2273,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")
                             .text(function (d) {
-                                return d.key;
+                                return d.name;
                             });
                     }
 
@@ -2271,23 +2317,8 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         w: 75, h: 30, s: 3, t: 10
                     };
 
-                    // Mapping of names to colors.
-                    var scale=d3.scale.category20c();
 
-                    var colors = {
-                        "纯天然":scale(0),
-                        "国家特别规定灌木林地":scale(1),
-                        "沙棘":scale(2),
-                        "山生柳":scale(3),
-                        "金露梅":scale(4),
-                        "杜鹃":scale(5),
-                        "梭梭":scale(6),
-                        "其它灌木树种":scale(7),
-                        "其它柳类灌木":scale(8),
-                        "疏":scale(9),
-                        "中":scale(10),
-                        "密":scale(11)
-                    };
+
 
                     // Total size of all segments; we set this later, after loading the data.
                     var totalSize = 0;
@@ -2329,10 +2360,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         "children": root
                     }
 
-                    initializeBreadcrumbTrail();
-                    drawLegend();
-                    d3.select("#guanmulin_togglelegend").on("click", toggleLegend);
-
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
                     svg.append("svg:circle")
@@ -2344,6 +2371,12 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .filter(function (d) {
                             return (d.dx > 0);
                         });
+                    // Mapping of names to colors.
+                    var colors = d3.scale.category20c();
+
+                    initializeBreadcrumbTrail();
+                    drawLegend();
+                    d3.select("#guanmulin_togglelegend").on("click", toggleLegend);
 
                     var path = svg.data([guanmulin]).selectAll("path")
                         .data(nodes)
@@ -2354,7 +2387,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")
                         .style("fill", function (d) {
-                            return colors[d.name];
+                            return colors(d.name);
                         })
                         .style("opacity", 1)
                         .on("mouseover", mouseover);
@@ -2477,7 +2510,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         entering.append("svg:polygon")
                             .attr("points", breadcrumbPoints)
                             .style("fill", function (d) {
-                                return colors[d.name];
+                                return colors(d.name);
                             });
 
                         entering.append("svg:text")
@@ -2517,13 +2550,29 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var li = {
                             w: 160, h: 30, s: 3, r: 3
                         };
+                        var data_name=[];
 
+                        for(var i=1;i<nodes.length;i++){
+                            var j=0;
+                            while(j<data_name.length){
+                                if(nodes[i].name==data_name[j].name){
+                                    break;
+                                }
+                                j++;
+                            }
+                            if(j==data_name.length){
+                                data_name.push({
+                                    name:nodes[i].name,
+                                    area:nodes[i].area
+                                })
+                            }
+                        };
                         var legend = d3.select("#guanmulin_legend").append("svg:svg")
                             .attr("width", li.w)
-                            .attr("height", d3.keys(colors).length * (li.h + li.s));
+                            .attr("height", data_name.length * (li.h + li.s));
 
                         var g = legend.selectAll("g")
-                            .data(d3.entries(colors))
+                            .data(data_name)
                             .enter().append("svg:g")
                             .attr("transform", function (d, i) {
                                 return "translate(0," + i * (li.h + li.s) + ")";
@@ -2535,7 +2584,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("width", li.w)
                             .attr("height", li.h)
                             .style("fill", function (d) {
-                                return d.value;
+                                return d.area==0?'black': colors(d.name)
                             })
                             .on("mouseover", function () {
                                 d3.select(this)
@@ -2556,7 +2605,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "middle")
                             .text(function (d) {
-                                return d.key;
+                                return d.name;
                             });
                     }
 
