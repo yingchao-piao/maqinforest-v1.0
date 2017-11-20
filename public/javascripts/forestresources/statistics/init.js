@@ -112,11 +112,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 .attr("id", "tudimianji_container")
                 .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-            var partition = d3.layout.partition()
-                .size([2 * Math.PI, radius * radius])
-                .value(function (d) {
-                    return d.area;
-                });
+
 
             var arc = d3.svg.arc()
                 .startAngle(function (d) {
@@ -145,17 +141,24 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     "children": root
                 }
 
+
+
                 //Bounding circle underneath the sunburst, to make it easier to detect
                 // when the mouse leaves the parent g.
                 svg.append("svg:circle")
                     .attr("r", radius)
                     .style("opacity", 0);
 
-
+                var partition = d3.layout.partition()
+                    .size([2 * Math.PI, radius * radius])
+                    .value(function (d) {
+                        return d.area;
+                    });
                 var nodes = partition.nodes(tudimianji)
                     .filter(function (d) {
                         return (d.dx > 0);
-                    });
+                    })
+                    .sort(function(a, b) { return a.depth- b.depth;});
 
 
                 // Mapping of names to colors.
@@ -721,7 +724,8 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var nodes = partition.nodes(linzhongmianji)
                         .filter(function (d) {
                             return (d.dx > 0);
-                        });
+                        })
+                        .sort(function(a, b) { return a.depth- b.depth; });
 
                     // Mapping of names to colors.
                     var colors = d3.scale.category20();
@@ -1036,7 +1040,8 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var nodes = partition.nodes(linzhongxuji)
                             .filter(function (d) {
                                 return (d.dx > 0);
-                            });
+                            })
+                            .sort(function(a, b) { return a.depth- b.depth; });
 
                         // Mapping of names to colors.
                         var colors = d3.scale.category20();
@@ -1381,7 +1386,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var nodes = partition.nodes(qiaomulinmianji)
                         .filter(function (d) {
                             return (d.dx > 0);
-                        });
+                        })
+                        .sort(function(a, b) { return a.depth- b.depth; });
+
 
                     // Mapping of names to colors.
                     var colors = d3.scale.category20c();
@@ -1696,7 +1703,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var nodes = partition.nodes(qiaomulinxuji)
                             .filter(function (d) {
                                 return (d.dx > 0);
-                            });
+                            })
+                            .sort(function(a, b) { return a.depth- b.depth; });
+
 
                         // Mapping of names to colors.
                         var colors = d3.scale.category20c();
@@ -2037,7 +2046,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var nodes = partition.nodes(shengtaigongyilin)
                         .filter(function (d) {
                             return (d.dx > 0);
-                        });
+                        })
+                        .sort(function(a, b) { return a.depth- b.depth; });
+
 
                     // Mapping of names to colors.
                     var colors = d3.scale.category20c();
@@ -2370,7 +2381,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var nodes = partition.nodes(guanmulin)
                         .filter(function (d) {
                             return (d.dx > 0);
-                        });
+                        })
+                        .sort(function(a, b) { return a.depth- b.depth; });
+
                     // Mapping of names to colors.
                     var colors = d3.scale.category20c();
 
