@@ -2850,24 +2850,184 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             name: '国家公益林:公顷',
                             type: 'pie',
                             radius: [0, '15%'],
-                            center: ['50%', '50%'],
+                            center: ['50%', '45%'],
                             data: shiquandengji
                         },
                         {
                             name: '保护等级:公顷',
                             type: 'pie',
                             radius: ['20%', '35%'],
-                            center: ['50%', '50%'],
+                            center: ['50%', '45%'],
                             data: baohudengji
                         },
                         {
                             name: '不同起源:公顷',
                             type: 'pie',
                             radius: ['45%', '60%'],
-                            center: ['50%', '50%'],
+                            center: ['50%', '45%'],
                             data: qiyuan
                         }
                     ]
+                });
+
+            }
+
+        }
+    });
+
+    //林地质量等级t11
+    $.ajax({
+        url: '/forestresources/statistics/t11/' + xzcname,
+        type: 'GET',
+        dataType: 'text',
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert('error message: ' + errorThrown.toString());
+        },
+        success: function (res) {
+
+            var results = JSON.parse(res);
+
+            if (results.length == 0) {//某些县没有统计数据
+                document.getElementById("lindizhiliang_nodata").style.visibility = "visible";
+                document.getElementById("lindizhiliang_data").style.display = "none";
+            } else{
+                var lindizhiliang=[];
+
+                for(var i=0;i<results.length;i++){
+                    lindizhiliang.push({
+                        name:results[i].name,
+                        value:results[i].area,
+                        itemStyle: {
+                            normal:{
+                                label: {
+                                    show: function () {
+                                        if (lindizhiliang.area == 0) {
+                                            return false;
+                                        }
+                                    }(),
+                                    textStyle: {
+                                        formatter: "{b}",
+                                        fontWeight: 'normal',
+                                        fontSize: 14
+                                    }
+                                },
+                            },
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    })
+                }
+
+
+
+                var lindizhiliangEchart = echarts.init(document.getElementById('lindizhiliang_data'));
+                lindizhiliangEchart.setOption({
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} 公顷 ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        textStyle:{
+                            fontSize:14
+                        },
+                        data: ['I级','II级','III级','IV级','V级','无']
+                    },
+                    series:[
+                        {
+                            name: '林地质量等级',
+                            type: 'pie',
+                            radius : '50%',
+                            center: ['50%', '40%'],
+                            data: lindizhiliang
+
+                        }
+                    ]
+
+                });
+
+            }
+
+        }
+    });
+
+    //林地保护等级t12
+    $.ajax({
+        url: '/forestresources/statistics/t12/' + xzcname,
+        type: 'GET',
+        dataType: 'text',
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert('error message: ' + errorThrown.toString());
+        },
+        success: function (res) {
+
+            var results = JSON.parse(res);
+
+            if (results.length == 0) {//某些县没有统计数据
+                document.getElementById("lindibaohudengji_nodata").style.visibility = "visible";
+                document.getElementById("lindibaohudengji_data").style.display = "none";
+            } else{
+                var lindibaohudengji=[];
+
+                for(var i=0;i<results.length;i++){
+                    lindibaohudengji.push({
+                        name:results[i].name,
+                        value:results[i].area,
+                        itemStyle: {
+                            normal:{
+                                label: {
+                                    show: function () {
+                                        if (lindibaohudengji.area == 0) {
+                                            return false;
+                                        }
+                                    }(),
+                                    textStyle: {
+                                        formatter: "{b}",
+                                        fontWeight: 'normal',
+                                        fontSize: 14
+                                    }
+                                },
+                            },
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    })
+                }
+
+
+
+                var lindibaohudengjiEchart = echarts.init(document.getElementById('lindibaohudengji_data'));
+                lindibaohudengjiEchart.setOption({
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} 公顷 ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        textStyle:{
+                            fontSize:14
+                        },
+                        data: ['一级保护','二级保护','三级保护','无']
+                    },
+                    series:[
+                        {
+                            name: '林地保护等级',
+                            type: 'pie',
+                            radius : '50%',
+                            center: ['50%', '40%'],
+                            data: lindibaohudengji
+
+                        }
+                    ]
+
                 });
 
             }

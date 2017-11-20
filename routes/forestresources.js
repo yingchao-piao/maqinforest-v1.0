@@ -1137,10 +1137,179 @@ router.get('/statistics/t10/:xzc',function(req,res,next){
 //林地质量等级t11
 router.get('/statistics/t11/:xzc',function(req,res,next){
 
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
+        });
+    };
+    var fieldName={
+        "zl_dj":['I级','II级','III级','IV级','V级','无']
+    };
+    var lindizhiliang=function(fieldName){
+        var lindizhiliang=[];
+        for(var i=0;i<fieldName.zl_dj.length;i++){
+            lindizhiliang[i]={
+                area:0,
+                name:fieldName.zl_dj[i]
+            }
+        }
+        return lindizhiliang;
+    }(fieldName);
+    if(req.params.xzc==="玛沁县"){
+        pool.query(
+            ' select zl_dj,sum(mianji) as area ' +
+            ' from maqinxiandataedit ' +
+            ' group by zl_dj ',
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.zl_dj==''){
+                        value.zl_dj='无';
+                    }
+
+                    resultObj.push({
+                        name:value.zl_dj,
+                        area:value.area
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindizhiliang,singleresultObj);
+                });
+
+                res.send(lindizhiliang);
+            }
+        );
+    }else{
+        pool.query(
+            ' select zl_dj,sum(mianji) as area '+
+            ' from maqinxiandataedit where xiang=$1::text ' +
+            ' group by zl_dj ',[req.params.xzc],
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.zl_dj==''){
+                        value.zl_dj='无';
+                    }
+
+                    resultObj.push({
+                        name:value.zl_dj,
+                        area:value.area
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindizhiliang,singleresultObj);
+                });
+
+                res.send(lindizhiliang);
+            }
+        );
+    }
+
 });
 
 //林地保护等级面积t12
 router.get('/statistics/t12/:xzc',function(req,res,next){
 
+    var merge = function(obj,singleresultObj){
+        obj.forEach(function(value){
+            if(value.name===singleresultObj.name){
+                value.area=value.area+singleresultObj.area;
+                if(value.hasOwnProperty('children')&&singleresultObj.hasOwnProperty('children')) {
+                    merge(value['children'], singleresultObj['children'][0]);
+                }
+                return true;
+            }
+        });
+    };
+    var fieldName={
+        "baohudengji":['一级保护','二级保护','三级保护','无']
+    };
+    var lindibaohudengji=function(fieldName){
+        var lindibaohudengji=[];
+        for(var i=0;i<fieldName.baohudengji.length;i++){
+            lindibaohudengji[i]={
+                area:0,
+                name:fieldName.baohudengji[i]
+            }
+        }
+        return lindibaohudengji;
+    }(fieldName);
+    if(req.params.xzc==="玛沁县"){
+        pool.query(
+            ' select baohudengji,sum(mianji) as area ' +
+            ' from maqinxiandataedit ' +
+            ' group by baohudengji ',
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.baohudengji==''){
+                        value.baohudengji='无';
+                    }
+
+                    resultObj.push({
+                        name:value.baohudengji,
+                        area:value.area
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindibaohudengji,singleresultObj);
+                });
+
+                res.send(lindibaohudengji);
+            }
+        );
+    }else{
+        pool.query(
+            ' select baohudengji,sum(mianji) as area '+
+            ' from maqinxiandataedit where xiang=$1::text ' +
+            ' group by baohudengji ',[req.params.xzc],
+            function(err,result){
+                if(err){
+                    return console.error('error running query',err);
+                }
+                var resultObj =[];
+
+                var queryResult=result.rows;
+                queryResult.forEach(function(value){
+                    if(value.baohudengji==''){
+                        value.baohudengji='无';
+                    }
+
+                    resultObj.push({
+                        name:value.baohudengji,
+                        area:value.area
+                    })
+                });
+                resultObj.forEach(function(singleresultObj){
+                    merge(lindibaohudengji,singleresultObj);
+                });
+
+                res.send(lindibaohudengji);
+            }
+        );
+    }
+
 });
+
 module.exports = router;
