@@ -805,11 +805,9 @@ router.get('/statistics/t6/:xzc',function(req,res,next){
                     queryResult.forEach(function (value) {
                         if (value.yubidu <0.5) {
                             value.yubidu = "疏";
-                        }
-                        if (0.5 <= value.yubidu < 0.7) {
+                        }else if (value.yubidu>=0.5 && value.yubidu<0.7) {
                             value.yubidu = "中";
-                        }
-                        if (0.7 <= value.yubidu) {
+                        }else {
                             value.yubidu = "密";
                         }
                         resultObj.push({
