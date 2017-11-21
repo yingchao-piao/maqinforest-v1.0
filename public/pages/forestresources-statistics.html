@@ -22,9 +22,33 @@
     <script src="../assets/echarts.js"></script>
     <script src="../assets/echarts-all-3.js"></script>
     <script src="../assets/d3.v3.min.js"  type="text/javascript"></script>
+    <script src="http://ajax.microsoft.com/ajax/jQuery/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            //首先将#back-to-top隐藏
+            $("#back-to-top").hide();
+            //当滚动条的位置处于距顶部600像素以下时，跳转链接出现，否则消失
+            $(function () {
+                $(window).scroll(function(){
+                    if ($(window).scrollTop()>100){
+                        $("#back-to-top").fadeIn(500);
+                    }else{
+                        $("#back-to-top").fadeOut(500);
+                    }
+                });
+                //当点击跳转链接后，回到页面顶部位置
+                $("#back-to-top").click(function(){
+                    $('body,html').animate({scrollTop:0},500);
+                    return false;
+                });
+            });
+        });
+    </script>
+
 
 </head>
 <body>
+<p id="back-to-top"><a href="#top"><span></span></a></p>
 <div class="pusher">
     <div id="logo">
         <img class="ui circular image" src="../images/logo_base.png">
@@ -181,44 +205,8 @@
                     <h2 class="header" style="position:absolute">玛沁县</h2>
                     <img src="../images/maqin.png" class="ui centered medium image">
                 </div>
-                <div class="two wide column">
-                    <div class="ui inverted relaxed divided list">
-                        <div class="item">
-                            <div class="content">
-                                <h2 class="header">森林覆盖面积</h2>
-                                <div class="description">
-                                    <h1>2204</h1>MHa</div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="content">
-                                <h2 class="header">森林覆盖率</h2>
-                                <div class="description">
-                                    <h1>55.5</h1>%</div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="content">
-                                <h2 class="header">活立木蓄积量</h2>
-                                <div class="description">
-                                    <h1>1000</h1>平方米</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="three wide column" id="barEchart">
-                    <div class="ui inverted relaxed divided list">
-                        <div class="item">
-                            <div id="fugaimianji"></div>
-                        </div>
-                        <div class="item">
-                            <h2 class="header">森林覆盖面积增加</h2>
-                            <div class="description">
-                                <h1>12222222</h1>Ha
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
             </div>
             <div class="ui attached stackable pointing secondary teal menu" id="statisticnavbar">
                 <div class="ui fluid container">
@@ -325,7 +313,7 @@
                             <div id="linzhongxuji_main">
                                 <div id="linzhongxuji_chart">
                                     <div id="linzhongxuji_explanation">
-                                        <span id="linzhongxuji_percentage"></span><br/>
+                                        <span id="linzhongxuji_percentage" ></span><br/>
                                     </div>
                                 </div>
                             </div>

@@ -33,15 +33,17 @@ $('.ui.link.six.cards .blue.card').click(function() {
     $('#statisticresult').show();
     $('#tongji .column:first h2.header').text(xzcname);
     $('#tongji .column:first img').attr('src', imgsrc);
+/*
     $('#fugaimianji').css({
         'width': $('#barEchart').width(),
         'height': $('#tongji .column:nth-child(2) .item').outerHeight() * 2
     });
 
     var fugaimianjiEchart = echarts.init(document.getElementById('fugaimianji'));
+*/
 
     // 使用刚指定的配置项和数据显示图表。
-    fugaimianjiEchart.setOption({
+/*    fugaimianjiEchart.setOption({
         title: {
             subtext: '森林覆盖面积:MHa',
             subtextStyle: {
@@ -81,7 +83,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
             x2: 5,
             y2: 20
         }
-    });
+    });*/
     //各类土地面积t1
     $.ajax({
         url: '/forestresources/statistics/t1/' + xzcname,
@@ -185,7 +187,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 d3.select("#tudimianji_togglelegend").on("click", toggleLegend);
 
                 d3.select("#tudimianji_percentage")
-                    .text("总面积\n" + area_sum.toFixed(2) + "公顷");
+                    .text("总面积" + area_sum.toFixed(2) + "公顷");
                 d3.select("#tudimainji_explanation")
                     .style("visibility", "");
 
@@ -201,7 +203,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                     d3.select("#tudimianji_percentage")
-                        .text(d.value.toFixed(2) + "\n" + percentageString);
+                        .text(d.value.toFixed(2) + "公顷\n" + percentageString);
 
                     d3.select("#tudimianji_explanation")
                         .style("visibility", "");
@@ -437,17 +439,17 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 document.getElementById("senlinlinmu_nodata").style.visibility = "visible";
                 document.getElementById("senlinlinmu_data").style.display = "none";
             } else {
-                function toFixed_1(arr) {
+                function toFixed_2(arr) {
                     arr.forEach(function (value) {
-                        value.area = value.area.toFixed(1);
-                        value.stockvolume = value.stockvolume.toFixed(1);
+                        value.area = value.area.toFixed(2);
+                        value.stockvolume = value.stockvolume.toFixed(2);
                         if (value.hasOwnProperty('children')) {
-                            toFixed_1(value['children']);
+                            toFixed_2(value['children']);
                         }
                     });
-                }
+                };
 
-                toFixed_1(senlinlinmu);
+                toFixed_2(senlinlinmu);
                 var senlinlinmumianjiEchart = echarts.init(document.getElementById('senlinlinmumianji'));
                 var senlinlinmuxujiEchart = echarts.init(document.getElementById('senlinlinmuxuji'));
                 senlinlinmumianjiEchart.setOption({
@@ -766,7 +768,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                         d3.select("#linzhongmianji_percentage")
-                            .text(d.value.toFixed(2) + "\n" + percentageString);
+                            .text(d.value.toFixed(2) + "公顷\n" + percentageString);
 
                         d3.select("#linzhongmianji_explanation")
                             .style("visibility", "");
@@ -1083,7 +1085,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                             d3.select("#linzhongxuji_percentage")
-                                .text(d.value.toFixed(2) + "\n" + percentageString);
+                                .text(d.value.toFixed(2) + "\n立方米\n" + percentageString);
 
                             d3.select("#linzhongxuji_explanation")
                                 .style("visibility", "");
@@ -1430,7 +1432,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                         d3.select("#qiaomulinmianji_percentage")
-                            .text(d.value.toFixed(2) + "\n" + percentageString);
+                            .text(d.value.toFixed(2) + "公顷\n" + percentageString);
 
                         d3.select("#qiaomulinmianji_explanation")
                             .style("visibility", "");
@@ -1747,7 +1749,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                             d3.select("#qiaomulinxuji_percentage")
-                                .text(d.value.toFixed(2) + "\n" + percentageString);
+                                .text(d.value.toFixed(2) + "\n立方米\n" + percentageString);
 
                             d3.select("#qiaomulinxuji_explanation")
                                 .style("visibility", "");
@@ -2089,7 +2091,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                         d3.select("#shengtaigongyilin_percentage")
-                            .text(d.value.toFixed(2) + "\n" + percentageString);
+                            .text(d.value.toFixed(2) + "公顷\n" + percentageString);
 
                         d3.select("#shengtaigongyilin_explanation")
                             .style("visibility", "");
@@ -2423,7 +2425,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
 
                         d3.select("#guanmulin_percentage")
-                            .text(d.value.toFixed(2) + "\n" + percentageString);
+                            .text(d.value.toFixed(2) + "公顷\n" + percentageString);
 
                         d3.select("#guanmulin_explanation")
                             .style("visibility", "");
@@ -2666,7 +2668,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 while(i<lindijiegouxianzhuang.children.length){
                     sen_lin_lb.push({
                         name:lindijiegouxianzhuang.children[i].name,
-                        value:lindijiegouxianzhuang.children[i].area,
+                        value:lindijiegouxianzhuang.children[i].area.toFixed(2),
                         itemStyle:{
                             normal: {
                                 label: {
@@ -2697,7 +2699,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         for(var j=0;j<lindijiegouxianzhuang.children[i].children.length;j++){
                             qiyuan.push({
                                 name:lindijiegouxianzhuang.children[i].name +"/" + lindijiegouxianzhuang.children[i].children[j].name,
-                                value:lindijiegouxianzhuang.children[i].children[j].area,
+                                value:lindijiegouxianzhuang.children[i].children[j].area.toFixed(2),
                                 itemStyle:{
                                     normal: {
                                         label: {
@@ -2727,10 +2729,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     i++;
                 }
 
-                // console.log(sen_lin_lb);
-                // console.log(qiyuan);
-
-
 
                 var lindijiegouxianzhuangEchart = echarts.init(document.getElementById('lindijiegouxianzhuang_data'));
                 lindijiegouxianzhuangEchart.setOption({
@@ -2741,8 +2739,11 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     legend: {
                         orient: 'vertical',
                         x: 'left',
-                        data:['重点公益林地','一般公益林地','其他类别']/*'重点公益林地/纯天然','重点公益林地/植苗','重点公益林地/其他起源',
-                            '一般公益林地/纯天然','一般公益林地/植苗','一般公益林地/其他起源','其他类别/纯天然','其他类别/植苗','其他类别/其他起源'*/
+                        textStyle:{
+                            fontSize:14
+                        },
+                        data:['重点公益林地','一般公益林地','其他森林类别']
+
                     },
                     series: [
                         {
@@ -2797,7 +2798,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 while(i<guojiajigongyilin.children.length){
                     shiquandengji.push({
                         name:guojiajigongyilin.children[i].name,
-                        value:guojiajigongyilin.children[i].area,
+                        value:guojiajigongyilin.children[i].area.toFixed(2),
                         itemStyle:{
                             normal: {
                                 label: {
@@ -2828,7 +2829,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         for (var j = 0; j < guojiajigongyilin.children[i].children.length; j++) {
                             baohudengji.push({
                                 name: guojiajigongyilin.children[i].children[j].name,
-                                value: guojiajigongyilin.children[i].children[j].area,
+                                value: guojiajigongyilin.children[i].children[j].area.toFixed(2),
                                 itemStyle: {
                                     normal: {
                                         label: {
@@ -2858,7 +2859,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 for (var k = 0; k < guojiajigongyilin.children[i].children[j].children.length; k++) {
                                     qiyuan.push({
                                         name: guojiajigongyilin.children[i].children[j].name + "/" + guojiajigongyilin.children[i].children[j].children[k].name,
-                                        value: guojiajigongyilin.children[i].children[j].children[k].area,
+                                        value: guojiajigongyilin.children[i].children[j].children[k].area.toFixed(2),
                                         itemStyle: {
                                             normal: {
                                                 label: {
@@ -2958,7 +2959,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 for(var i=0;i<results.length;i++){
                     lindizhiliang.push({
                         name:results[i].name,
-                        value:results[i].area,
+                        value:results[i].area.toFixed(2),
                         itemStyle: {
                             normal:{
                                 label: {
@@ -3038,7 +3039,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 for(var i=0;i<results.length;i++){
                     lindibaohudengji.push({
                         name:results[i].name,
-                        value:results[i].area,
+                        value:results[i].area.toFixed(2),
                         itemStyle: {
                             normal:{
                                 label: {
