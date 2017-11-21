@@ -84,6 +84,9 @@ $('.ui.link.six.cards .blue.card').click(function() {
             y2: 20
         }
     });*/
+
+
+
     //各类土地面积t1
     $.ajax({
         url: '/forestresources/statistics/t1/' + xzcname,
@@ -142,6 +145,71 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     "name": "林地面积统计",
                     "children": root
                 }
+                //下载数据到excel表
+                $(document).ready(function(){
+                    $('#wwo').click(function(){
+                        var option={};
+
+                        option.fileName = tudimianji.name;
+
+                        var ld_qs=[];
+                        var sen_lin_lb=[];
+                        var dilei=[];
+
+                        var i=0;
+
+                        while(i<tudimianji.children.length){
+                            ld_qs.push({
+                                name:tudimianji.children[i].name,
+                                value:tudimianji.children[i].area.toFixed(2)
+
+                            });
+                            if(tudimianji.children[i].hasOwnProperty('children')) {
+                                for (var j = 0; j < tudimianji.children[i].children.length; j++) {
+                                    sen_lin_lb.push({
+                                        name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name,
+                                        value: tudimianji.children[i].children[j].area.toFixed(2)
+                                    });
+                                    if (tudimianji.children[i].children[j].hasOwnProperty('children')) {
+                                        for (var k = 0; k < tudimianji.children[i].children[j].children.length; k++) {
+                                            dilei.push({
+                                                name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name + "/" + tudimianji.children[i].children[j].children[k].name,
+                                                value: tudimianji.children[i].children[j].children[k].area.toFixed(2)
+
+                                            });
+                                        }
+                                    }
+                                }
+                            };
+                            i++;
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:ld_qs,
+                                sheetName:'林地权属',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['名称','面积']
+                            },
+                            {
+                                sheetData:sen_lin_lb,
+                                sheetName:'森林类别',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['名称','面积']
+                            },
+                            {
+                                sheetData:dilei,
+                                sheetName:'地类',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['名称','面积']
+                            }
+
+
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
 
 
 
@@ -421,6 +489,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
         }
 
     });
+
 
 
     //林木面积蓄积t2
