@@ -145,12 +145,13 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     "name": "林地面积统计",
                     "children": root
                 }
-                //下载数据到excel表
+
+                //下载t1数据到excel表
                 $(document).ready(function(){
-                    $('#wwo').click(function(){
+                    $('#tudimianji_download').click(function(){
                         var option={};
 
-                        option.fileName = tudimianji.name;
+                        option.fileName = xzcname + "_" + tudimianji.name;
 
                         var ld_qs=[];
                         var sen_lin_lb=[];
@@ -159,24 +160,37 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         var i=0;
 
                         while(i<tudimianji.children.length){
-                            ld_qs.push({
-                                name:tudimianji.children[i].name,
-                                value:tudimianji.children[i].area.toFixed(2)
+                            if(tudimianji.children[i].area==0){
+                                i++;
+                                continue;
+                            }else{
+                                ld_qs.push({
+                                    name:tudimianji.children[i].name,
+                                    value:tudimianji.children[i].area.toFixed(2)
 
-                            });
+                                });
+                            }
                             if(tudimianji.children[i].hasOwnProperty('children')) {
                                 for (var j = 0; j < tudimianji.children[i].children.length; j++) {
-                                    sen_lin_lb.push({
-                                        name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name,
-                                        value: tudimianji.children[i].children[j].area.toFixed(2)
-                                    });
+                                    if(tudimianji.children[i].children[j].area==0){
+                                        continue;
+                                    }else{
+                                        sen_lin_lb.push({
+                                            name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name,
+                                            value: tudimianji.children[i].children[j].area.toFixed(2)
+                                        });
+                                    }
                                     if (tudimianji.children[i].children[j].hasOwnProperty('children')) {
                                         for (var k = 0; k < tudimianji.children[i].children[j].children.length; k++) {
-                                            dilei.push({
-                                                name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name + "/" + tudimianji.children[i].children[j].children[k].name,
-                                                value: tudimianji.children[i].children[j].children[k].area.toFixed(2)
+                                            if(tudimianji.children[i].children[j].children[k].area==0){
+                                                continue;
+                                            }else{
+                                                dilei.push({
+                                                    name: tudimianji.children[i].name+"/"+tudimianji.children[i].children[j].name + "/" + tudimianji.children[i].children[j].children[k].name,
+                                                    value: tudimianji.children[i].children[j].children[k].area.toFixed(2)
 
-                                            });
+                                                });
+                                            }
                                         }
                                     }
                                 }
@@ -189,19 +203,19 @@ $('.ui.link.six.cards .blue.card').click(function() {
                                 sheetData:ld_qs,
                                 sheetName:'林地权属',
                                 sheetFilter:['name','value'],
-                                sheetHeader:['名称','面积']
+                                sheetHeader:['林地权属','面积/公顷']
                             },
                             {
                                 sheetData:sen_lin_lb,
                                 sheetName:'森林类别',
                                 sheetFilter:['name','value'],
-                                sheetHeader:['名称','面积']
+                                sheetHeader:['森林类别','面积/公顷']
                             },
                             {
                                 sheetData:dilei,
                                 sheetName:'地类',
                                 sheetFilter:['name','value'],
-                                sheetHeader:['名称','面积']
+                                sheetHeader:['地类','面积/公顷']
                             }
 
 
@@ -490,8 +504,6 @@ $('.ui.link.six.cards .blue.card').click(function() {
 
     });
 
-
-
     //林木面积蓄积t2
     $.ajax({
         url: '/forestresources/statistics/t2/' + xzcname,
@@ -507,6 +519,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (senlinlinmu.length == 0) {//某些县没有林地面积统计数据
                 document.getElementById("senlinlinmu_nodata").style.visibility = "visible";
                 document.getElementById("senlinlinmu_data").style.display = "none";
+                document.getElementById("senlinlinmu_download").style.display = "none";
             } else {
                 function toFixed_2(arr) {
                     arr.forEach(function (value) {
@@ -519,6 +532,50 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 };
 
                 toFixed_2(senlinlinmu);
+
+                //下载t2数据到excel表
+                $(document).ready(function(){
+                    $('#senlinlinmu_download').click(function(){
+                        var option={};
+
+                        option.fileName = xzcname + "_" + "森林林木面积蓄积统计";
+
+                        var data=[];
+                        data.push({
+                            name:senlinlinmu[0].name,
+                            area:senlinlinmu[0].area,
+                            stockvolume:senlinlinmu[0].stockvolume
+                        });
+
+                        var i=0;
+
+                        while(i<senlinlinmu[0].children.length){
+                            if(senlinlinmu[0].children[i].area==0){
+                                i++;
+                                continue;
+                            }else{
+                                data.push({
+                                    name:senlinlinmu[0].name+'/'+senlinlinmu[0].children[i].name,
+                                    area:senlinlinmu[0].children[i].area,
+                                    stockvolume:senlinlinmu[0].children[i].stockvolume
+
+                                });
+                            }
+                            i++;
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:data,
+                                sheetName:'森林林木面积蓄积量',
+                                sheetFilter:['name','area','stockvolume'],
+                                sheetHeader:['林木类别','面积/公顷','活立木蓄积量/立方米']
+                            }
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
                 var senlinlinmumianjiEchart = echarts.init(document.getElementById('senlinlinmumianji'));
                 var senlinlinmuxujiEchart = echarts.init(document.getElementById('senlinlinmuxuji'));
                 senlinlinmumianjiEchart.setOption({
@@ -731,8 +788,11 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (area_sum == 0) {//没有林种面积统计数据
                 document.getElementById("linzhongmianji_nodata").style.visibility = "visible";
                 document.getElementById("linzhongmianji_data").style.display = "none";
+                document.getElementById("linzhongmianji_download").style.visibility = "hidden";
                 document.getElementById("linzhongxuji_nodata").style.visibility = "visible";
                 document.getElementById("linzhongxuji_data").style.display = "none";
+                document.getElementById("linzhongxuji_download").style.visibility = "hidden";
+
             } else {
                 //林种面积统计
                 d3.json('/forestresources/statistics/t3/' + xzcname, function (error, root) {
@@ -742,6 +802,87 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         "children": root
                     }
                     //console.log(linzhongmianji)
+
+
+                    //下载t3_1数据到excel表
+                    $(document).ready(function(){
+                        $('#linzhongmianji_download').click(function(){
+                            var option={};
+
+                            option.fileName = xzcname + "_" + linzhongmianji.name;
+
+                            var linzhong=[];
+                            var dilei=[];
+                            var linzu=[];
+
+                            var i=0;
+
+                            while(i<linzhongmianji.children.length){
+                                if(linzhongmianji.children[i].area==0){
+                                    i++;
+                                    continue;
+                                }else{
+                                    linzhong.push({
+                                        name:linzhongmianji.children[i].name,
+                                        value:linzhongmianji.children[i].area.toFixed(2)
+
+                                    });
+                                }
+                                if(linzhongmianji.children[i].hasOwnProperty('children')) {
+                                    for (var j = 0; j < linzhongmianji.children[i].children.length; j++) {
+                                        if(linzhongmianji.children[i].children[j].area==0){
+                                            continue;
+                                        }else{
+                                            dilei.push({
+                                                name: linzhongmianji.children[i].name+"/"+linzhongmianji.children[i].children[j].name,
+                                                value: linzhongmianji.children[i].children[j].area.toFixed(2)
+                                            });
+                                        }
+                                        if (linzhongmianji.children[i].children[j].hasOwnProperty('children')) {
+                                            for (var k = 0; k < linzhongmianji.children[i].children[j].children.length; k++) {
+                                                if(linzhongmianji.children[i].children[j].children[k].area==0){
+                                                    continue;
+                                                }else{
+                                                    linzu.push({
+                                                        name: linzhongmianji.children[i].name+"/"+linzhongmianji.children[i].children[j].name + "/" + linzhongmianji.children[i].children[j].children[k].name,
+                                                        value: linzhongmianji.children[i].children[j].children[k].area.toFixed(2)
+
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                };
+                                i++;
+                            }
+
+                            option.datas=[
+                                {
+                                    sheetData:linzhong,
+                                    sheetName:'林种',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['林种','面积/公顷']
+                                },
+                                {
+                                    sheetData:dilei,
+                                    sheetName:'地类',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['地类','面积/公顷']
+                                },
+                                {
+                                    sheetData:linzu,
+                                    sheetName:'龄组',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['龄组','面积/公顷']
+                                }
+
+
+                            ];
+                            var toExcel=new ExportJsonExcel(option);
+                            toExcel.saveExcel();
+                        });
+                    });
+
                     // Dimensions of sunburst.
                     var width = 300;
                     var height = 300;
@@ -1050,6 +1191,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 if (stock_sum == 0) {
                     document.getElementById("linzhongxuji_nodata").style.visibility = "visible";
                     document.getElementById("linzhongxuji_data").style.display = "none";
+                    document.getElementById("linzhongxuji_download").style.visibility = "hidden";
                 }
                 else {
                     //林种蓄积量统计
@@ -1059,6 +1201,86 @@ $('.ui.link.six.cards .blue.card').click(function() {
                             "name": "林种活立木蓄积量统计",
                             "children": root
                         }
+
+                        //下载t3_2数据到excel表
+                        $(document).ready(function(){
+                            $('#linzhongxuji_download').click(function(){
+                                var option={};
+
+                                option.fileName = xzcname + "_" + linzhongxuji.name;
+
+                                var linzhong=[];
+                                var dilei=[];
+                                var linzu=[];
+
+                                var i=0;
+
+                                while(i<linzhongxuji.children.length){
+                                    if(linzhongxuji.children[i].stockvolume==0){
+                                        i++;
+                                        continue;
+                                    }else{
+                                        linzhong.push({
+                                            name:linzhongxuji.children[i].name,
+                                            value:linzhongxuji.children[i].stockvolume.toFixed(2)
+
+                                        });
+                                    }
+                                    if(linzhongxuji.children[i].hasOwnProperty('children')) {
+                                        for (var j = 0; j < linzhongxuji.children[i].children.length; j++) {
+                                            if(linzhongxuji.children[i].children[j].stockvolume==0){
+                                                continue;
+                                            }else{
+                                                dilei.push({
+                                                    name: linzhongxuji.children[i].name+"/"+linzhongxuji.children[i].children[j].name,
+                                                    value: linzhongxuji.children[i].children[j].stockvolume.toFixed(2)
+                                                });
+                                            }
+                                            if (linzhongxuji.children[i].children[j].hasOwnProperty('children')) {
+                                                for (var k = 0; k < linzhongxuji.children[i].children[j].children.length; k++) {
+                                                    if(linzhongxuji.children[i].children[j].children[k].stockvolume==0){
+                                                        continue;
+                                                    }else{
+                                                        linzu.push({
+                                                            name: linzhongxuji.children[i].name+"/"+linzhongxuji.children[i].children[j].name + "/" + linzhongxuji.children[i].children[j].children[k].name,
+                                                            value: linzhongxuji.children[i].children[j].children[k].stockvolume.toFixed(2)
+
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    };
+                                    i++;
+                                }
+
+                                option.datas=[
+                                    {
+                                        sheetData:linzhong,
+                                        sheetName:'林种',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['林种','活立木蓄积量/立方米']
+                                    },
+                                    {
+                                        sheetData:dilei,
+                                        sheetName:'地类',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['地类','活立木蓄积量/立方米']
+                                    },
+                                    {
+                                        sheetData:linzu,
+                                        sheetName:'龄组',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['龄组','活立木蓄积量/立方米']
+                                    }
+
+
+                                ];
+                                var toExcel=new ExportJsonExcel(option);
+                                toExcel.saveExcel();
+                            });
+                        });
+
                         // Dimensions of sunburst.
                         var width = 300;
                         var height = 300;
@@ -1395,8 +1617,11 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (area_sum == 0) {//没有面积统计数据
                 document.getElementById("qiaomulinmianji_nodata").style.visibility = "visible";
                 document.getElementById("qiaomulinmianji_data").style.display = "none";
+                document.getElementById("qiaomulinmianji_download").style.visibility = "hidden";
                 document.getElementById("qiaomulinxuji_nodata").style.visibility = "visible";
                 document.getElementById("qiaomulinxuji_data").style.display = "none";
+                document.getElementById("qiaomulinxuji_download").style.visibility = "hidden";
+
             } else {
                 //面积统计
                 d3.json('/forestresources/statistics/t4/' + xzcname, function (error, root) {
@@ -1405,6 +1630,85 @@ $('.ui.link.six.cards .blue.card').click(function() {
                         "name": "乔木林面积统计",
                         "children": root
                     }
+
+                    //下载t4_1数据到excel表
+                    $(document).ready(function(){
+                        $('#qiaomulinmianji_download').click(function(){
+                            var option={};
+
+                            option.fileName = xzcname + "_" + qiaomulinmianji.name;
+
+                            var qiyuan=[];
+                            var youshishuzhong=[];
+                            var linzu=[];
+
+                            var i=0;
+
+                            while(i<qiaomulinmianji.children.length){
+                                if(qiaomulinmianji.children[i].area==0){
+                                    i++;
+                                    continue;
+                                }else{
+                                    qiyuan.push({
+                                        name:qiaomulinmianji.children[i].name,
+                                        value:qiaomulinmianji.children[i].area.toFixed(2)
+
+                                    });
+                                }
+                                if(qiaomulinmianji.children[i].hasOwnProperty('children')) {
+                                    for (var j = 0; j < qiaomulinmianji.children[i].children.length; j++) {
+                                        if(qiaomulinmianji.children[i].children[j].area==0){
+                                            continue;
+                                        }else{
+                                            youshishuzhong.push({
+                                                name: qiaomulinmianji.children[i].name+"/"+qiaomulinmianji.children[i].children[j].name,
+                                                value: qiaomulinmianji.children[i].children[j].area.toFixed(2)
+                                            });
+                                        }
+                                        if (qiaomulinmianji.children[i].children[j].hasOwnProperty('children')) {
+                                            for (var k = 0; k < qiaomulinmianji.children[i].children[j].children.length; k++) {
+                                                if(qiaomulinmianji.children[i].children[j].children[k].area==0){
+                                                    continue;
+                                                }else{
+                                                    linzu.push({
+                                                        name: qiaomulinmianji.children[i].name+"/"+qiaomulinmianji.children[i].children[j].name + "/" + qiaomulinmianji.children[i].children[j].children[k].name,
+                                                        value: qiaomulinmianji.children[i].children[j].children[k].area.toFixed(2)
+
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                };
+                                i++;
+                            }
+
+                            option.datas=[
+                                {
+                                    sheetData:qiyuan,
+                                    sheetName:'起源',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['起源','面积/公顷']
+                                },
+                                {
+                                    sheetData:youshishuzhong,
+                                    sheetName:'优势树种',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['优势树种','面积/公顷']
+                                },
+                                {
+                                    sheetData:linzu,
+                                    sheetName:'龄组',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['龄组','面积/公顷']
+                                }
+
+
+                            ];
+                            var toExcel=new ExportJsonExcel(option);
+                            toExcel.saveExcel();
+                        });
+                    });
 
                     // Dimensions of sunburst.
                     var width = 300;
@@ -1712,15 +2016,95 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 if (stock_sum == 0) {
                     document.getElementById("qiaomulinxuji_nodata").style.visibility = "visible";
                     document.getElementById("qiaomulinxuji_data").style.display = "none";
+                    document.getElementById("qiaomulinxuji_download").style.visibility = "hidden";
                 }
                 else {
                     //蓄积量统计
                     d3.json('/forestresources/statistics/t4/' + xzcname, function (error, root) {
 
                         var qiaomulinxuji = {
-                            "name": "林种活立木蓄积量统计",
+                            "name": "乔木林活立木蓄积量统计",
                             "children": root
                         }
+
+                        //下载t4_2数据到excel表
+                        $(document).ready(function(){
+                            $('#qiaomulinxuji_download').click(function(){
+                                var option={};
+
+                                option.fileName = xzcname + "_" + qiaomulinxuji.name;
+
+                                var qiyuan=[];
+                                var youshishuzhong=[];
+                                var linzu=[];
+
+                                var i=0;
+
+                                while(i<qiaomulinxuji.children.length){
+                                    if(qiaomulinxuji.children[i].stockvolume==0){
+                                        i++;
+                                        continue;
+                                    }else{
+                                        qiyuan.push({
+                                            name:qiaomulinxuji.children[i].name,
+                                            value:qiaomulinxuji.children[i].stockvolume.toFixed(2)
+
+                                        });
+                                    }
+                                    if(qiaomulinxuji.children[i].hasOwnProperty('children')) {
+                                        for (var j = 0; j < qiaomulinxuji.children[i].children.length; j++) {
+                                            if(qiaomulinxuji.children[i].children[j].stockvolume==0){
+                                                continue;
+                                            }else{
+                                                youshishuzhong.push({
+                                                    name: qiaomulinxuji.children[i].name+"/"+qiaomulinxuji.children[i].children[j].name,
+                                                    value: qiaomulinxuji.children[i].children[j].stockvolume.toFixed(2)
+                                                });
+                                            }
+                                            if (qiaomulinxuji.children[i].children[j].hasOwnProperty('children')) {
+                                                for (var k = 0; k < qiaomulinxuji.children[i].children[j].children.length; k++) {
+                                                    if(qiaomulinxuji.children[i].children[j].children[k].stockvolume==0){
+                                                        continue;
+                                                    }else{
+                                                        linzu.push({
+                                                            name: qiaomulinxuji.children[i].name+"/"+qiaomulinxuji.children[i].children[j].name + "/" + qiaomulinxuji.children[i].children[j].children[k].name,
+                                                            value: qiaomulinxuji.children[i].children[j].children[k].stockvolume.toFixed(2)
+
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    };
+                                    i++;
+                                }
+
+                                option.datas=[
+                                    {
+                                        sheetData:qiyuan,
+                                        sheetName:'起源',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['起源','活立木蓄积量/立方米']
+                                    },
+                                    {
+                                        sheetData:youshishuzhong,
+                                        sheetName:'优势树种',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['优势树种','活立木蓄积量/立方米']
+                                    },
+                                    {
+                                        sheetData:linzu,
+                                        sheetName:'龄组',
+                                        sheetFilter:['name','value'],
+                                        sheetHeader:['龄组','活立木蓄积量/立方米']
+                                    }
+
+
+                                ];
+                                var toExcel=new ExportJsonExcel(option);
+                                toExcel.saveExcel();
+                            });
+                        });
                         // Dimensions of sunburst.
                         var width = 300;
                         var height = 300;
@@ -2053,6 +2437,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 if (root.length == 0) {//某些县没有林地面积统计数据
                     document.getElementById("shengtaigongyilin_nodata").style.visibility = "visible";
                     document.getElementById("shengtaigongyilin_data").style.display = "none";
+                    document.getElementById("shengtaigongyilin_download").style.visibility = "hidden";
                 } else {
                     var width = 500;
                     var height = 500;
@@ -2098,14 +2483,109 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var area_sum = 0;
                     for (var i = 0; i < root.length; i++) {
                         area_sum = area_sum + root[i].area;
-                    }
+                    };
 
                     var shengtaigongyilin = {
                         "name": "生态公益林面积统计",
                         "children": root
-                    }
+                    };
 
+                    //下载t5数据到excel表
+                    $(document).ready(function(){
+                        $('#shengtaigongyilin_download').click(function(){
+                            var option={};
 
+                            option.fileName = xzcname + "_" + shengtaigongyilin.name;
+
+                            var shiquandengji=[];
+                            var g_cheng_lb=[];
+                            var baohudengji=[];
+                            var dilei=[];
+
+                            var i=0;
+
+                            while(i<shengtaigongyilin.children.length){
+                                if(shengtaigongyilin.children[i].area==0){
+                                    i++;
+                                    continue;
+                                }else{
+                                    shiquandengji.push({
+                                        name:shengtaigongyilin.children[i].name,
+                                        value:shengtaigongyilin.children[i].area.toFixed(2)
+
+                                    });
+                                }
+                                if(shengtaigongyilin.children[i].hasOwnProperty('children')) {
+                                    for (var j = 0; j < shengtaigongyilin.children[i].children.length; j++) {
+                                        if(shengtaigongyilin.children[i].children[j].area==0){
+                                            continue;
+                                        }else{
+                                            g_cheng_lb.push({
+                                                name: shengtaigongyilin.children[i].name+"/"+shengtaigongyilin.children[i].children[j].name,
+                                                value: shengtaigongyilin.children[i].children[j].area.toFixed(2)
+                                            });
+                                        }
+                                        if (shengtaigongyilin.children[i].children[j].hasOwnProperty('children')) {
+                                            for (var k = 0; k < shengtaigongyilin.children[i].children[j].children.length; k++) {
+                                                if(shengtaigongyilin.children[i].children[j].children[k].area==0){
+                                                    continue;
+                                                }else{
+                                                    baohudengji.push({
+                                                        name: shengtaigongyilin.children[i].name+"/"+shengtaigongyilin.children[i].children[j].name + "/" + shengtaigongyilin.children[i].children[j].children[k].name,
+                                                        value: shengtaigongyilin.children[i].children[j].children[k].area.toFixed(2)
+
+                                                    });
+                                                }
+                                                if (shengtaigongyilin.children[i].children[j].children[k].hasOwnProperty('children')) {
+                                                    for (var m = 0; m < shengtaigongyilin.children[i].children[j].children[k].children.length; m++) {
+                                                        if(shengtaigongyilin.children[i].children[j].children[k].children[m].area==0){
+                                                            continue;
+                                                        }else{
+                                                            dilei.push({
+                                                                name: shengtaigongyilin.children[i].name+"/"+shengtaigongyilin.children[i].children[j].name + "/" + shengtaigongyilin.children[i].children[j].children[k].name+"/"+shengtaigongyilin.children[i].children[j].children[k].children[m].name,
+                                                                value: shengtaigongyilin.children[i].children[j].children[k].children[m].area.toFixed(2)
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                };
+                                i++;
+                            }
+
+                            option.datas=[
+                                {
+                                    sheetData:shiquandengji,
+                                    sheetName:'事权等级',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['事权等级','面积/公顷']
+                                },
+                                {
+                                    sheetData:g_cheng_lb,
+                                    sheetName:'工程类别',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['工程类别','面积/公顷']
+                                },
+                                {
+                                    sheetData:baohudengji,
+                                    sheetName:'保护等级',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['保护等级','面积/公顷']
+                                },
+                                {
+                                    sheetData:dilei,
+                                    sheetName:'地类',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['地类','面积/公顷']
+                                }
+
+                            ];
+                            var toExcel=new ExportJsonExcel(option);
+                            toExcel.saveExcel();
+                        });
+                    });
 
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
@@ -2389,6 +2869,8 @@ $('.ui.link.six.cards .blue.card').click(function() {
                 if (root.length == 0) {//某些县没有林地面积统计数据
                     document.getElementById("guanmulin_nodata").style.visibility = "visible";
                     document.getElementById("guanmulin_data").style.display = "none";
+                    document.getElementById("guanmulin_download").style.visibility = "hidden";
+
                 } else {
                     var width = 500;
                     var height = 500;
@@ -2435,12 +2917,110 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     var area_sum = 0;
                     for (var i = 0; i < root.length; i++) {
                         area_sum = area_sum + root[i].area;
-                    }
+                    };
 
                     var guanmulin = {
                         "name": "灌木林面积统计",
                         "children": root
-                    }
+                    };
+
+                    //下载t6数据到excel表
+                    $(document).ready(function(){
+                        $('#guanmulin_download').click(function(){
+                            var option={};
+
+                            option.fileName = xzcname + "_" + guanmulin.name;
+
+                            var qiyuan=[];
+                            var dilei=[];
+                            var youshishuzhong=[];
+                            var yubidu=[];
+
+                            var i=0;
+
+                            while(i<guanmulin.children.length){
+                                if(guanmulin.children[i].area==0){
+                                    i++;
+                                    continue;
+                                }else{
+                                    qiyuan.push({
+                                        name:guanmulin.children[i].name,
+                                        value:guanmulin.children[i].area.toFixed(2)
+
+                                    });
+                                }
+                                if(guanmulin.children[i].hasOwnProperty('children')) {
+                                    for (var j = 0; j < guanmulin.children[i].children.length; j++) {
+                                        if(guanmulin.children[i].children[j].area==0){
+                                            continue;
+                                        }else{
+                                            dilei.push({
+                                                name: guanmulin.children[i].name+"/"+guanmulin.children[i].children[j].name,
+                                                value: guanmulin.children[i].children[j].area.toFixed(2)
+                                            });
+                                        }
+                                        if (guanmulin.children[i].children[j].hasOwnProperty('children')) {
+                                            for (var k = 0; k < guanmulin.children[i].children[j].children.length; k++) {
+                                                if(guanmulin.children[i].children[j].children[k].area==0){
+                                                    continue;
+                                                }else{
+                                                    youshishuzhong.push({
+                                                        name: guanmulin.children[i].name+"/"+guanmulin.children[i].children[j].name + "/" + guanmulin.children[i].children[j].children[k].name,
+                                                        value: guanmulin.children[i].children[j].children[k].area.toFixed(2)
+
+                                                    });
+                                                }
+                                                if (guanmulin.children[i].children[j].children[k].hasOwnProperty('children')) {
+                                                    for (var m = 0; m < guanmulin.children[i].children[j].children[k].children.length; m++) {
+                                                        if(guanmulin.children[i].children[j].children[k].children[m].area==0){
+                                                            continue;
+                                                        }else{
+                                                            yubidu.push({
+                                                                name: guanmulin.children[i].name+"/"+guanmulin.children[i].children[j].name + "/" + guanmulin.children[i].children[j].children[k].name+"/"+guanmulin.children[i].children[j].children[k].children[m].name,
+                                                                value: guanmulin.children[i].children[j].children[k].children[m].area.toFixed(2)
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                };
+                                i++;
+                            }
+
+                            option.datas=[
+                                {
+                                    sheetData:qiyuan,
+                                    sheetName:'起源',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['起源','面积/公顷']
+                                },
+                                {
+                                    sheetData:dilei,
+                                    sheetName:'地类',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['地类','面积/公顷']
+                                },
+                                {
+                                    sheetData:youshishuzhong,
+                                    sheetName:'优势树种',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['优势树种','面积/公顷']
+                                },
+                                {
+                                    sheetData:yubidu,
+                                    sheetName:'郁闭度',
+                                    sheetFilter:['name','value'],
+                                    sheetHeader:['郁闭度','面积/公顷']
+                                }
+
+
+                            ];
+                            var toExcel=new ExportJsonExcel(option);
+                            toExcel.saveExcel();
+                        });
+                    });
 
                     //Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
@@ -2723,6 +3303,7 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (results.length == 0) {//某些县没有林地面积统计数据
                 document.getElementById("lindijiegouxianzhuang_nodata").style.visibility = "visible";
                 document.getElementById("lindijiegouxianzhuang_data").style.display = "none";
+                document.getElementById("lindijiegouxianzhuang_download").style.visibility = "hidden";
             } else {
 
                 var sen_lin_lb=[];
@@ -2731,6 +3312,65 @@ $('.ui.link.six.cards .blue.card').click(function() {
                     name:"林地现状统计",
                     children:results
                 };
+
+                //下载t9数据到excel表
+                $(document).ready(function(){
+                    $('#lindijiegouxianzhuang_download').click(function(){
+                        var option={};
+
+                        option.fileName = xzcname + "_" + lindijiegouxianzhuang.name;
+
+                        var sen_lin_lb=[];
+                        var qiyuan=[];
+
+
+                        var i=0;
+
+                        while(i<lindijiegouxianzhuang.children.length){
+                            if(lindijiegouxianzhuang.children[i].area==0){
+                                i++;
+                                continue;
+                            }else{
+                                sen_lin_lb.push({
+                                    name:lindijiegouxianzhuang.children[i].name,
+                                    value:lindijiegouxianzhuang.children[i].area.toFixed(2)
+
+                                });
+                            }
+                            if(lindijiegouxianzhuang.children[i].hasOwnProperty('children')) {
+                                for (var j = 0; j < lindijiegouxianzhuang.children[i].children.length; j++) {
+                                    if(lindijiegouxianzhuang.children[i].children[j].area==0){
+                                        continue;
+                                    }else{
+                                        qiyuan.push({
+                                            name: lindijiegouxianzhuang.children[i].name+"/"+lindijiegouxianzhuang.children[i].children[j].name,
+                                            value: lindijiegouxianzhuang.children[i].children[j].area.toFixed(2)
+                                        });
+                                    }
+                                }
+                            };
+                            i++;
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:sen_lin_lb,
+                                sheetName:'森林类别',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['森林类别','面积/公顷']
+                            },
+                            {
+                                sheetData:qiyuan,
+                                sheetName:'起源',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['起源','面积/公顷']
+                            }
+
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
 
                 var i=0;
 
@@ -2852,16 +3492,97 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (results.length == 0) {//某些县没有统计数据
                 document.getElementById("guojiajigongyilin_nodata").style.visibility = "visible";
                 document.getElementById("guojiajigongyilin_data").style.display = "none";
+                document.getElementById("guojiajigongyilin_download").style.visibility = "hidden";
             } else {
 
-                var shiquandengji=[];
-                var baohudengji=[];
-                var qiyuan=[];
+
                 var guojiajigongyilin={
                     name:"国家级公益林地分保护等级",
                     children:results
                 };
 
+                //下载t3_1数据到excel表
+                $(document).ready(function(){
+                    $('#guojiajigongyilin_download').click(function(){
+                        var option={};
+
+                        option.fileName = xzcname + "_" + guojiajigongyilin.name;
+
+                        var shiquandengji=[];
+                        var baohudengji=[];
+                        var qiyuan=[];
+
+                        var i=0;
+
+                        while(i<guojiajigongyilin.children.length){
+                            if(guojiajigongyilin.children[i].area==0){
+                                i++;
+                                continue;
+                            }else{
+                                shiquandengji.push({
+                                    name:guojiajigongyilin.children[i].name,
+                                    value:guojiajigongyilin.children[i].area.toFixed(2)
+
+                                });
+                            }
+                            if(guojiajigongyilin.children[i].hasOwnProperty('children')) {
+                                for (var j = 0; j < guojiajigongyilin.children[i].children.length; j++) {
+                                    if(guojiajigongyilin.children[i].children[j].area==0){
+                                        continue;
+                                    }else{
+                                        baohudengji.push({
+                                            name: guojiajigongyilin.children[i].name+"/"+guojiajigongyilin.children[i].children[j].name,
+                                            value: guojiajigongyilin.children[i].children[j].area.toFixed(2)
+                                        });
+                                    }
+                                    if (guojiajigongyilin.children[i].children[j].hasOwnProperty('children')) {
+                                        for (var k = 0; k < guojiajigongyilin.children[i].children[j].children.length; k++) {
+                                            if(guojiajigongyilin.children[i].children[j].children[k].area==0){
+                                                continue;
+                                            }else{
+                                                qiyuan.push({
+                                                    name: guojiajigongyilin.children[i].name+"/"+guojiajigongyilin.children[i].children[j].name + "/" + guojiajigongyilin.children[i].children[j].children[k].name,
+                                                    value: guojiajigongyilin.children[i].children[j].children[k].area.toFixed(2)
+
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                            i++;
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:shiquandengji,
+                                sheetName:'事权等级',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['事权等级','面积/公顷']
+                            },
+                            {
+                                sheetData:baohudengji,
+                                sheetName:'保护等级',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['保护等级','面积/公顷']
+                            },
+                            {
+                                sheetData:qiyuan,
+                                sheetName:'起源',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['起源','面积/公顷']
+                            }
+
+
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
+
+                var shiquandengji=[];
+                var baohudengji=[];
+                var qiyuan=[];
                 var i=0;
 
                 while(i<guojiajigongyilin.children.length){
@@ -3022,7 +3743,36 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (results.length == 0) {//某些县没有统计数据
                 document.getElementById("lindizhiliang_nodata").style.visibility = "visible";
                 document.getElementById("lindizhiliang_data").style.display = "none";
+                document.getElementById("lindizhiliang_download").style.visibility = "hidden";
             } else{
+
+                //下载t11数据到excel表
+                $(document).ready(function(){
+                    $('#lindizhiliang_download').click(function(){
+                        var option={};
+
+                        option.fileName = xzcname + "_" + "林地质量等级统计";
+                        var zhiliangdengji=[];
+                        for(var i=0;i<results.length;i++) {
+                            zhiliangdengji.push({
+                                name: results[i].name,
+                                value: results[i].area.toFixed(2),
+                            });
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:zhiliangdengji,
+                                sheetName:'质量等级',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['质量等级','面积/公顷']
+                            }
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
+
                 var lindizhiliang=[];
 
                 for(var i=0;i<results.length;i++){
@@ -3102,7 +3852,35 @@ $('.ui.link.six.cards .blue.card').click(function() {
             if (results.length == 0) {//某些县没有统计数据
                 document.getElementById("lindibaohudengji_nodata").style.visibility = "visible";
                 document.getElementById("lindibaohudengji_data").style.display = "none";
+                document.getElementById("lindibaohudengji_download").style.visibility = "hidden";
             } else{
+                //下载t12数据到excel表
+                $(document).ready(function(){
+                    $('#lindibaohudengji_download').click(function(){
+                        var option={};
+
+                        option.fileName = xzcname + "_" + "林地保护等级统计";
+                        var baohudengji=[];
+                        for(var i=0;i<results.length;i++) {
+                            baohudengji.push({
+                                name: results[i].name,
+                                value: results[i].area.toFixed(2),
+                            });
+                        }
+
+                        option.datas=[
+                            {
+                                sheetData:baohudengji,
+                                sheetName:'保护等级',
+                                sheetFilter:['name','value'],
+                                sheetHeader:['保护等级','面积/公顷']
+                            }
+                        ];
+                        var toExcel=new ExportJsonExcel(option);
+                        toExcel.saveExcel();
+                    });
+                });
+
                 var lindibaohudengji=[];
 
                 for(var i=0;i<results.length;i++){

@@ -28,7 +28,7 @@
         $(document).ready(function(){
             //首先将#back-to-top隐藏
             $("#back-to-top").hide();
-            //当滚动条的位置处于距顶部600像素以下时，跳转链接出现，否则消失
+            //当滚动条的位置处于距顶部100像素以下时，跳转链接出现，否则消失
             $(function () {
                 $(window).scroll(function(){
                     if ($(window).scrollTop()>100){
@@ -246,9 +246,12 @@
         </div>
 
         <!--tudimianji t1 d3-->
-        <input type="button" id="wwo" value="导出" />
+
         <div class="ui stackable centered grid" id="tudimianji" style="padding-top: 20px">
-            <div class="ui stackable centered grid container" id="tudimianji_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">各类土地面积统计</div>
+            <div class="ui stackable centered grid container" id="tudimianji_title" style="font-family: STFangsong;font-size: 30px;">各类土地面积统计</div>
+            <div class="ui container">
+                <button class="ui right floated button" id="tudimianji_download">数据下载</button>
+            </div>
             <div class="ui stackable centered grid" id="tudimianji_data">
                 <div id="tudimianji_main">
                     <div id="tudimianji_sequence" style="padding-top: 20px"></div>
@@ -259,7 +262,7 @@
                     </div>
                 </div>
                 <div id="tudimianji_sidebar" style="padding-top: 25px">
-                    <input type="checkbox" id="tudimianji_togglelegend" checked="checked"> 图例<br/>
+                    <div><input type="checkbox" id="tudimianji_togglelegend" checked="checked"> 图例<br/></div>
                     <div id="tudimianji_legend"></div>
                 </div>
             </div>
@@ -268,7 +271,10 @@
 
         <!--senlinlinmu t2 echarts-->
         <div id="senlinlinmu" style="padding-top: 20px;padding-bottom:20px">
-            <div class="text" id="senlinlinmu_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">森林林木面积蓄积统计</div>
+            <div class="text" id="senlinlinmu_title" style="font-family: STFangsong;font-size: 30px;">森林林木面积蓄积统计</div>
+            <div class="ui container">
+                <button class="ui right floated button" id="senlinlinmu_download" style="margin-right:20px">数据下载</button>
+            </div>
             <div class="text" id="senlinlinmu_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
             <div class="ui two column doubling stackable centered grid container" id="senlinlinmu_data">
                 <div class="column">
@@ -284,10 +290,13 @@
 
         <!--linzhongmianji t3 d3-->
         <div id="linzhong" style="padding-top: 20px;padding-bottom:20px">
-            <div class="text" id="linzhong_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林种面积蓄积统计</div>
+            <div class="text" id="linzhong_title" style="font-family: STFangsong;font-size: 30px;">林种面积蓄积统计</div>
             <div class="ui two column doubling stackable centered grid" id="linzhong_data" style="padding-top: 20px">
                 <div class="column" id="linzhongmianji">
                     <div class="ui stackable centered grid container" id="linzhongmianji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">林种面积统计</div>
+                    <div class="ui container">
+                        <button class="ui right floated button" id="linzhongmianji_download" style="margin-right:10px;margin-top:10px;width:85px;height:30px;font-size:10px;">数据下载</button>
+                    </div>
                     <div class="ui stackable centered grid container" id="linzhongmianji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
                     <div id="linzhongmianji_data">
                         <div id="linzhongmianji_sequence" style="padding-top: 20px"></div>
@@ -308,6 +317,9 @@
                 </div>
                 <div class="column" id="linzhongxuji">
                     <div class="ui stackable centered grid container" id="linzhongxuji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">林种活立木蓄积量统计</div>
+                    <div class="ui container">
+                        <button class="ui right floated button" id="linzhongxuji_download" style="margin-right:10px;margin-top:10px;width:85px;height:30px;font-size:10px;">数据下载</button>
+                    </div>
                     <div class="ui stackable centered grid container" id="linzhongxuji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
                     <div id="linzhongxuji_data">
                         <div id="linzhongxuji_sequence" style="padding-top: 20px"></div>
@@ -332,10 +344,13 @@
 
         <!--qiaomulin t4 d3-->
         <div id="qiaomulin" style="padding-top: 20px;padding-bottom:20px">
-            <div class="text" id="qiaomulin_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">乔木林面积蓄积统计</div>
+            <div class="text" id="qiaomulin_title" style="font-family: STFangsong;font-size: 30px;">乔木林面积蓄积统计</div>
             <div class="ui two column doubling stackable centered grid" id="qiaomulin_data" style="padding-top: 20px">
                 <div class="column" id="qiaomulinmianji">
                     <div class="ui stackable centered grid container" id="qiaomulinmianji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">乔木林面积统计</div>
+                    <div class="ui container">
+                        <button class="ui right floated button" id="qiaomulinmianji_download" style="margin-right:10px;margin-top:10px;width:85px;height:30px;font-size:10px;">数据下载</button>
+                    </div>
                     <div class="ui stackable centered grid container" id="qiaomulinmianji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
                     <div id="qiaomulinmianji_data">
                         <div id="qiaomulinmianji_sequence" style="padding-top: 20px"></div>
@@ -356,6 +371,9 @@
                 </div>
                 <div class="column" id="qiaomulinxuji">
                     <div class="ui stackable centered grid container" id="qiaomulinxuji_title" style="font-family: STFangsong;font-size: 22px;padding-top: 10px">乔木林活立木蓄积量统计</div>
+                    <div class="ui container">
+                        <button class="ui right floated button" id="qiaomulinxuji_download" style="margin-right:10px;margin-top:10px;width:85px;height:30px;font-size:10px;">数据下载</button>
+                    </div>
                     <div class="ui stackable centered grid container" id="qiaomulinxuji_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
                     <div id="qiaomulinxuji_data">
                         <div id="qiaomulinxuji_sequence" style="padding-top: 20px"></div>
@@ -380,7 +398,10 @@
 
         <!--shengtaigongyilin t5 d3-->
         <div class="ui stackable centered grid" id="shengtaigongyilin" style="padding-top: 20px">
-            <div class="ui stackable centered grid container" id="shengtaigongyilin_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">生态公益林面积统计</div>
+            <div class="ui stackable centered grid container" id="shengtaigongyilin_title" style="font-family: STFangsong;font-size: 30px;">生态公益林面积统计</div>
+            <div class="ui container">
+                <button class="ui right floated button" id="shengtaigongyilin_download" style="margin-right:20px">数据下载</button>
+            </div>
             <div class="ui stackable centered grid container" id="shengtaigongyilin_nodata" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;visibility: hidden">无统计结果</div>
             <div class="ui stackable centered grid" id="shengtaigongyilin_data">
                 <div id="shengtaigongyilin_main">
@@ -401,7 +422,13 @@
 
         <!--guanmulin t6 echarts-->
         <div class="ui stackable centered grid" id="guanmulin" style="padding-top: 20px">
-            <div class="ui stackable centered grid container" id="guanmulin_title" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">灌木林面积统计</div>
+            <div class="ui stackable centered grid container" id="guanmulin_title" style="font-family: STFangsong;font-size: 30px;">灌木林面积统计</div>
+            <div class="ui container">
+                <button class="ui right floated button" id="guanmulin_download" style="margin-right:20px">数据下载</button>
+            </div>
+            <div class="computer only row" id="guanmulin_nodata">
+                <div class="text" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;display: none">无统计结果</div>
+            </div>
             <div class="ui stackable centered grid" id="guanmulin_data">
                 <div id="guanmulin_main">
                     <div id="guanmulin_sequence" style="padding-top: 20px"></div>
@@ -425,6 +452,9 @@
             <div class="computer only row" id="lindijiegouxianzhuang_title">
                 <div class="text" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林地结构现状统计</div>
             </div>
+            <div class="ui container">
+                <button class="ui right floated button" id="lindijiegouxianzhuang_download" style="margin-right:20px">数据下载</button>
+            </div>
             <div class="computer only row" id="lindijiegouxianzhuang_nodata">
                 <div class="text" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;display: none">无统计结果</div>
             </div>
@@ -438,7 +468,10 @@
         <div class="ui centered grid" id="guojiajigongyilin" style="padding-top: 20px;padding-bottom:20px">
 
             <div class="computer only row" id="guojiajigongyilin_title">
-                <div class="text" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">国家级公益林地分保护等级</div>
+                <div class="text" style="font-family: STFangsong;font-size: 30px;">国家级公益林地分保护等级</div>
+            </div>
+            <div class="ui container">
+                <button class="ui right floated button" id="guojiajigongyilin_download" style="margin-right:20px">数据下载</button>
             </div>
             <div class="computer only row" id="guojiajigongyilin_nodata">
                 <div class="text" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;display: none">无统计结果</div>
@@ -455,6 +488,9 @@
             <div class="computer only row" id="lindizhiliang_title">
                 <div class="text" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林地质量等级</div>
             </div>
+            <div class="ui container">
+                <button class="ui right floated button" id="lindizhiliang_download" style="margin-right:20px">数据下载</button>
+            </div>
             <div class="computer only row" id="lindizhiliang_nodata">
                 <div class="text" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;display: none">无统计结果</div>
             </div>
@@ -468,7 +504,10 @@
         <div class="ui centered grid" id="lindibaohudengji" style="padding-top: 20px;padding-bottom:20px">
 
             <div class="computer only row" id="lindibaohudengji_title">
-                <div class="text" style="font-family: STFangsong;font-size: 30px;padding-top: 20px">林地保护等级</div>
+                <div class="text" style="font-family: STFangsong;font-size: 30px;">林地保护等级</div>
+            </div>
+            <div class="ui container">
+                <button class="ui right floated button" id="lindibaohudengji_download" style="margin-right:20px">数据下载</button>
             </div>
             <div class="computer only row" id="lindibaohudengji_nodata">
                 <div class="text" style="font-family:STFangsong;font-size: 22px;padding-top: 10px;display: none">无统计结果</div>

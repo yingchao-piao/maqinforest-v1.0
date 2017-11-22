@@ -43,6 +43,10 @@ p#back-to-top a span{
     border: 1px solid rgba(34, 36, 38, 0.15);
 }
 
+#tudimianji_title {
+    height: 40px;
+}
+
 #tudimianji_main {
     float: left;
     width: 600px;
